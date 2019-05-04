@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>Python字典内部实现 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">Python字典内部实现</p>
+            <br>
+            
+            <p>Saturday, May 4th 2019, 5:12 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <blockquote>
+<p>这一篇会比较长。和这个系列的文章一样，主要目标读者是自己，以及一些希望了解字典内部工作原理，并且已经在半路上的人。我会用Python代码翻译CPython的实现。考察对象包括3.6之前的普通字典，3.6之后的compact字典。重点放在字典的核心逻辑，会省略比如字典迭代、字典合并、缓冲池、查找时的变动检查等特性和细节。</p>
+</blockquote>
+<a id="more"></a> 
+<h1 id="新老字典大乱斗"><a href="#新老字典大乱斗" class="headerlink" title="新老字典大乱斗"></a>新老字典大乱斗</h1><h2 id="0-准备"><a href="#0-准备" class="headerlink" title="0. 准备"></a>0. 准备</h2><h3 id="字典应用场景"><a href="#字典应用场景" class="headerlink" title="字典应用场景"></a>字典应用场景</h3><p>参考源码中的这段<a href="https://github.com/python/cpython/blob/3.7/Objects/dictnotes.txt#L4" target="_blank" rel="noopener">说明</a>，先捋一下字典的应用场景，对字典有个更全面的认识。对后面了解字典内存优化也有帮助</p>
+<p>Python内部实现层面：</p>
+<pre><code> 1. 传递关键字参数。大小1-3，写少，读少
+ 2. 查找类方法。大小8-10，写少，读多
+ 3. 实例attribute，全局变量查找。大小不定，大概率4-10，频繁读写
+ 4. builtins。大小150左右，不写，频繁读。
+</code></pre><p>应用层面：</p>
+<ol>
+<li>动态映射。添加、删除、替换交替进行。比如服务发现中的注册、过期、更新</li>
+<li>成员测试。创建时写入key一次，之后基本不变，频繁调用__contains__()</li>
+<li>uniquification。主要工作发生在字典的创建过程中，对小范围的key反复读写，比如去重、Counter、反向索引</li>
+</ol>
+<h3 id="Hash-Table"><a href="#Hash-Table" class="headerlink" title="Hash Table"></a>Hash Table</h3><p>关于hash表的考量，同样来自源码的<a href="https://github.com/python/cpython/blob/3.7/Objects/dictobject.c#L134" target="_blank" rel="noopener">注释</a>，以下为个人意译</p>
+<p>Python选择开放地址法而不是拉链法，因为拉链法要维护额外的连接，开销更大</p>
+<p>大多数hash方案都依赖于一个“好”的hash函数，能出色地模拟随机性，均匀地散布key。但Python并没有沿着这条路走，它最重要的hash函数，针对int类型的，显得非常平常，可预期：</p>
+<pre><code class="python">  &gt;&gt;&gt;[hash(i) for i in range(4)]
+  [0, 1, 2, 3]
+</code></pre>
+<p>实际上这并没有想象中那么坏。在特定环境下，比如，在一个大小为$2^i$的符号表中，key是连续整型，那么直接使用key的hash值(就是key)最后i个bit作为索引，真滴非常快，还没有冲突，比随机算一个可能引发冲突的索引更有效</p>
+<p>但是另一方面，如果冲突确实发生了，想快速插入已经连被续填充的hash表，必须得有一个更精细的冲突解决策略。同时，使用低i位为索引这行为本身，也存在脆弱的极端情况，比如，考虑<code>[i &lt;&lt; 16 for i in range(20000)]</code>作为key，去填充$2^{15}$的hash表，那么取后15位就会出现index<strong>全为0</strong>的情况</p>
+<p>但是对这种特殊情况的处理不能损害常规情况下的处理速度，所以我们还是用低i位bit作为key在表中的index，剩下的仰仗于冲突解决策略。如果通常第一次查找就能找到我们所期待的key(事实证明，这也确实是常规情况，因为会把装载率控制在2/3以下)，那么像这样，把第一次index计算整得快一点，收效会很大。</p>
+<p>冲突解决方案的第一部分:</p>
+<pre><code class="python">j = hashvalue % 2**i # 第一次映射到index，直接使用较低的i位
+while not_found(j):
+    j = ((5*j)+1) % 2**i # 然后就可以按照特定顺序遍历index
+</code></pre>
+<p>对于$j\in[0,2^i)$，上式重复$2^i$次，会把$[0,2^i)$中每个数确切地再现一次。等于说，这是一个变相的遍历函数。比如对于容量为8的表，以0开头</p>
+<p>0 -&gt; 1 -&gt; 6 -&gt; 7 -&gt; 4 -&gt; 5 -&gt; 2 -&gt; 3 -&gt; 0 -&gt; 1 -&gt; 6 [重复]</p>
+<p>这种方式遍历和线性遍历相比有什么好处呢？大概就是在现实生活中，这种顺序的数字序列远比连续数字序列出现的概率小。如果两个hash值在index5冲突，后一个会去找index2，而不是index6，这样接下更可能出现的hash为index6的key就不会冲突。</p>
+<p>冲突解决方案的第二部分，就要在后续的每一步位置探测中都把hashvalue考虑进来。</p>
+<pre><code class="python">j = hashvalue % 2**i # 第一次映射到index，直接使用较低的i位
+perturb = hashvalue
+while not_found(j):    
+    perturb &gt;&gt;= PERTURB_SHIFT
+    j = ((5*j) + 1 + perturb) % 2**i # 然后使用perturb提供的信息进行探测下一个位置
+</code></pre>
+<p>探测依赖hashvalue所有bit位，因为通过+perturb，快速放大了那些不会影响初始位置的bit位之间的微小差异(毕竟只有后i位可以决定初始index嘛)。注意perturb是无符号数，所以最终会变为0，回归到第一部分的原始遍历函数，一定能找到一个空位。</p>
+<p>如何选择PERTUR_SHIFT的值？这需要一定的权衡。小一点，那么hashvalue的高位bit将<strong>更多</strong>地参与到探测序列生成中来；大一点，也能使高位bit<strong>更快速</strong>地影响序列生成，这对之前讨论的极端情况是有利的。最后实验得出5能够最小化冲突，当然4、6也差不到哪里去</p>
+<p>生成探测序列，<a href="http://code.activestate.com/recipes/578375/" target="_blank" rel="noopener">参考链接</a></p>
+<pre><code class="python">def gen_probes(hashvalue, mask):
+    &#39;Same sequence of probes used in the current dictionary design&#39;
+    PERTURB_SHIFT = 5
+    if hashvalue &lt; 0:
+        hashvalue = -hashvalue
+    i = hashvalue &amp; mask #取得第一次的index
+    yield i
+    perturb = hashvalue
+    while True: #循环开始
+        i = (5 * i + perturb + 1) &amp; 0xFFFFFFFFFFFFFFFF
+        yield i &amp; mask
+        perturb &gt;&gt;= PERTURB_SHIFT
+</code></pre>
+<h2 id="1-Legacy-Dictionary"><a href="#1-Legacy-Dictionary" class="headerlink" title="1. Legacy Dictionary"></a>1. Legacy Dictionary</h2><p>这里先介绍3.6之前的字典，关键参考的是《Python源码剖析》。</p>
+<h3 id="数据结构-amp-初始化"><a href="#数据结构-amp-初始化" class="headerlink" title="数据结构 &amp; 初始化"></a>数据结构 &amp; 初始化</h3><p>数据结构分为，1.储存键值的Entry；2.维护Entries的容器Dict</p>
+<p>PyDictEntry</p>
+<ul>
+<li>me_hash</li>
+<li>me_key</li>
+<li>me_value</li>
+</ul>
+<p>PyDictObject</p>
+<ul>
+<li><p>ma_fill: 被使用过的entry数， Active+Dummy</p>
+</li>
+<li><p>ma_used: 种正在被使用的entry数，Active</p>
+</li>
+<li><p>ma_mask: $2^n-1$，变相表达字典容量，减1为了方便与运算获得角标位置</p>
+</li>
+<li><p>ma_table：entries，储存key-value的entry集合</p>
+</li>
+<li><p>ma_lookup：查找方法，hash查找方法，针对key类型有优化</p>
+</li>
+<li><p>ma_smalltable: 字典的伴生entries，entry集合的容量为8，初始化时就申请了内存</p>
+</li>
+</ul>
+<p>PyDict_New</p>
+<ol>
+<li>查看缓冲池，重用或者新建</li>
+<li>新建: smalltable清零; ma_table指向ma_smalltable; ma_used = ma_fill = 0，ma_mask = 7，ma_lookup默认使用lookdict_string</li>
+</ol>
+<p><img src="https://s2.ax1x.com/2019/03/04/kOhJbj.png" alt="kOhJbj.png"></p>
+<pre><code class="python">DICT_MINISIZE = 8
+DUMMY = &quot;dummy&quot;
+
+class PyDictEntry:
+    def __init__(self):
+        self.me_hash = None
+        self.me_key = None
+        self.me_value = None
+    def __repr__(self):
+        if self.me_value:
+            s = f&quot;{self.me_key}-{self.me_value}&quot;
+            return f&quot;{s:&lt;5}&quot;
+        elif self.me_key:
+            assert self.me_key is DUMMY
+            return &quot;DUMMY&quot;
+        else:
+            return &quot;FREE &quot;
+
+class PyDictObject:
+    def __init__(self): # 这里忽略了缓冲池，可以使用__new__来模拟
+        self.ma_fill = 0
+        self.ma_used = 0
+        self.ma_mask = DICT_MINISIZE - 1
+        self.ma_smalltable = [PyDictEntry() for _ in range(DICT_MINISIZE)]
+        self.ma_table = self.ma_smalltable
+        self.lookup = dict_lookup
+
+    def __getitem__(self, key):
+        return PyDict_GetItem(self, key)
+    def __setitem__(self, key, value):
+        PyDict_SetItem(self, key ,value)
+    def __delitem__(self, key):
+        PyDict_DelItem(self, key)
+    def __repr__(self):
+        return repr(self.ma_table)
+
+# PyDict_SetItem(dc, key, value)在容量伸缩部分补齐
+
+def PyDict_GetItem(dc, key):
+    hashvalue = hash(key)
+    ep = dc.lookup(dc, key, hashvalue)
+    if ep.me_value is None:
+        raise KeyError(key)
+    return ep.me_value
+
+def PyDict_DelItem(dc, key):
+    dict_del(dc, key, hash(key))
+</code></pre>
+<h3 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h3><p>字典默认的是lookdict_string查找函数，这是一种针对key为string类型的字典做的优化。更通用的是lookdict版本，在key不是string的情况下工作。这里直接先看基础版本</p>
+<p>沿着冲突链，寻找两种中止：1. 未使用的entry；2.key匹配的entry。期间如果遇到了dummy entry，设置freeslot，在返回未使用的entry时，优先返回freeslot代表的dummy entry，方便重用entry。所以两种中止条件，共三种返回状态，1、空entry (key=value=NULL)，2、dummy entry (key=DUMMY,value=NULL)，3、active entry (key\value均不为NULL）</p>
+<pre><code class="python">DUMMY = &quot;dummy&quot;
+
+# lookdict重命名为dict_lookup
+def dict_lookup(dc, key, hashvalue):
+    freeslot = None
+    for i in gen_probes(hashvalue, dc.ma_mask):
+        entry = dc.ma_table[i]
+        # unused 直接返回
+        if entry.me_key is None:
+            return entry if freeslot is None else freeslot
+        # 冲突链上遇到的第一个墓碑，直接记下来，去下一个位置
+        if entry.me_key is DUMMY:
+            freeslot = entry
+        # 冲突链上有个好端端的key，所以检查一哈是不是我们想要的
+        else:
+            if (entry.me_key is key or  # 引用相同
+                entry.me_hash == hashvalue and  # 检查hash
+                    entry.me_key == key):  # 最后检查*最耗时*的相等检查
+                return entry
+</code></pre>
+<p>再说回lookdict_string的优化问题。查找里的性能瓶颈就是在检查key是否是目标key。本来可以直接使用<code>entry.key == key</code>来判断，但是不同的类型的比较操作性能差别很大，能避免就避免，于是先比较引用、hash。而lookdict_string的优化就是直接是由字符串的比较，省得还去找类型的比较函数</p>
+<h3 id="插入与删除"><a href="#插入与删除" class="headerlink" title="插入与删除"></a>插入与删除</h3><p>插入的想法是，先查找，三种返回状态，Active替换value，Dummy、空都要填充所用entry字段，并增加ma_used，注意空entry需要额外增加ma_fill</p>
+<p>删除的想法是，先查找，三种返回状态，Active和变为Dummy，ma_used减少，空和Dummy就抛出KeyError</p>
+<pre><code class="python">def dict_insert(dc, key, hashvalue, value):
+    entry = dc.lookup(dc, key, hashvalue)
+    # 正在使用的entry
+    if entry.me_value is not None:
+        entry.me_value = value
+    else:
+        if entry.me_key is None:  # 未被使用的entry
+            dc.ma_fill += 1
+        entry.me_hash = hashvalue
+        entry.me_key = key
+        entry.me_value = value
+        dc.ma_used += 1
+
+def dict_del(dc, key, hashvalue):
+    entry = dc.lookup(dc, key, hashvalue)
+    if entry.me_value is None:  # 空或者dummy，dummy出现在重复删除时
+        raise KeyError(key)
+    else:
+        entry.me_key = DUMMY
+        entry.me_hash = None
+        entry.me_value = None
+        dc.ma_used -=   
+</code></pre>
+<h3 id="容量伸缩"><a href="#容量伸缩" class="headerlink" title="容量伸缩"></a>容量伸缩</h3><p>字典的大小(ma_mask+1)必须为二次幂，而为了保证hash表的效率，使用过的entry应当是总体容量的2/3。也就是，当ma_fill超过(ma_size+1)的2/3，字典容量需要进行一次调整，调整的依据称为增长率</p>
+<p>Python各版本的增长率如下表</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>growth rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.x ~ 3.2</td>
+<td>active*4</td>
+</tr>
+<tr>
+<td>3.3</td>
+<td>active*2</td>
+</tr>
+<tr>
+<td>3.4~3.6</td>
+<td>active*2+capacity/2</td>
+</tr>
+<tr>
+<td>3.7</td>
+<td>active*3</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p> 具体在2.x中还有一个考虑内存的经验判断，这里不妨忽略掉：</p>
+<p> <code>growth_rate = ma_used * (2 if ma_used &gt; 50000 else 4)</code></p>
+</blockquote>
+<p>字典容量capacity，则是大于growth_rate的最小二次幂。</p>
+<p>根据这些信息，我们可以做出下面这个图</p>
+<p><img src="https://s2.ax1x.com/2019/03/05/kXt5ad.png" alt="kXt5ad.png"></p>
+<p>所以在3.2之前，有可能存在4倍扩容，而3.2之后，最大也就两倍扩容了。</p>
+<p>注意中间3.4~3.6的那个奇怪的增长率，实际上是个<a href="https://bugs.python.org/issue33205" target="_blank" rel="noopener">bug</a>，它阻止字典容量变小。</p>
+<p>什么时候检查这个临界点呢？插入数据的时候。如果确实插入了一个新的Active，并且满足容量边界触发条件，则开始resize。所以，<strong>删除字典entry的时候容量并不改变</strong>。</p>
+<p>resize的想法是，按照新的容量，新申请table，复位字典的字段，然后把原有的active放到新table中。当然还要考虑到smalltable的重用</p>
+<pre><code class="python">def PyDict_SetItem(dc, key, value):
+    hashvalue = hash(key)
+    n_used = dc.ma_used
+    dict_insert(dc, key, hashvalue, value)
+    if dc.ma_used &gt; n_used and dc.ma_fill*3 &gt;= (dc.ma_mask+1)*2:
+        growth_rate = dc.ma_used * (2 if dc.ma_used &lt; 50000 else 4)
+        dict_resize(dc, growth_rate)
+
+def dict_resize(dc, size):
+    # ma_mask+1必须为二次幂
+    print(&#39;----resize-----&#39;)
+    size = max(DICT_MINISIZE, 2 ** size.bit_length())
+    old_table = dc.ma_table
+    is_old_table_malloced = old_table is not dc.ma_smalltable
+    # 容量减小，应该使用smalltable
+    if size == DICT_MINISIZE:
+        new_table = dc.ma_smalltable
+        # 本来就是smalltable，还要resize，两种情况
+        if new_table is old_table:
+            # 1.被内部代码强制resize了，什么都不做
+            if dc.ma_fill == dc.ma_used:
+                return
+            # 2.存在删除操作
+            # 插入5个值，fill=used=5，删除，fill=5，used=0
+            # 再插入一个，fill=6, used=1, 触发resize，目的仅仅时删除dummy entry
+            assert dc.ma_fill &gt; dc.ma_used
+            small_copy = deepcopy(old_table)
+            old_table = small_copy  # 此时new_table和old_table不再是同一个identity
+    else:
+        new_table = [PyDictEntry() for _ in range(size)]
+
+    # 初始化新字典
+    assert new_table is not old_table
+    dc.ma_table = new_table
+    dc.ma_mask = size - 1
+    dc.ma_used = 0
+    dc.ma_fill = 0
+    for entry in new_table:
+        entry.me_hash = entry.me_key = entry.me_value = None
+
+    for entry in old_table:
+        if entry.me_value is not None:
+            dict_insert(dc, entry.me_key, entry.me_hash, entry.me_value)
+        # 剩下要么是未使用，要么是dummy
+        elif entry.me_key is not None:
+            assert entry.me_key is DUMMY
+
+    if is_old_table_malloced:
+        del old_table  
+</code></pre>
+<h3 id="小测试"><a href="#小测试" class="headerlink" title="小测试"></a>小测试</h3><pre><code class="python">def main():
+    d = PyDictObject()
+    op_map = dict(S=&#39;__setitem__&#39;, G=&#39;__getitem__&#39;, D=&#39;__delitem__&#39;)
+    operations = [
+        [&#39;S&#39;, [0, 10]],
+        [&#39;D&#39;, [0]],   #DUMMY
+        [&#39;S&#39;, [1,11]],
+        [&#39;D&#39;, [1]],   
+        [&#39;S&#39;, [2, 12]],
+        [&#39;D&#39;, [2]],
+        [&#39;S&#39;, [3, 13]],
+        [&#39;D&#39;, [3]],
+        [&#39;S&#39;, [4, 14]],
+        [&#39;D&#39;, [4]],
+        [&#39;S&#39;, [5, 15]], # fill到6，触发smalltable的resize
+        [&#39;S&#39;, [0, 10]],
+        [&#39;S&#39;, [1, 11]],
+        [&#39;S&#39;, [2, 12]],
+        [&#39;S&#39;, [3, 13]],
+        [&#39;S&#39;, [4, 14]],  # 插入成功后触发resize
+        [&#39;S&#39;, [6, 16]],  
+        [&#39;D&#39;, [0]],
+        [&#39;S&#39;, [16, 116]], # 0,1,6,15  0为DUMMY，1、6Active，15FREE，占用0DUMMY位
+        [&#39;S&#39;, [0, 10]], # 0,1,6,15  占15FREE位
+        [&#39;S&#39;, [7, 17]],
+        [&#39;D&#39;, [7]],
+        [&#39;D&#39;, [6]],
+        [&#39;D&#39;, [0]],
+        [&#39;D&#39;, [5]],
+        [&#39;D&#39;, [4]],
+        [&#39;D&#39;, [3]],
+        [&#39;D&#39;, [2]],
+        [&#39;D&#39;, [1]],
+        [&#39;S&#39;, [8, 18]],
+        [&#39;S&#39;, [9, 19]], # 触发容量变小的resize
+        [&#39;D&#39;, [999]] # let&#39;s end up with error
+    ]
+
+    for op in operations:
+        opt, opd = op
+        try:
+            getattr(d, op_map[opt])(*opd)
+        except KeyError as e:
+            print(repr(e), e)
+        if opt in (&#39;S&#39;, &#39;D&#39;):
+            print(d, d.ma_used, d.ma_fill)
+</code></pre>
+<h2 id="中场休息·讨论"><a href="#中场休息·讨论" class="headerlink" title="中场休息·讨论"></a>中场休息·讨论</h2><ul>
+<li><p>插入序</p>
+<p>插入的(key，value)具体在ma_table中的哪一个位置，是hashvalue决定的，和插入的顺序无关。当迭代字典时，自然无法按照插入顺序返回entry</p>
+</li>
+<li><p>共享key</p>
+<p>在最开始提到字典在Python中的一个典型应用，实例的attribute。大多数情况下，面向对象模式会在__init__里设置好实例字典里的key，而且之后较多更新而少增删。因此可以考虑在同一类型的实例中共享key，不同的实例维护不同的values就好。</p>
+<pre><code class="python"># legacy dictionary里是这样存的
+
+# colors instance
+ma_table = [[3086305163739458776, &#39;guido&#39;, &#39;blue&#39;]，
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],           
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+            [6038797773365358412, &#39;barry&#39;, &#39;green&#39;],
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+            [8949987314752724126, &#39;timmy&#39;, &#39;red&#39;]]
+
+# fruits instance
+ma_table = [[3086305163739458776, &#39;guido&#39;, &#39;apple&#39;]，
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],           
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+            [6038797773365358412, &#39;barry&#39;, &#39;banana&#39;],
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+            [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+            [8949987314752724126, &#39;timmy&#39;, &#39;cherry&#39;]]
+
+# 共享keys的大小依然是二次幂，values的大小就可以是2/3
+cached_keys = [2, None, None, None, 1, None, None, 0]
+# colors instance
+values = [[8949987314752724126, &#39;timmy&#39;, &#39;red&#39;],
+          [6038797773365358412, &#39;barry&#39;, &#39;green&#39;],
+          [3086305163739458776, &#39;guido&#39;, &#39;blue&#39;],
+          [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+          [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;]]
+
+# fruits instance
+values = [[8949987314752724126, &#39;timmy&#39;, &#39;cherry&#39;],
+          [6038797773365358412, &#39;barry&#39;, &#39;banana&#39;],
+          [3086305163739458776, &#39;guido&#39;, &#39;apple&#39;],
+          [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;],
+          [&#39;--&#39;, &#39;--&#39;, &#39;--&#39;]]
+</code></pre>
+<p>可以看到，将key和value分离，不仅在特定的场景下节约了内存，还保留了插入顺序。因为在单独的cached_keys中插入，角标递增，values天然满足插入序。沿着这个想法，对于那些普通的非实例字典，也可以采用key、value分离的思路来保证插入序，尽管节约内存空间这个目标可能无法实现了，因为这些字典并不共享key。</p>
+</li>
+</ul>
+<p>接下来，就看看Python3.7中，具体是怎样分离key和value</p>
+<h2 id="2-Compact-Dictionary"><a href="#2-Compact-Dictionary" class="headerlink" title="2. Compact Dictionary"></a>2. Compact Dictionary</h2><p>基于3.7实现。建议读3.7的源码，修了3.6的bug，而且整体流程也更加简洁。</p>
+<h3 id="Combined-or-Splited"><a href="#Combined-or-Splited" class="headerlink" title="Combined or Splited"></a>Combined or Splited</h3><p>中场讨论知道，key-value分离有两种典型的应用场景，由此分为combined(不共享key)和splited(共享key)两种字典。这俩数据结构是同一套，只是在个别字段上存在区别。</p>
+<p>然后把两种的区别总结如下：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>combined-table</th>
+<th>splited-table</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ma_values</td>
+<td>NULL</td>
+<td>不为NULL</td>
+</tr>
+<tr>
+<td>dk_refcnt</td>
+<td>=1</td>
+<td>&gt;=1，&gt;1时表明key正在被多个实例共享</td>
+</tr>
+<tr>
+<td>场景</td>
+<td>普通显式字典</td>
+<td>实例字典，容量为8，key为string类型</td>
+</tr>
+</tbody>
+</table>
+<p>关于Compact Dict的几个关键信息，参考<a href="https://www.python.org/dev/peps/pep-0412/" target="_blank" rel="noopener">PEP412</a>，<a href="https://bugs.python.org/issue28040" target="_blank" rel="noopener">issue28040</a></p>
+<ol>
+<li>由dict()或{}语法创建的显式字典，一开始就是combined，永远不会转换为split。</li>
+<li>当创建实例的__dict__字典时，会采用split-table，缓存到该类型里，可以让多个实例共享同样的key。当字典开始出现独立的变化，比如增加一个以数字为key的entry，或者破坏插入序(见第4点)，就会退化为combined-table </li>
+<li>由于split-table的存在，诞生了一种新的Pending的状态</li>
+</ol>
+<pre><code class="python">  # 1. Unused. 也被称为FREE、EMPTY 
+
+  # 2. Active.  index &gt;= 0, me_key != NULL and value != NULL 
+  #    注意这个value可能是dk_entries[index].me_value, 可能是ma_values[index]
+
+  # 3. Dummy.  index == DKIX_DUMMY  (combined only)
+
+  # 4. Pending. index &gt;= 0, key != NULL, and ma_values[index] == NULL  (split only)
+  #   Not yet inserted in split-table. 
+
+  class C:
+      pass
+
+  a, b = C(), C() # a、b共享keys
+  a.attr1, a.attr2 = 1, 2
+  # 现在b就有两个Pending状态的slot，attr1和attr2
+  b.attr1 = 11, b.attr2 = 12  # b填充pending状态，依然共享key
+  # 但是如果先b.attr2=12，b.attr1 = 12, 11就会破坏插入序，b的字典转换为combine。
+  # 或者b.attr3=13也会造成字典转换为combine
+</code></pre>
+<ol start="4">
+<li><p>resize时，splited也会转变为combined。有一个例外：如下C类的实例字典，初始化时有6个值，会触发resize，但是因为仅一个实例(利用dk_refcnt判断)，会立马转换为splited</p>
+<blockquote>
+<p>PyDict_SetItem() may call dictresize and convert split table into combined table. In such case, convert it to split table again and update type’s shared key only when this is <strong>the only dict</strong> sharing key with the type.<br>This is to allow using shared key in class like this:    </p>
+<pre><code class="python">class C:
+def init(self):
+  # one dict resize happens
+  self.a, self.b, self.c = 1, 2, 3
+  self.d, self.e, self.f = 4, 5, 6
+a = C()
+</code></pre>
+</blockquote>
+</li>
+</ol>
+<h3 id="数据结构-amp-初始化-1"><a href="#数据结构-amp-初始化-1" class="headerlink" title="数据结构 &amp; 初始化"></a>数据结构 &amp; 初始化</h3><p><img src="https://s2.ax1x.com/2019/03/06/kjOeCF.png" alt="kjOeCF.png"></p>
+<p>两个字典用的都基于相同数据结构，只是对各字段的使用有区别，如上图</p>
+<p>PyDictKeyEntry</p>
+<ul>
+<li>me_hash</li>
+<li>me_key</li>
+<li>me_value</li>
+</ul>
+<p>这就是原来的PyDictEntry，名字中加Key，因为这里的entry被安置到下面要提及的Keys对象中</p>
+<p>PyDictKeysObject</p>
+<ul>
+<li>dk_refcnt：当前Keys对象有多少个引用</li>
+<li>dk_size：字典容量，二次幂，等效原来的(ma_mask+1)。现在mask用宏计算。</li>
+<li>dk_lookup：查找函数，方便优化</li>
+<li>dk_usable: 初始化为dk_size的2/3，减到0时就resize字典</li>
+<li>dk_nentries: 等效原来的ma_fill，包含active和dummy</li>
+<li>dk_indices: 索引数组，大小同dk_size</li>
+<li>dk_entries: 这是紧随的一片地址，大小同dk_usable，安置entry，在C实现中没有直接指针，通过宏从dk_indices计算起始位置。split字典中每个entry的value都为NULL，因为它有专门的放置位置</li>
+</ul>
+<p>PyDictObject</p>
+<ul>
+<li>ma_used：正在使用entry，active</li>
+<li>ma_version_tag：每次修改字典会打新tag，和细节优化有关，这里不管啦</li>
+<li>ma_keys：PyDictKeysObject对象</li>
+<li>ma_values: split字典的value存在这里，split字典时申请dk_usable大小的空间</li>
+</ul>
+<p>新版本里没有smalltable了，因为smalltable不支持splited-table形式，在combined-table中等效于dk_entries</p>
+<pre><code class="python">from itertools import count
+
+DICT_MINISIZE = 8
+FREE = -1
+DUMMY = -2
+DICT_NEXT_VERSION = count().__next__
+SHARED_KEYS = None
+
+def growth_rate(dc):
+    return dc.ma_used * 3
+
+
+def dk_entries_at(dc, ix):
+    return dc.ma_keys.dk_entries[ix]
+
+
+def _is_splited_table(dc):
+    return dc.ma_values is not None
+
+
+class PyDictKeyEntry:
+    def __init__(self):
+        self.me_hash = None
+        self.me_key = None
+        self.me_value = None
+    def __repr__(self):
+        if self.me_key is not None:
+            if self.me_value is not None:
+                s = f&quot;{self.me_key}-{self.me_value}&quot;
+            else:
+                s = f&quot;{self.me_key}-*&quot;
+            return f&quot;{s:&lt;5}&quot;
+        else:
+            return f&quot;#    &quot;
+
+class PyDictKeysObject:
+    def __init__(self, size):
+        self.dk_refcnt = 1
+        self.dk_size = size
+        self.dk_lookup = dict_lookup
+        self.dk_usable = (self.dk_size &lt;&lt; 1) // 3
+        self.dk_nentries = 0
+        self.dk_indices = [FREE]*self.dk_size
+        self.dk_entries = [PyDictKeyEntry() for _ in range(self.dk_usable)]
+
+    def __repr__(self):
+        def inv_match(ix):
+            if ix == -1: return &#39;FREE &#39;
+            elif ix == -2: return &#39;DUMMY&#39;
+            else: return f&quot;{ix:&lt;5}&quot;
+        visual_indices = list(map(inv_match, self.dk_indices))
+        str_indices = f&quot;[{&#39;, &#39;.join(visual_indices)}]&quot;
+        return str_indices+&quot;\n&quot;+repr(self.dk_entries)
+
+
+class PyDictObject:
+    def __init__(self, keys, values):
+        self.ma_used = 0
+        self.ma_version_tage = DICT_NEXT_VERSION()
+        self.ma_keys = keys
+        self.ma_values = values
+
+    def __getitem__(self, key):
+        ix, _ = self.ma_keys.dk_lookup(self, key, hash(key))
+        if ix &lt; 0:
+            raise KeyError(key)
+        if _is_splited_table(self):
+            return self.ma_values[ix]
+        else:
+            return self.ma_keys.dk_entries[ix].me_value
+
+    def __setitem__(self, key, value):
+        dict_insert(self, key, hash(key), value) 
+
+    def __delitem__(self, key):
+        dict_del(self, key, hash(key))
+
+    def __repr__(self):
+        if _is_splited_table(self):
+            return f&quot;{repr(self.ma_keys)} {id(self.ma_keys)}\n{self.ma_values}&quot;
+        else:
+            return repr(self.ma_keys)
+
+
+def dict_factory(kind):
+    if kind == &#39;combine&#39;:
+        return PyDictObject(PyDictKeysObject(DICT_MINISIZE), None)
+    elif kind == &#39;split&#39;:
+        global SHARED_KEYS
+        if SHARED_KEYS is None:
+            SHARED_KEYS = PyDictKeysObject(DICT_MINISIZE)
+        else:
+            SHARED_KEYS.dk_refcnt += 1
+        values = [None for _ in range(SHARED_KEYS.dk_usable)]
+        return PyDictObject(SHARED_KEYS, values)
+</code></pre>
+<h3 id="查找-1"><a href="#查找-1" class="headerlink" title="查找"></a>查找</h3><p>这里查找的对象是dk_keys，一个数组，记录entry索引的那个，gen_probes没有变化</p>
+<pre><code class="python">def dict_lookup(dc, key, hashvalue):
+    # 因为分离的key和value，lookup返回实际上需要返回ix和pos
+    # ix是entry在dk_entries中的索引，pos是ix在dk_indices中的索引
+    # 3.6版本有freeslot，把pos由指针传出去
+    # 3.7版本没有freeslot，在需要的时候重新使用probe去获取pos
+    # 这里我们直接用python的tuple返回(ix, pos)
+    # 所以实际上还是返回了三种状态，free，dummy，匹配
+    freeslot = None
+    for i in gen_probes(hashvalue, dc.ma_keys.dk_size-1):
+        ix = dc.ma_keys.dk_indices[i]
+        assert ix &gt;= DUMMY
+        # unused 直接返回
+        if ix == FREE:
+            return (ix, i) if freeslot is None else (DUMMY, freeslot)
+        if ix == DUMMY:
+            freeslot = i
+        # ix &gt;= 0，所以检查一哈是不是我们想要的
+        else:
+            entry = dk_entries_at(dc, ix)
+            assert entry.me_key is not None
+            if (entry.me_key is key or  # 引用相同
+                entry.me_hash == hashvalue and  # 检查hash
+                    entry.me_key == key):  # 最后检查*最耗时*的相等检查
+                return (ix, i)
+        # key不对应，找下一个
+</code></pre>
+<h3 id="插入与删除-1"><a href="#插入与删除-1" class="headerlink" title="插入与删除"></a>插入与删除</h3><p>这里把resize的逻辑放到了insert里面。</p>
+<p>至于删除，主要要到把splited转变为combined再设置dummy的操作</p>
+<pre><code class="python">def dict_insert(dc, key, hashvalue, value):
+    ix, pos = dc.ma_keys.dk_lookup(dc, key, hashvalue)
+
+    if _is_splited_table(dc):
+        # 如果插入的顺序不同，停止共享
+        # 第一种情况，插入已存在的key(Pending态)，但是不是按照最开始的插入序
+        # 第二种情况，插入了新的key-value
+        if (ix &gt;= 0 and dc.ma_values[ix] is None and dc.ma_used != ix
+              or ix == FREE and dc.ma_used != dc.ma_keys.dk_nentries):
+            print(&quot;--back to combine--&quot;)
+            dict_resize(dc, growth_rate(dc))
+
+    # 正在使用的entry
+    if ix &gt;= 0:
+        if _is_splited_table(dc):
+            if dc.ma_values[ix] is None:
+                # pending状态
+                assert ix == dc.ma_used
+                dc.ma_used += 1
+            dc.ma_values[ix] = value
+        else:
+            entry = dk_entries_at(dc, ix)
+            assert entry.value is not None
+            entry.me_value = value
+        dc.ma_version_tage = DICT_NEXT_VERSION()
+    else:
+        # DUMMY或者FREE, 一定会增加一个key，value都是新鲜的active态，
+        # 等效于原来的ma_used+1检查
+        # 所以要检查一下字典大小，看是否resize
+        # 
+        if dc.ma_keys.dk_usable &lt;= 0:
+            dict_resize(dc, growth_rate(dc))
+            # 这句话C实现里没有，因为pos是按序去查找的
+            ix, pos = dc.ma_keys.dk_lookup(dc, key, hashvalue)        
+
+        # 在没有保证插入序的时候，这里会检查是否为FREE，是，ma_fill才会+1，
+        # 这样就悄无声息地重用了被删除entry在ma_table中的位置
+        # 但是因为保证插入序，不能重用删除entry在dk_entries中的位置
+        # ma_fill对标的dk_nentries无论FREE/DUMMY都会+1
+        # 重用的只能是删除key在dk_indices中的位置
+        true_ix = dc.ma_keys.dk_nentries
+        dc.ma_keys.dk_indices[pos] = true_ix 
+        # 要插入的entry在dk_nentries处
+        entry = dk_entries_at(dc, true_ix)
+
+        entry.me_hash = hashvalue
+        entry.me_key = key
+        if _is_splited_table(dc):
+            assert dc.ma_values[true_ix] is None
+            dc.ma_values[true_ix] = value
+        else:
+            entry.me_value = value
+        dc.ma_used += 1
+        dc.ma_version_tage = DICT_NEXT_VERSION()
+        dc.ma_keys.dk_usable -= 1
+        dc.ma_keys.dk_nentries += 1
+        assert dc.ma_keys.dk_usable &gt;= 0
+
+
+
+def dict_del(dc, key, hashvalue):
+    &quot;&quot;&quot;只有combine支持删除，split也要先转换
+    &quot;&quot;&quot;
+    ix, pos = dc.ma_keys.dk_lookup(dc, key, hashvalue)
+    if ix == FREE or ix == DUMMY:
+        raise KeyError(key)
+    if _is_splited_table(dc):
+        if dc.ma_values[ix] is None: #pending状态
+            raise KeyError(key)
+        # resize一个相等大小的keys，-1因为使用了bit_length()
+        print(&quot;----back to combine----&quot;)
+        dict_resize(dc, dc.ma_keys.dk_size-1)
+        # 因为pending的存在，resize重建indices可能造成ix, pos的变动
+        ix, pos = dc.ma_keys.dk_lookup(dc, key, hashvalue)
+        assert ix &gt;= 0 # 一定能找到
+
+    dc.ma_used -= 1
+    dc.ma_version_tage = DICT_NEXT_VERSION()
+    dc.ma_keys.dk_indices[pos] = DUMMY
+    entry = dk_entries_at(dc, ix)
+    entry.me_key = None
+    entry.me_value = None
+</code></pre>
+<h3 id="容量伸缩-1"><a href="#容量伸缩-1" class="headerlink" title="容量伸缩"></a>容量伸缩</h3><p>不论split还是combine，resize的关键点要把握住，ma_used是连接前后的关键值。resize完成后，nentries和ma_used相等。流程先分类别处理两种字典的value，保证ma_used个值被转移到新字典里，然后再重建dk_indices</p>
+<p>关于增长率，在之前讨论过。3.7改成了<code>active*3</code>，最多容量扩大一倍</p>
+<pre><code class="python">def dict_resize(dc, size):
+    &quot;&quot;&quot;
+    会把splited-table转变为combined-table，可以通过make_keys_shared转变回来
+    这就是在超过5个attr的实例字典初始化中要做的事情
+    &quot;&quot;&quot;
+
+    print(&#39;----resize-----&#39;)
+    size = max(DICT_MINISIZE, 2 ** size.bit_length())
+    old_keys = dc.ma_keys
+    old_entries = old_keys.dk_entries
+
+    dc.ma_keys = PyDictKeysObject(size)
+    assert dc.ma_keys.dk_usable &gt;= dc.ma_used
+
+    if _is_splited_table(dc):
+        # 转变为combine字典，把ma_values转移到dk_entries中
+        # split字典的ma_values一定密集，ma_used个值
+        # 小于等于dk_entries的个数，等于发生在没有pending时     
+        for i in range(dc.ma_used):
+            assert dc.ma_values[i] is not None
+            old_entry = old_entries[i]
+            new_entry = dk_entries_at(dc, i)
+            new_entry.me_key = old_entry.me_key
+            new_entry.me_hash = old_entry.me_hash
+            new_entry.me_value = dc.ma_values[i]
+        # KeysObject可能被其他实例对象引用，不能释放，仅释放ma_values
+        del dc.ma_values
+        dc.ma_values = None
+    else:
+        # 总共需要向新的dk_entries塞入ma_used个值
+        # 不存在DUMMY，完全复制
+        if old_keys.dk_nentries == dc.ma_used:
+            dc.ma_keys.dk_entries[:dc.ma_used] = old_entries[:dc.ma_used]
+        # 否则找出合格的ma_used个
+        else:
+            active_entry = [
+                entry for entry in old_entries if entry.me_value is not None]
+            assert len(active_entry) == dc.ma_used
+            dc.ma_keys.dk_entries[:dc.ma_used] = active_entry
+        # 因为是combine的字典，KeysObject不会被其他引用，所以需要释放掉
+        assert old_keys.dk_refcnt == 1
+        del old_entries
+        del old_keys
+
+    # 处理完entries和values，然后是根据密集的dk_entries重建dk_indices
+    mask = size - 1
+    for ix, entry in enumerate(dc.ma_keys.dk_entries[:dc.ma_used]):
+        for pos in gen_probes(entry.me_hash, mask):
+            if dc.ma_keys.dk_indices[pos] == FREE: # 不可能出现DUMMY
+                dc.ma_keys.dk_indices[pos] = ix
+                break
+    dc.ma_keys.dk_usable -= dc.ma_used
+    dc.ma_keys.dk_nentries = dc.ma_used
+</code></pre>
+<h3 id="小测试-1"><a href="#小测试-1" class="headerlink" title="小测试"></a>小测试</h3><pre><code class="python">def run_tests(d, operations):
+    op_map = dict(S=&#39;__setitem__&#39;, G=&#39;__getitem__&#39;, D=&#39;__delitem__&#39;)
+    for op in operations:
+        opt, opd = op
+        try:
+            getattr(d, op_map[opt])(*opd)
+        except KeyError as e:
+            print(repr(e), e)
+        if opt in (&#39;S&#39;, &#39;D&#39;):
+            print(d, d.ma_used, d.ma_keys.dk_nentries,
+                  d.ma_keys.dk_usable, &#39;\n&#39;)
+
+
+def main(): 
+    if len(sys.argv) &lt;= 1 or sys.argv[1] == &#39;combine&#39;:
+        d = dict_factory(&#39;combine&#39;)
+        operations = [
+            [&#39;S&#39;, [0, 10]],
+            [&#39;D&#39;, [0]],  # DUMMY
+            [&#39;S&#39;, [1, 11]],
+            [&#39;D&#39;, [1]],
+            [&#39;S&#39;, [2, 12]],
+            [&#39;D&#39;, [2]],
+            [&#39;S&#39;, [3, 13]],
+            [&#39;D&#39;, [3]],
+            [&#39;S&#39;, [4, 14]],
+            [&#39;D&#39;, [4]],
+            [&#39;S&#39;, [5, 15]],  # fill到6，resize
+            [&#39;S&#39;, [0, 10]],
+            [&#39;S&#39;, [1, 11]],
+            [&#39;S&#39;, [2, 12]],
+            [&#39;S&#39;, [3, 13]],
+            [&#39;S&#39;, [4, 14]],  # 插入成功后触发resize
+            [&#39;S&#39;, [6, 16]],
+            [&#39;D&#39;, [0]],
+            [&#39;S&#39;, [16, 116]],  # 0,1,6,15  0为DUMMY，1、6Active，15FREE，占用0DUMMY位, 
+                               #但是注意entries没有对应的那个
+            [&#39;S&#39;, [0, 10]],    # 0,1,6,15  占15FREE位
+            [&#39;S&#39;, [7, 17]],
+            [&#39;D&#39;, [7]],
+            [&#39;D&#39;, [6]],
+            [&#39;D&#39;, [0]],
+            [&#39;D&#39;, [5]],
+            [&#39;D&#39;, [4]],
+            [&#39;D&#39;, [3]],
+            [&#39;D&#39;, [2]],
+            [&#39;D&#39;, [1]],
+            [&#39;S&#39;, [8, 18]], # 这里比原来版本提前一轮resize，就是因为没有重用entries，nentries一直增加
+            [&#39;S&#39;, [9, 19]],  
+            [&#39;D&#39;, [999]]  # let&#39;s end up with error
+        ]
+        run_tests(d, operations)
+
+    elif sys.argv[1] == &#39;split&#39;:
+        d1 = dict_factory(&#39;split&#39;)
+        d2 = dict_factory(&#39;split&#39;)
+        run_tests(d1, [[&#39;S&#39;, [0, 10]], [&#39;S&#39;, [1, 11]]])
+        run_tests(d2, [[&#39;S&#39;, [0, 20]], [&#39;S&#39;, [1, 21]]])
+        run_tests(d2, [[&#39;S&#39;, [2, 22]]])
+        # 插入序改变，退化
+        run_tests(d1, [[&#39;S&#39;, [3, 13]], [&#39;S&#39;, (4, 14)], [&#39;D&#39;, (3,)]]) 
+        # 删除，也退化
+        run_tests(d2, [[&#39;D&#39;, (2,)]])   
+</code></pre>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ul>
+<li>应该更能理解__slot__在做什么。一个实例字典，都要殚精竭虑地share key来减少内存使用。那么直接定义slot，把字典变成tuple岂不美滋滋？</li>
+</ul>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Python</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;O</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint');
+              prettyPrint();
+          })
+      </script>
+    
+  
+
+</body>
+</html>
