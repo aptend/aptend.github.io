@@ -88,7 +88,7 @@
                 <blockquote>
 <p>这一篇会比较长。和这个系列的文章一样，主要目标读者是自己，以及一些希望了解字典内部工作原理，并且已经在半路上的人。我会用Python代码翻译CPython的实现。考察对象包括3.6之前的普通字典，3.6之后的compact字典。重点放在字典的核心逻辑，会省略比如字典迭代、字典合并、缓冲池、查找时的变动检查等特性和细节。</p>
 </blockquote>
-<a id="more"></a> 
+<a id="more"></a>
 <h1 id="新老字典大乱斗"><a href="#新老字典大乱斗" class="headerlink" title="新老字典大乱斗"></a>新老字典大乱斗</h1><h2 id="0-准备"><a href="#0-准备" class="headerlink" title="0. 准备"></a>0. 准备</h2><h3 id="字典应用场景"><a href="#字典应用场景" class="headerlink" title="字典应用场景"></a>字典应用场景</h3><p>参考源码中的这段<a href="https://github.com/python/cpython/blob/3.7/Objects/dictnotes.txt#L4" target="_blank" rel="noopener">说明</a>，先捋一下字典的应用场景，对字典有个更全面的认识。对后面了解字典内存优化也有帮助</p>
 <p>Python内部实现层面：</p>
 <pre><code> 1. 传递关键字参数。大小1-3，写少，读少
@@ -118,7 +118,7 @@ while not_found(j):
 <p>对于$j\in[0,2^i)$，上式重复$2^i$次，会把$[0,2^i)$中每个数确切地再现一次。等于说，这是一个变相的遍历函数。比如对于容量为8的表，以0开头</p>
 <p>0 -&gt; 1 -&gt; 6 -&gt; 7 -&gt; 4 -&gt; 5 -&gt; 2 -&gt; 3 -&gt; 0 -&gt; 1 -&gt; 6 [重复]</p>
 <p>这种方式遍历和线性遍历相比有什么好处呢？大概就是在现实生活中，这种顺序的数字序列远比连续数字序列出现的概率小。如果两个hash值在index5冲突，后一个会去找index2，而不是index6，这样接下更可能出现的hash为index6的key就不会冲突。</p>
-<p>冲突解决方案的第二部分，就要在后续的每一步位置探测中都把hashvalue考虑进来。</p>
+<p>冲突解决方案的第二部分，就要在后续的每一步位置探测中都把hashvalue考虑进来。如果不考虑hashvalue，那么后i位相同的hashvalue所产生的探测序列都是一样的，这并不是一个高效的冲突解决方案。</p>
 <pre><code class="python">j = hashvalue % 2**i # 第一次映射到index，直接使用较低的i位
 perturb = hashvalue
 while not_found(j):    
@@ -153,7 +153,7 @@ while not_found(j):
 <ul>
 <li><p>ma_fill: 被使用过的entry数， Active+Dummy</p>
 </li>
-<li><p>ma_used: 种正在被使用的entry数，Active</p>
+<li><p>ma_used: 正在被使用的entry数，Active</p>
 </li>
 <li><p>ma_mask: $2^n-1$，变相表达字典容量，减1为了方便与运算获得角标位置</p>
 </li>
@@ -708,7 +708,7 @@ def dict_factory(kind):
 
         # 在没有保证插入序的时候，这里会检查是否为FREE，是，ma_fill才会+1，
         # 这样就悄无声息地重用了被删除entry在ma_table中的位置
-        # 但是因为保证插入序，不能重用删除entry在dk_entries中的位置
+        # 但是因为保证插入序，不能重用删除的entry在dk_entries中的位置
         # ma_fill对标的dk_nentries无论FREE/DUMMY都会+1
         # 重用的只能是删除key在dk_indices中的位置
         true_ix = dc.ma_keys.dk_nentries
@@ -875,7 +875,17 @@ def main():
         run_tests(d2, [[&#39;D&#39;, (2,)]])   
 </code></pre>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ul>
-<li>应该更能理解__slot__在做什么。一个实例字典，都要殚精竭虑地share key来减少内存使用。那么直接定义slot，把字典变成tuple岂不美滋滋？</li>
+<li>Python字典的hash策略选择的是<strong>开放地址法</strong>，因为拉链法要维护额外的连接，比如链表的指针，开销更大。</li>
+<li>开放地址法的冲突解决方案，总共有两步：<ol>
+<li>找到一种基本的、人类生活中<strong>出现概率较小的索引序列</strong>，比如<code>idx = (5*idx+1) % 2**i</code></li>
+<li>在基本序列基础上，每一步引入hashvalue的影响，以免hashvalue第一次确定的索引相同后，之后每次产生的新索引都相同(即<strong>探测链相同</strong>)</li>
+</ol>
+</li>
+<li>为什么3.6之后的字典能够保证插入序？因为keys和values分离了，想象keys，values都是列表，每次插入新值，values都按顺序写入值。即使发生删除，values中出现空位后，再插入值，新值也会按顺序出现在最后。探测链上的DUMMY值，只会出现在keys中，所以keys中因为删除出现的空位是可以被复用的。</li>
+<li>字典的容量伸缩机制？字典的总容量(keys的大小)，一直都是二次幂，当装载率（active+dummy）超过容量的2/3，就会触发resize，调整总容量，重新分配新的内存，把因删除产生的dummy抹除。调整的总容量，目前3.7版本的一次调整，最多翻倍，最少可以回到8的初始值。</li>
+<li>现在应该更能理解__slots__在做什么。一个实例字典，都要殚精竭虑地share key来减少内存使用。那么直接定义slots，让额外的__dict__消失岂不美滋滋？也就是《Fluent Python》中强调的，__slots__的本质就是减少内存，不是给你用来做限制的。</li>
+<li>再黑魔法都是人写出来的，消除神秘感，也算是增强自己的信心，不要怕。一步一步做，他们也会写出bug啊。看Raymond的演讲，知道方案也是慢慢深入的，没有一步登天。</li>
+<li>我画图有点好看，Doge。</li>
 </ul>
 
                 <hr>
@@ -897,9 +907,10 @@ def main():
         <div class="d-none d-md-block col-md-2">
             
   <div id="toc" class="py-5">
-    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
     <div id="tocbot"></div>
   </div>
+
 
         </div>
     </div>        
