@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>Advent of Code 2018 回顾 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">Advent of Code 2018 回顾</p>
+            <br>
+            
+            <p>Sunday, June 16th 2019, 5:12 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <blockquote>
+<p>在AoC里狗刨的20天。</p>
+</blockquote>
+<a id="more"></a>
+<p><img src="https://s2.ax1x.com/2019/06/16/V7J4aT.gif" alt="V7J4aT.gif"></p>
+<p>从哪知道AoC的？已经记不清了。但是，故事的收尾，我总结为，两个“真的”，两个“重要”。</p>
+<p><strong>菜。我是真的菜。</strong></p>
+<p><strong>厉害，排行榜上的人是真的厉害</strong>。</p>
+<p>总排行第4，Robert Xiao。没想到在这儿还能遇到。CMU FIG组成员，论文<a href="https://www.robertxiao.ca/research/viband/" target="_blank" rel="noopener">ViBand</a>当时都给我看傻了，视频演出效果简直梦幻。个个都是人才，十几二十分钟就把问题解决了。</p>
+<p>我菜嘛，那就不谈了。都没敢定时做，把题盘清楚了，老老实实写出来就是我现阶段的目标。既然因为菜，就要多总结，希望有所成长</p>
+<p><strong>基础算法很重要</strong></p>
+<p><strong>代码的可读性很重要</strong></p>
+<p>我做到第22题，是真的做不动，一直在徘徊：想知道一个点到起点的最短距离，就需要知道周围四个点的最短距离，可这样是循环依赖的，看不到出口。到reddit上，才确认要用Dijkstra算法，于是把算法书掏出来，老老实实地看完有向图和最短路径章节，做好笔记，这才到23题上成功运用。</p>
+<p>最近也在跟朋友学习乒乓球，越发认识到基本功的重要程度。正手攻球都不稳定，打的都是运气乒乓球。牢记基本概念，在概念定理的基础上去适应问题。</p>
+<p>代码的可读性很重要。这个说来也巧，我在网上搜AoC的时候，看到了Elixir的作者Jose Valim在Twitch上用Exilir做AoC，仔细、流程完整：划分功能模块、取合适的名字、尽可能地写函数测试。虽然他这样做的部分原因是为了介绍Elixir的特性。但是我自己看下来很受用，于是也模仿他，不把每个题粗糙地当作算法题，得出结果就完事儿，也要保证代码的可读性。可惜这套视频不完整，中间很多天的录播都找不到了。</p>
+<p>接下来对一些印象比较深的题做一个回顾。</p>
+<h1 id="Day-7"><a href="#Day-7" class="headerlink" title="Day 7"></a>Day 7</h1><p>实际上是一个topo排序题。topo排序看过，但是理解得不深，导致第一次做的时候用错误的图结构在硬套DFS解法。误入歧途。topo排序图边<code>v-&gt;w</code>的物理含义有两种：</p>
+<ol>
+<li>表示依赖，w要先做，v后做，DFS解法用后序；</li>
+<li>表示优先级，v要先做，w后做，DFS解法中用逆后序。</li>
+</ol>
+<p>topo还有一种非递归的方法，在表示依赖的情况下，出度为0的先做；在表示优先级的情况下，入度为0先做（这里本质上也是转化为依赖的表示形式）</p>
+<p>非递归在本题里更适合，因为在有多个可以执行的任务时，有要求字母序，DFS不好做限制</p>
+<h1 id="Day-9"><a href="#Day-9" class="headerlink" title="Day 9"></a>Day 9</h1><p>写了一个双向链表模拟游戏过程，结果看到有人用deque来做，当然代码更简洁，速度还快10倍。了解了一下deque的原理，也是用的双向链表，但是链表的元素是大小为64的数组块，这样指针更少，内存开销更小，申请回收的效率也更高。从初始化也看出来，左右索引在初始block的中间，然后往两边扩展。这样也确实满足官方文档的强调的memory efficiency &amp; append/pop either side with O(1)</p>
+<blockquote>
+<p>Deques support thread-safe, memory efficient appends and pops from either side of the deque with approximately the same O(1) performance in either direction.</p>
+</blockquote>
+<pre><code class="c">typedef struct BLOCK {
+    struct BLOCK *leftlink;
+    PyObject *data[BLOCKLEN];
+    struct BLOCK *rightlink;
+} block;
+
+typedef struct {
+    PyObject_VAR_HEAD
+    block *leftblock;
+    block *rightblock;
+    Py_ssize_t leftindex;       /* 0 &lt;= leftindex &lt; BLOCKLEN */
+    Py_ssize_t rightindex;      /* 0 &lt;= rightindex &lt; BLOCKLEN */
+    size_t state;               /* incremented whenever the indices move */
+    Py_ssize_t maxlen;          /* maxlen is -1 for unbounded deques */
+    PyObject *weakreflist;
+} dequeobject;
+
+deque_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    ...
+    b = newblock();
+    if (b == NULL) {
+        Py_DECREF(deque);
+        return NULL;
+    }
+    MARK_END(b-&gt;leftlink);
+    MARK_END(b-&gt;rightlink);
+
+    Py_SIZE(deque) = 0;
+    deque-&gt;leftblock = b;
+    deque-&gt;rightblock = b;
+    deque-&gt;leftindex = CENTER + 1;
+    deque-&gt;rightindex = CENTER;
+    deque-&gt;state = 0;
+    deque-&gt;maxlen = -1;
+    deque-&gt;weakreflist = NULL;
+    ...
+}
+</code></pre>
+<p>但从这个题来看，会在链表的中间添加和删除，deque的解法使用rotate再append、pop，rotate的复杂度也不是O(1)，所以从时间复杂度看不会比完全的双向链表快。那还比我快10倍，大概就是大家都在说的，Python慢吧……</p>
+
+                <hr>
+                <div>
+                    <p>
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint');
+              prettyPrint();
+          })
+      </script>
+    
+  
+
+</body>
+</html>
