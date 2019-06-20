@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>Rotated Array 相关4题总结 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">Rotated Array 相关4题总结</p>
+            <br>
+            
+            <p>Thursday, June 20th 2019, 9:36 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <blockquote>
+<p>LeetCode 033、081、153、154共四道rotated array的题目。重新梳理最原始的二分思想</p>
+</blockquote>
+<a id="more"></a>
+<p>对旋转数组的切入视角是，在一个确定的旋转数组里，一刀切下去，一定会分成一个有序数组和一个规模更小的旋转数组。比如[5,6,1,2,4]，mid为1，那么左侧就是另一个旋转数组：[5，6，1]， 右侧就是一个有序数组[1, 2, 4]。这个可以通过和边缘数的比较来判断。</p>
+<p><img src="https://s2.ax1x.com/2019/06/20/VxCYk9.png" alt="VxCYk9.png"></p>
+<h1 id="033-Search-in-Rotated-Sorted-Array"><a href="#033-Search-in-Rotated-Sorted-Array" class="headerlink" title="033 - Search in Rotated Sorted Array"></a>033 - Search in Rotated Sorted Array</h1><pre><code class="html">Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand. (i.e., [0,1,2,4,5,6,7] might become [4,5,6,7,0,1,2]).
+
+You are given a target value to search. If found in the array return its index, otherwise return -1.
+
+You may assume no duplicate exists in the array.
+
+Example 1:
+Input: nums = [4,5,6,7,0,1,2], target = 0
+Output: 4
+
+Example 2:
+Input: nums = [4,5,6,7,0,1,2], target = 3
+Output: -1
+</code></pre>
+<p>因为不存在重复数，所以当<code>nums[mid]</code>大于等于左侧边缘数<code>nums[lo]</code>时，说明左边就是一个有序数组；等于时说明mid=lo，只含一个数的有序数组。</p>
+<p>然后就可以利用有序数组来判断target是否存在，不存在，就在切分的另一个数组里。</p>
+<p>这里就回到了二分查找的最初的思路，每次检查mid是否是我们要找的数，是就返回，不是再根据情况删除一部分解空间。如此循环，直到找到解，或者解空间耗尽。</p>
+<p>根据二分的实际实现，如果不满足条件，<strong>下一次搜索空间必然不包含mid</strong>。这样切入视角所说的一定切为有序和旋转，并不成立，旋转数组可能因为排除mid而消失，最后只剩下有序数组。所以视角不妨改成，旋转数组切分后，一定能找一个有序数组，有这样一个保证就足够了。但是原始的切入视角，之后会用到</p>
+<pre><code class="python">def search(nums, target):
+    lo, hi = 0, len(nums)-1
+    while lo &lt;= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+           if nums[mid] &gt;= nums[lo]:  # 左侧一定就是有序数组
+            if nums[lo] &lt;= target &lt; nums[mid]:
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        else:                      # 右侧一定是有序数组
+            if nums[mid] &lt; target &lt;= nums[hi]:
+                lo = mid + 1
+            else:
+                hi = mid - 1
+    return -1
+</code></pre>
+<h1 id="081-Search-in-Rotated-Sorted-Array-II"><a href="#081-Search-in-Rotated-Sorted-Array-II" class="headerlink" title="081 - Search in Rotated Sorted Array II"></a>081 - Search in Rotated Sorted Array II</h1><p>这次不含重复数的要求删除，有什么变化呢？</p>
+<p>不妨考虑一个极端情况，[42, 42, 42, 42, 42] 这样数组，target是41。什么情况？简单的说，上一题所依赖的，一次切分，一定会找到<strong>一个</strong>有序数组的保证，不见了。所以这个题的时间复杂度最坏的情况只能是O(n)。也就是不论怎么和左右两侧数比较，只要出现等于的情况，就不能舍弃任何一侧的搜索空间，那这个时候怎么办？只能说明mid不是target，应该删除它。</p>
+<p>当然删除中间的mid并不好操作，实际上有一个更微妙的实现：</p>
+<pre><code class="python">def search(nums, target):
+    lo, hi = 0, len(nums)-1
+    while lo &lt;= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+        # mid不是解，所以把开头的mid全部删除       
+        while lo &lt; mid and nums[lo] == nums[mid]:
+            lo += 1
+        # 如果因为不等跳出循环，下面一个会取大于
+        # 如果因为lo = mid跳出循环，下面一定会取等于
+           if nums[mid] &gt;= nums[lo]:  # 左侧一定就是有序数组
+            if nums[lo] &lt;= target &lt; nums[mid]:
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        else:                      # 右侧一定是有序数组
+            if nums[mid] &lt; target &lt;= nums[hi]:
+                lo = mid + 1
+            else:
+                hi = mid - 1
+    return -1
+</code></pre>
+<h1 id="153-Find-Minimum-in-Rotated-Sorted-Array"><a href="#153-Find-Minimum-in-Rotated-Sorted-Array" class="headerlink" title="153 - Find Minimum in Rotated Sorted Array"></a>153 - Find Minimum in Rotated Sorted Array</h1><p>题面：在不含重复数的旋转数组里找最小值。</p>
+<p>最小值一定在规模更小的旋转数组当中，我们就可以通过二分法，不停地减小旋转数组的规模，直到找到最小规模的旋转数组，一个逆序对，左侧是最大数，右侧就是最小数。这里就回到了我们最初的切入点，这一次，我们需要小心地排除搜索空间，保证留下的搜索空间里有旋转数组。</p>
+<p>所以当<code>nums[mid] &gt;= nums[lo]</code>成立，[lo, mid]的闭区间有序，应该排除，但是不能排除mid，因为mid可能和右侧的数组成旋转数组。事实上，在不含重复数的前提下里，这一句判断永远无法取到等号，因为等号成立时，<code>mid=lo -&gt; hi - lo &lt;= 1</code> 已经跳出循环了</p>
+<pre><code class="python">def findmin(nums):
+    lo, hi = 0, len(nums)-1
+    if nums[lo] &lt; nums[hi]:  # 排除有序的情况，因为切分后不存在旋转数组
+        return nums[lo]
+    while hi - lo &gt; 1:  # 只剩两个元素时停止
+        mid = lo + (hi - lo) // 2
+        if nums[mid] &gt;= nums[lo]:  # 大于，左边为有序数组，排除掉
+            lo = mid
+        else:                     # 小于，右边为有序数组，排除掉
+            hi = mid
+    return nums[hi]
+</code></pre>
+<p>除了找逆序对，二分还可以用找元素的视角来做，这就是LeetCode给出的Solution的做法。具体地，我们要找到一个索引，满足：<code>nums[s] &gt; nums[s+1]</code> 或者 <code>nums[s-1] &gt; nums[s]</code>。也就是找到最小规模的旋转数组中的任意一个。因为必须找到一个数，就要彻底排除mid</p>
+<pre><code class="python">def findmin(nums):
+    lo, hi = 0, len(nums)-1
+    if nums[lo] &lt; nums[hi]:  # 排除有序的情况，因为不存在旋转数组，实际上python的-1索引可用
+        return nums[lo]
+    while lo &lt;= hi:
+        mid = lo + (hi - lo) // 2
+        # 只要确保当前的比较顺序，边界检查并不需要
+        # 合理的输入不可能mid=len(nums)，因为如果逆序对在最后两个，那么前一次循环已经找到了
+        # mid=0，可能，所以用现在这样的比较顺序，逆序对在头两个时可以先返回
+        if nums[mid] &gt; nums[mid+1]:
+            return nums[mid+1]
+           if nums[mid-1] &gt; nums[mid]:
+            return nums[mid]
+        # 没找到，自然应该排除mid，因为mid不是逆序对中的任何一个
+        if nums[mid] &gt;= nums[lo]:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+</code></pre>
+<h1 id="154-Find-Minimum-in-Rotated-Sorted-Array-II"><a href="#154-Find-Minimum-in-Rotated-Sorted-Array-II" class="headerlink" title="154 - Find Minimum in Rotated Sorted Array II"></a>154 - Find Minimum in Rotated Sorted Array II</h1><p>作为153的拓展，154同样取消了不含重复数的前提。这就要求在等于的时候，只能删除一个数，当然删除这个数时也要非常小心，不能删除掉逆序对中的数，比如输入[10, 1, 10, 10, 10]，第一次查找就是等于，但是首位的10不能删除。所以需要判断是否处在逆序对中，是，可以直接返回结果，否，删除这个数进行收缩。</p>
+<pre><code class="python">def findmin(nums):
+    lo, hi = 0, len(nums)
+    if nums[lo] &lt; nums[hi]:  # 排除有序的情况，因为切分后不存在旋转数组
+        return nums[lo]
+    while hi - lo &gt; 1:  # 只剩两个元素时停止
+        mid = lo + (hi - lo) // 2
+        if nums[mid] &gt; nums[lo]: 
+            lo = mid
+        elif nums[mid] &lt; nums[lo]:     # 小于，右边为有序数组，排除掉
+            hi = mid
+        elif nums[lo] &lt;= nums[lo+1]:
+            lo += 1
+        else:
+            hi = lo + 1  # 等效于return nums[lo+1]
+    return nums[hi]
+</code></pre>
+<p>按照查找元素的思路也是可以做的，唯一的区别是，在循环中没找到逆序对怎么办？说明这是一个全等数组，返回<code>nums[0]</code>就可以</p>
+<pre><code class="python">def findmin(nums):
+    hi = 0, len(nums)-1
+    if nums[lo] &lt; nums[hi]:
+        return nums[lo]
+    while lo &lt;= hi:
+        mid = lo + (hi - lo) // 2
+        # 这里需要边界检查
+        if mid &lt; len(nums)-1 and nums[mid] &gt; nums[mid+1]:
+            return nums[mid+1]
+        if nums[mid-1] &gt; nums[mid]: # 逆序对在最前会被上面语句截断，不用边检
+            return nums[mid]
+
+        if nums[mid] &gt; nums[lo]:
+            lo = mid + 1
+        elif nums[mid] &lt; nums[lo]:
+            hi = mid - 1
+        # 全等数组lo会累加，所以也需要边界检查
+        elif lo &lt; len(nums)-1 and nums[lo] &gt; nums[lo+1]:
+            return nums[lo+1]
+        else:
+            lo += 1
+    return nums[0]
+
+</code></pre>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>最原始的二分的关键点：</p>
+<ol>
+<li>始终要保证搜索空间中保留着解的可能性。不能在收缩的过程中把想要找的目标给排除在外了。两个find min的题，两种思路，既可以查找逆序对，又可以查找元素，对应的跳出条件和收缩就不一样</li>
+<li>搜索过程中判断目标是否找到，是个很灵活的事情。不一定要有，更不是一定发生在mid求值之后。g(x)视角的lower-bound、higher-bound就没有，find min II有发生在特殊的收缩语句之前。</li>
+<li>查找元素的是个稳定的视角，可要看到其他的可能性。查找逆序对的比较就少很多</li>
+</ol>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;LeetCode</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;Binary Search</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint');
+              prettyPrint();
+          })
+      </script>
+    
+  
+
+</body>
+</html>
