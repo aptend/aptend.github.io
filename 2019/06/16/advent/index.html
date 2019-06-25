@@ -99,16 +99,16 @@
 <p><strong>代码的可读性很重要</strong></p>
 <p>我做到第22题，是真的做不动，一直在徘徊：想知道一个点到起点的最短距离，就需要知道周围四个点的最短距离，可这样是循环依赖的，看不到出口。到reddit上，才确认要用Dijkstra算法，于是把算法书掏出来，老老实实地看完有向图和最短路径章节，做好笔记，这才到23题上成功运用。</p>
 <p>最近也在跟朋友学习乒乓球，越发认识到基本功的重要程度。正手攻球都不稳定，打的都是运气乒乓球。牢记基本概念，在概念定理的基础上去适应问题。</p>
-<p>代码的可读性很重要。这个说来也巧，我在网上搜AoC的时候，看到了Elixir的作者Jose Valim在Twitch上用Exilir做AoC，仔细、流程完整：划分功能模块、取合适的名字、尽可能地写函数测试。虽然他这样做的部分原因是为了介绍Elixir的特性。但是我自己看下来很受用，于是也模仿他，不把每个题粗糙地当作算法题，得出结果就完事儿，也要保证代码的可读性。可惜这套视频不完整，中间很多天的录播都找不到了。</p>
+<p>代码的可读性很重要。这个说来也巧，我在网上搜AoC的时候，看到了Elixir的作者Jose Valim在Twitch上用Exilir做AoC，仔细、流程完整：划分功能模块、取合适的名字、尽可能地写函数测试。虽然他这样做的部分原因是为了介绍Elixir的特性。但是我自己看下来很受用，于是也模仿他，不把每个题粗糙地当作算法题，得出结果就完事儿，也尽力保证代码的可读性。可惜这套视频不完整，中间很多天的录播都找不到了。</p>
 <p>接下来对一些印象比较深的题做一个回顾。</p>
-<h1 id="Day-7"><a href="#Day-7" class="headerlink" title="Day 7"></a>Day 7</h1><p>实际上是一个topo排序题。topo排序看过，但是理解得不深，导致第一次做的时候用错误的图结构在硬套DFS解法。误入歧途。topo排序图边<code>v-&gt;w</code>的物理含义有两种：</p>
+<h1 id="Day-7"><a href="#Day-7" class="headerlink" title="Day 7"></a>Day 7</h1><p>实际上是一个topo排序题。topo排序看过，但是理解得不深，导致第一次做的时候用错误的图结构在硬套DFS解法，误入歧途。topo排序图边<code>v-&gt;w</code>的物理含义有两种：</p>
 <ol>
 <li>表示依赖，w要先做，v后做，DFS解法用后序；</li>
 <li>表示优先级，v要先做，w后做，DFS解法中用逆后序。</li>
 </ol>
 <p>topo还有一种非递归的方法，在表示依赖的情况下，出度为0的先做；在表示优先级的情况下，入度为0先做（这里本质上也是转化为依赖的表示形式）</p>
 <p>非递归在本题里更适合，因为在有多个可以执行的任务时，有要求字母序，DFS不好做限制</p>
-<h1 id="Day-9"><a href="#Day-9" class="headerlink" title="Day 9"></a>Day 9</h1><p>写了一个双向链表模拟游戏过程，结果看到有人用deque来做，当然代码更简洁，速度还快10倍。了解了一下deque的原理，也是用的双向链表，但是链表的元素是大小为64的数组块，这样指针更少，内存开销更小，申请回收的效率也更高。从初始化也看出来，左右索引在初始block的中间，然后往两边扩展。这样也确实满足官方文档的强调的memory efficiency &amp; append/pop either side with O(1)</p>
+<h1 id="Day-9"><a href="#Day-9" class="headerlink" title="Day 9"></a>Day 9</h1><p>写了一个双向链表模拟游戏过程，结果看到有人用deque来做，当然代码更简洁，速度还快10倍。了解了一下deque的原理，也是用的双向链表，但是链表的元素是大小为64的数组块，这样指针更少，内存开销更小，申请、回收的效率也更高。从初始化也看出来，左右索引在初始block的中间，然后往两边扩展。这样也确实满足官方文档的强调的memory efficiency &amp; append/pop either side with O(1)</p>
 <blockquote>
 <p>Deques support thread-safe, memory efficient appends and pops from either side of the deque with approximately the same O(1) performance in either direction.</p>
 </blockquote>
@@ -151,11 +151,120 @@ deque_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     ...
 }
 </code></pre>
-<p>但从这个题来看，会在链表的中间添加和删除，deque的解法使用rotate再append、pop，rotate的复杂度也不是O(1)，所以从时间复杂度看不会比完全的双向链表快。那还比我快10倍，大概就是大家都在说的，Python慢吧……</p>
+<p>但从这个题来看，会在链表的中间添加和删除，deque的解法使用rotate再append、pop，rotate的复杂度也不是O(1)，所以从时间复杂度看不会比完全的双向链表快。那还比我快10倍，大概就是Python慢吧……</p>
+<h1 id="day13"><a href="#day13" class="headerlink" title="day13"></a>day13</h1><p>思路上把矿车单独提出来成为一个集合，然后模拟前进、转弯。具体的有两处值得拿出来讲：</p>
+<ol>
+<li>允许矿车出现拐角处和十字交汇处。代码会自动推断矿车所处的位置。但是推断建立在不存在T型路口的前提下</li>
+<li>转弯部分的逻辑使用的旋转矩阵，避免穷举</li>
+</ol>
+<pre><code class="python">DIRECTIONS = {
+    &#39;&gt;&#39;: (0, 1),
+    &#39;&lt;&#39;: (0, -1),
+    &#39;^&#39;: (-1, 0),
+    &#39;v&#39;: (1, 0)
+}
+TURNS = {
+    &#39;left&#39;: [[0, 1], [-1, 0]],
+    &#39;ahead&#39;: [[1, 0], [0, 1]],
+    &#39;right&#39;: [[0, -1], [1, 0]]
+}
+</code></pre>
+<p>最后把运行图画出来看起来还是挺好看的。</p>
+<h1 id="day17"><a href="#day17" class="headerlink" title="day17"></a>day17</h1><p>思路是每一处溢出的地方，可以看成一个新的喷泉，形成一个可以递归的子问题。对每一处下降的水流，寻找地面(# or ~)，然后向左右两端寻找墙角或者溢出口，如果溢出口已经存在‘|’，不要进入下次递归，因为这表示已经有函数在做过了。这也是寻找的地面不包含‘|’的原因：如果地面是‘|’，那么溢出口也一定是‘|’，反正会终止。下面代码就是在水面两侧的类型</p>
+<pre><code>class End(Enum):
+    &quot;&quot;&quot;
+    #x                x            x    
+    ####  :WALL      |### :WATER   .### :EMPTY
+    &quot;&quot;&quot;
+    WALL = 0   # 墙角，填充返回就好
+    WATER = 1  # 溢出口，但是不需要进入递归
+    EMPTY = 2  # 溢出口，需要进入递归
+</code></pre><h1 id="day20"><a href="#day20" class="headerlink" title="day20"></a>day20</h1><p>这个题难了我好久。首先是题目是这么说的</p>
+<blockquote>
+<p>So, <code>^N(E|W)N$</code> contains a branch: after going north, you must choose to go <em>either east or west</em> before finishing your route by going north again. </p>
+</blockquote>
+<p>刚开始，我理解的<code>going north again</code>是在岔路的基础之上，所以最远距离就是3。但后来想，也可以理解成在岔路起点的基础上继续，最远距离就是2。前一种理解是平行空间，有一种是现实意义上的岔路。我也观察了一下输入数据，发现并没有展开平行宇宙的机会——根本没有上面例子中的那种输入，也就是但凡|在括号中间，反括号后面都没有继续行动</p>
+<p>但还是按照前一种理解，因为感觉更难一些。</p>
+<p>因为之前做了day17，惯性驱使想用递归。在分叉点划出子问题，等待结果，然后求局部最大值，最外层得到全局最大值。但是渐渐发现对两种岔路形式的处理实际上很不相同。我单独为只有一种特征岔路的情况写了递归方案，但是整合的时候依然很困难。</p>
+<p>在<code>(oo|)</code>模式为原路返回的假设下(虽然输入也确实也是如此)，<code>ooo(oo|)o(oooo|)o(oooooo|)oo</code> 本身也应该是一种递归，本质长这样子：<code>ooo(o|o(oo|o(ooo|oo)))</code></p>
+<p>我还是没能在同一个递归里处理清楚这两种行为很不相同，实际上又相互联系的模式。最后走向了迭代的路子。</p>
+<p>正是因为两种模式的行为差别，在迭代里维护了两个栈，记录分岔点，当前层级的分支个数。对<code>)</code>和<code>|)</code>也是分开处理，才能完成“平行空间”的要求</p>
+<pre><code>if ch == &#39;(&#39;:
+    stack.append((x, y))
+    forks_stack.append(n_forks)
+    n_forks = 0
+elif ch == &#39;|&#39;:
+    if ins[i+1] == &#39;)&#39;:  # 遇到原路返回型岔路，备选+1，回到(开始处
+        i += 1
+        x, y = stack.pop()
+        n_forks = forks_stack.pop()
+        steps = rooms[(x, y)]
+    else:                # 当前点入栈，因为平行空间可能在此基础上继续。
+                         # 备选+1，回到(开始处
+        stack.append((x, y))
+        n_forks += 1
+        x, y = stack[-1 - n_forks]
+        steps = rooms[(x, y)]
+elif ch == &#39;)&#39;:
+    for _ in range(n_forks):   # 在最长岔路基础上继续
+        fork = stack.pop()
+        if rooms[fork] &gt; steps:
+            x, y = fork
+            steps = rooms[fork]
+    stack.pop()                  # 抛弃原始(开始处
+    n_forks = forks_stack.pop()  # 回到上层的岔路计数
+</code></pre><p>总结一下，像这种求全局最大值，又有明晰的指令，一步一步模拟出来可能是比递归更自然的解决方式。</p>
+<h1 id="day22"><a href="#day22" class="headerlink" title="day22"></a>day22</h1><p>在最短路径算法的应用上，我的思路是，每一块地形，都对应两种工具，所以每一块地都有两个点，在同一块地上切换工具，路径权重就是7</p>
+<pre><code class="python">g.add_edge(Edge(src, src+1, 7))
+g.add_edge(Edge(src+1, src, 7))
+</code></pre>
+<p>然后就是该地形指向周围4个地型的边，只有是相同工具时，才能移动，就是1，否则需要在本地切换工具再移动。转换信息用deltas表示，转换顺序用edge_order表示</p>
+<pre><code class="python"># 0: rocky  [torch gear]
+# 1: wet    [gear neither]
+# 2: narrow [torch neither]
+
+# delta[0][1] means 
+# (rocky[0] -&gt; wet[0], # rocky with torch -&gt; wet with gear
+#  rocky[0] -&gt; wet[1],
+#  rocky[1] -&gt; wet[0],
+#  rocky[1] -&gt; wet[1])
+
+deltas = [
+    [(1, None, None, 1), (None, None, 1, None), (1, None, None, None)],
+    [(None, 1, None, None), (1, None, None, 1), (None, None, None, 1)],
+    [(1, None, None, None), (None, None, None, 1), (1, None, None, 1)],
+]
+edge_order = [(0, 0), (0, 1), (1, 0), (1, 1)]
+...
+
+delta = deltas[src_type][to_type]
+for idx, weight in enumerate(delta):
+    if weight is None:
+        continue
+    d1, d2 = edge_order[idx]
+    g.add_edge(Edge(src+d1, to+d2, weight))
+</code></pre>
+<p>还有就是python没有内置可以方便修改值的优先队列，所以在Dijkstra内部本来需要修改点的地方，不用判断是否在优先队列里，直接添加，在外面通过一个集合去重</p>
+<pre><code class="python">dist, v = heappop(heap)
+if v == target:
+    return dist, path
+if v in seen:
+    continue
+seen.add(v)
+for e in g.adj[v]:
+    w = e.to
+    if dist_to[w] &gt; dist_to[v] + e.weight:
+        dist_to[w] = dist_to[v] + e.weight
+        edge_to[w] = v
+        heappush(heap, (dist_to[w], w))
+</code></pre>
 
                 <hr>
                 <div>
                     <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
                         
                     </p>
                 </div>
