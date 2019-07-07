@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>使用Rabin-Karp算法查找最长回文字符串 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">使用Rabin-Karp算法查找最长回文字符串</p>
+            <br>
+            
+            <p>Sunday, July 7th 2019, 11:48 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>利用Rabin-Karp，尝试解决LeetCode005_longest-palindromic-substring问题。Python实现，意义大于性能🙃</p>
+<a id="more"></a>
+<p>Rabin-Karp的基本运用是子字符串的查找，因为是利用子字符串的hash值比较，因此也被称作<code>指纹</code>字符串查找算法。比如在文本S找查找长为M的字符串，在已知<code>S[i: i+M]</code>字符串的hash值时，Rabin-Karp可以在常熟时间内计算出<code>S[i+1: i+M+1]</code>的hash值，因此可以在线性时间复杂度内，扫描S中所有长为M的子字符串。</p>
+<p>回到LeetCode005_longest-palindromic-substring问题，一个回文字符串，那么正反的hash值一定相同，然后利用二分查找，可以找到一个最大的子字符串长度。在实现之前，先把关于hash计算的数学基础。</p>
+<h1 id="mod运算的一些性质"><a href="#mod运算的一些性质" class="headerlink" title="mod运算的一些性质"></a>mod运算的一些性质</h1><p>Rabin-Karp算法在计算hash值时，主要利用mod操作的几个性质来加速计算</p>
+<h2 id="线性组合的分配律"><a href="#线性组合的分配律" class="headerlink" title="线性组合的分配律"></a>线性组合的分配律</h2><p>$$<br>(a+b)\mod n = [(a \mod n) + (b\mod n)]\mod n  \\<br>(ab)\mod n = [(a \mod n)(b\mod n)]\mod n<br>$$</p>
+<p>简单的证明，设$a\mod n=x$， 有$a=pn+x$，同理有$b=qn+y$，所以加法等式替换为<br>$$<br> (pn+x+qn+y) \mod n = (x+y) \mod n<br>$$<br>这个就自然相等了。实际上mod分配一个还是两个都无所谓。基本的Rabin-Karp算法利用这个性质就可以了。如果要逆向计算字符串的hash值，就必须得借助下面两个性质。</p>
+<h2 id="除法定义"><a href="#除法定义" class="headerlink" title="除法定义"></a>除法定义</h2><p>$$<br>\frac ab\mod n=(ab^{-1})\mod n<br>$$</p>
+<p>根据分配率，求解需要$(b^{-1}\mod n)$，它的定义是，设$(b^{-1}\mod n)=I$，则有$bI\equiv1\space(\mod n)$，这里的$I$就被称为b的模反元素。也就是存在关系，$bI-1=pn$。</p>
+<p>接下来就是证明，$\frac ab \mod n =aI\mod n$。把上述关系乘上等式左边，变为n的整数倍，余数为0，有$(aI-\frac ab)\mod n = 0$，即可证明。</p>
+<h2 id="如何求模反元素"><a href="#如何求模反元素" class="headerlink" title="如何求模反元素"></a>如何求模反元素</h2><p>关系$bI-1=pn$换一种写法就是贝祖等式，$bI+(-p)n=1$</p>
+<p>然后可以通过拓展欧几里得方法求得$I, p$</p>
+<p>这里贴一个wiki上的例子</p>
+<p><img src="https://s2.ax1x.com/2019/07/06/Z0QH39.png" alt="Z0QH39.png"></p>
+<p>把图中的过程利用递归表达出来，就是所谓的拓展欧几里得算法：在原始的欧几里得算法递归完成后，输出当前贝祖等式的参数。</p>
+<pre><code class="python">def exgcd(a, b):
+    if b == 0:
+        return 1, 0 # 1 = 1*1 + 0*0
+    x, y = exgcd(b, a % b)
+    x, y = y, x - (a//b)*y
+    return x, y
+</code></pre>
+<h1 id="正反扫描的Rabin-Karp"><a href="#正反扫描的Rabin-Karp" class="headerlink" title="正反扫描的Rabin-Karp"></a>正反扫描的Rabin-Karp</h1><pre><code class="python">class RabinKarp:
+    def __init__(self, text, M, R=128, Q=100000037):
+        self.R = R
+        self.M = M
+        self.Q = Q
+        self.text = text
+        self.text_inv = text[::-1]
+</code></pre>
+<p>一些符号约定：</p>
+<ul>
+<li><p>R，把字符串看作R进制数。比如对于ASCII字符，不妨R=128，“abc”的hash值为:<br>$$<br>(97\times128^2+98\times128+99) \mod Q<br>$$</p>
+</li>
+<li><p>Q，对Q取模，Q必须为质数，保证R、Q互质，使R存在模反元素</p>
+</li>
+<li><p>M，子字符串长度</p>
+</li>
+</ul>
+<p>然后分为正向和逆向两部分实现，正向就是原始的Rabin-Karp算法，逆向是为了求回文字符串做的增加。</p>
+<h2 id="正向"><a href="#正向" class="headerlink" title="正向"></a>正向</h2><p>首先应该计算出开头的长为M的子字符串的hash值，就是计算M位的R进制数对Q取模，利用mod的分配律，在每次计算时，都可以对Q取模，而不影响结果。</p>
+<pre><code class="python">    def dummy_hash(self, s): # 传入text[:M]子字符串，直接计算hash值
+        h = 0
+        for c in s:
+            h = (h * self.R + ord(c)) % self.Q
+        return h
+</code></pre>
+<p>记第一个子字符串<code>text[:M]</code>的hash值为：<br>$$<br>hash(text[:M])=t_0R^{M-1}+t_1R^{M-2}+…+t_{M-1} \mod Q<br>$$</p>
+<p>第二个子字符串<code>text[1:M+1]</code>同样可以利用mod分配率在常数时间内得到，因为在由上一个R进制数，可以在常数时间内得到当前的R进制数——减去最高位，乘以R，再加上新增的末位。<br>$$<br>(t_0R^{M-1}+t_1R^{M-2}+…+t_{M-1} - t_0R^{M-1}) \times R +t_M<br>$$</p>
+<p>考虑mod，上式等于：</p>
+<p>$$<br>(((t_0R^{M-1}+t_1R^{M-2}+…+t_{M-1}) \mod Q-(R^{M-1} \mod Q)\times t_0)\times R+t_M) \mod Q<br>$$</p>
+<p>第一项就是上一个字符串的hash值，第二项是最高位的取模，因为$(R^{M-1}\mod Q)$每次都会用到，所以事先计算出来保存。第三项就是多出来的末位。</p>
+<pre><code class="python">    def __init__(self, text, M, R=128, Q=100000037):
+        # ...
+        pow = 1
+        for _ in range(1, M):
+            pow = (R * pow) % Q
+        self.pow = pow  # R^(M-1) % Q
+</code></pre>
+<p>然后使用生成器来返回从左往右的长为M的字符串hash值</p>
+<pre><code class="python">    def gen_hash(self):
+        txt, pow, R, M, Q = self.text, self.pow, self.R, self.M, self.Q
+        txt_hash = self.dummy_hash(txt[:M])
+        yield txt_hash
+        for i in range(M, len(txt)):
+            txt_hash = (txt_hash + Q - pow * ord(txt[i-M]) % Q) % Q
+            txt_hash = (txt_hash * R + ord(txt[i])) % Q
+            yield txt_hash
+</code></pre>
+<h2 id="逆向"><a href="#逆向" class="headerlink" title="逆向"></a>逆向</h2><pre><code class="python">class RabinKarp:
+
+    def __init__(self, text, M, R=128, Q=100000037):
+        # ...    
+        self.invR, _ = self._exgcd(R, Q)
+        if self.invR &lt; 0:
+            self.invR = self.invR % Q + Q
+
+    def _exgcd(self, a, b):
+        &quot;&quot;&quot;omit remainder here
+        &quot;&quot;&quot;
+        if b == 0:
+            return 1, 0  # 1 = 1*1 + 0*0
+        x, y = self._exgcd(b, a % b)
+        return y, x - (a//b)*y
+
+    def gen_hash_inv(self):
+        txt, pow, invR, M, Q = self.text_inv, self.pow, self.invR, self.M, self.Q
+        txt_hash = self.dummy_hash(txt[-M:])
+        yield txt_hash
+        for i in range(len(txt)-M-1, -1, -1):
+            txt_hash -= ord(txt[i+M])
+            txt_hash = (txt_hash * invR) % Q
+            txt_hash += ord(txt[i])*pow
+            txt_hash = txt_hash % Q
+            yield txt_hash
+</code></pre>
+<h1 id="二分查找"><a href="#二分查找" class="headerlink" title="二分查找"></a>二分查找</h1><p>关键思想是根据回文的性质，分为奇数和偶数的情况，分开查找</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>Rabin-Karp的分析-性能，应用</li>
+<li>二分查找中位数</li>
+</ol>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;LeetCode</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;BinarySearch</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
