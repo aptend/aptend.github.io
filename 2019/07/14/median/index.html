@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>中位数总结 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">中位数总结</p>
+            <br>
+            
+            <p>Sunday, July 14th 2019, 11:02 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>一步步梳理中位数的计算，关键时刻不要运气编程</p>
+<a id="more"></a>
+<h1 id="原始概念"><a href="#原始概念" class="headerlink" title="原始概念"></a>原始概念</h1><p>统计学上的中位数，的确是按照奇偶区分。<br>$$<br>for\quad x_1, x_2, …,x_n,\quad median = \left\{ \begin{array}- x_{(n+1)/2} &amp;when &amp;n &amp;odd \\ \frac{x_{n/2}+x_{n/2+1}}{2} &amp;when&amp;n&amp;even \end{array} \right.<br>$$</p>
+<p>在此不妨再考虑一下， 这个公式是怎么来的。</p>
+<p>首先需要知道总共有多少个元素，也就是<code>n-1+1</code>个元素，所以对n分奇偶。</p>
+<p>再考虑奇数个元素，以中位数切割(不包含中位数)，左右两边的元素个数相等，也就是，可以找到一个索引k满足:</p>
+<p>$(k-1) - 1 + 1 = n - (k+1) + 1 \Rightarrow k=(n+1)/2$，</p>
+<p>再考虑偶数个元素，为了记叙方便，把两个中位数记为<strong>上、下中位数</strong>(奇数时上下位中位数正好相等)，下位中位数的索引更小，设为k，上位中位数的索引即为k+1，再根据两边元素个数相等(包含中位数)</p>
+<p>$k-1+1=n-(k+1)-1 \Rightarrow k=n/2$</p>
+<h1 id="0-based-截断除法"><a href="#0-based-截断除法" class="headerlink" title="0-based + 截断除法"></a>0-based + 截断除法</h1><p>程序场景下，一般会换成0-based序列，同时考虑到，求中位数的目的经常是求索引，所以偶数个元素时，会直接用上、下中位数。利用同样的思路，本质是对<code>n+1</code>分奇偶</p>
+<p>n为偶数时，n+1为奇数</p>
+<p>$(k-1)-0+1=n-(k+1)+1 \Rightarrow k=n/2 $</p>
+<p>n为奇数时，n+1为偶数</p>
+<p>$k-0+1=n-(k+1)+1 \Rightarrow k=(n-1)/2$</p>
+<p>所以上位中位数是$(n+1)/2$</p>
+<p>到这里，可以考虑截断除法，也就是当n为奇数时，$(n-1)/2=n/2$，n为偶数时，$(n+1)/2=n/2$，利用这两个式子，就可以统一奇偶的情况：<br>$$<br>for\quad x_0, x_1, …,x_n,\quad median = x_{n/2},\space x_{(n+1)/2}<br>$$</p>
+<p>当n为偶数，奇数个元素，上下中位数索引相同。当n为奇数，偶数个元素，上下位中位数索引各异。</p>
+<h1 id="一般数列：公差为1"><a href="#一般数列：公差为1" class="headerlink" title="一般数列：公差为1"></a>一般数列：公差为1</h1><p>再考虑更一般的场景，$x_m, x_{m+1}, …,x_{m+n}$，这种可以简单地转换为0-based的情况，只要在最后的结果上加上m就可以了，也就是先尾部索引减去首部索引，求得n，得到0-based的上下位中位数，最后加上m<br>$$<br>for\quad x_m, x_{m+1}, …,x_{m+n},\quad median = x_{\frac n2+m},\space x_{\frac{n+1}2+m}<br>$$</p>
+<h1 id="等差数列：公差为k"><a href="#等差数列：公差为k" class="headerlink" title="等差数列：公差为k"></a>等差数列：公差为k</h1><p>场景还可以泛化成等差数列的索引，$x_{km+b},x_{k(m+1)+b},…,x_{k(m+n)+b}$，同样转换为0-based的情况，最后逆向结果。先求n，$n=(tail-head)/k$，得到0-based的上下位中位数，加上m，乘k，加b<br>$$<br>for\quad x_{km+b},x_{k(m+1)+b},…,x_{k(m+n)+b},\quad median = x_{k(\frac n2+m)+b},\space x_{k(\frac{n+1}2+m)+b}<br>$$</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
