@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>一种可操作性很强的二分查找思路 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">一种可操作性很强的二分查找思路</p>
+            <br>
+            
+            <p>Sunday, July 14th 2019, 6:00 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>今天看到HuaHua的视频，总结二分查找。觉得视角很好，于是在其基础上，再用做过的题复习一下。</p>
+<a id="more"></a>
+<p>标准的二分查找的核心视角是，存在一个函数g(x)，x的取值区间被分为两个部分，右侧g(x)为True，左侧g(x)为False。二分查找的目的。是在x取值区间内找到一个最小值m，使得g(m) = True</p>
+<p><a href="https://imgchr.com/i/VLad8P" target="_blank" rel="noopener"><img src="https://s2.ax1x.com/2019/06/18/VLad8P.png" alt="gx.png"></a></p>
+<pre><code class="python">def right_bisect(hay, needle):  # upper-bound
+    lo, hi = 0, len(hay)
+    while lo &lt; hi:  # 左闭右开区间，只有严格小于时才表示搜索区间为空
+        mid = lo + (hi - lo) // 2
+        if hay[mid] &gt; needle:  # g(x)的意义就是找到大于needle的最小index
+            hi = mid     # g(x)为True，那说明在成立的一侧，最小值在左边
+        else:
+            lo = mid + 1
+    return lo  # 始终没有找到使g(x)=True，返回hi
+
+def left_bisect(hay, needle):  # lower-bound
+    lo, hi = 0, len(hay)
+    while lo &lt; hi:
+        mid = lo + (hi - lo) // 2
+        if hay[mid] &gt;= needle:  # g(x)的意义就是找到大于等于needle的最小index
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
+
+# 如果不存在是m使g(x)成立，返回hi
+</code></pre>
+<p>除了左闭右开区间，还有就是闭区间，本质没有区别，搜索的停止条件也和闭区间的意义相符合。而且因为对称性、可以直接使用hi索引，在一些变形里用起来还更方便一些</p>
+<pre><code class="python">def bisect_right(hay, needle):
+    lo, hi = 0, len(hay)-1
+    while lo &lt;= hi:  # 只有lo &gt; hi才表示搜索空间为空
+        mid = lo + (hi - lo) // 2
+        if hay[mid] &gt; needle:  # g(m)=True的意义是m大于needle
+            hi = mid - 1      # 闭区间，mid-1才能把当前这个满足条件的mid排除在外
+        else:
+            lo = mid + 1
+    return lo
+
+def bisect_left(hay, needle):
+    lo, hi = 0, len(hay)-1
+    while lo &lt;= hi:  # 只有lo &gt; hi才表示搜索空间为空
+        mid = lo + (hi - lo) // 2
+        if hay[mid] &gt;= needle:  # g(m)=True的意义是m大于等于needle
+            hi = mid - 1
+        else:
+            lo = mid + 1
+    return lo
+
+# 如果不存在是m使g(x)成立，返回hi+1
+</code></pre>
+<h1 id="378-Kth-smallest-element-in-a-sorted-matrix"><a href="#378-Kth-smallest-element-in-a-sorted-matrix" class="headerlink" title="378. Kth smallest element in a sorted matrix"></a>378. Kth smallest element in a sorted matrix</h1><pre><code class="html">Given a n x n matrix where each of the rows and columns are sorted in ascending order,
+find the kth smallest element in the matrix.
+
+Note that it is the kth smallest element in the sorted order, not the kth distinct element.
+
+Example:
+
+matrix = [
+   [ 1,  5,  9],
+   [10, 11, 13],
+   [12, 13, 15]
+]
+k = 8
+return 13.
+</code></pre>
+<p>当时用二分查找做这个，有一个疑惑就是，最后找到的那个数为什么一定在这个二维数组里呢？</p>
+<p>当时给自己的的解释其实也有上述视角的影子，但是总结得不够清晰易懂</p>
+<blockquote>
+<p>因为二分计算个数时包含等于，可以认为，如果一个数满足了个数要求，还是会继续减小这个数，直到逼近不满足的边缘，而这个边缘一定是等于的情况，也就是在数组中</p>
+<p>在一个一维数组[0,2,6,7]中，如果要查找排名第2的数是哪一个，这个数a一定要满足，大于等于数组中的两个数(即0,2)，所以a是2，3，4，5中的一个，比如说现在通过0、7，得到a为3，满足要求，用0、3去得到下一个a为1，发现1不满足，2，3得到2，满足了，hi=2，跳出循环</p>
+<p>所以真相就是，满足大于等于n个数的集合的左边界，一定是等于达成的，然后搜索寻找这个左边界，找到的数一定在数组中</p>
+</blockquote>
+<p>所谓的左边界，就是满足g(x)=True的最小值， g(x)的意义是， x是否大于等于二维数组中的k个数。</p>
+<p>既然是这个要求，那么计算每一个行的二分查找就自然使用bisect_right，即upper_bound</p>
+<pre><code class="python">def kth(self, matrix, k):
+    lo, hi = matrix[0][0], matrix[-1][-1]+1
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        small_cnt = 0
+        for row in matrix:
+            small_cnt += bisect_right(row, mid)
+        if small_cnt &gt;= k:
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
+</code></pre>
+<h1 id="1011-Capacity-To-Ship-Packages-Within-D-Days"><a href="#1011-Capacity-To-Ship-Packages-Within-D-Days" class="headerlink" title="1011. Capacity To Ship Packages Within D Days"></a>1011. Capacity To Ship Packages Within D Days</h1><pre><code class="html">A conveyor belt has packages that must be shipped from one port to another within D days.
+
+The i-th package on the conveyor belt has a weight of weights[i].  Each day, we load the ship with packages on the conveyor belt (in the order given by weights). We may not load more weight than the maximum weight capacity of the ship.
+
+Return the least weight capacity of the ship that will result in all the packages on the conveyor belt being shipped within D days.
+
+Example 1:
+Input: weights = [1,2,3,4,5,6,7,8,9,10], D = 5
+Output: 15
+Explanation: 
+A ship capacity of 15 is the minimum to ship all the packages in 5 days like this:
+1st day: 1, 2, 3, 4, 5
+2nd day: 6, 7
+3rd day: 8
+4th day: 9
+5th day: 10
+
+Note that the cargo must be shipped in the order given, so using a ship of capacity 14 and splitting the packages into parts like (2, 3, 4, 5), (1, 6, 7), (8), (9), (10) is not allowed. 
+
+Note:
+1 &lt;= D &lt;= weights.length &lt;= 50000
+1 &lt;= weights[i] &lt;= 500
+</code></pre>
+<p>这个也符合g(x)的要求，显然，当容量足够大，一次性运送所有货物，只要1天。所以慢慢收紧收紧容量，直到找到临界值。</p>
+<p>因为规定按顺序装载货物，g(x)的计算自然地使用贪心。</p>
+<pre><code class="python">def min_cap(weights, D):
+    def days_needed(cap):
+        k = 1
+        this_ship_weight = 0
+        for x in weights:      
+            this_ship_weight += x
+            if this_ship_weight &gt; cap:
+                this_ship_weight = x
+                k += 1
+        return k
+    lo, hi = max(weights), sum(weights)
+    while lo &lt;= hi:
+        mid = (lo + hi) // 2
+        if days_needed(mid) &lt;= D:
+            hi = mid - 1
+        else:
+            lo = mid + 1
+    return lo
+</code></pre>
+<h1 id="005-Longest-Palindromic-Substring"><a href="#005-Longest-Palindromic-Substring" class="headerlink" title="005. Longest Palindromic Substring"></a>005. Longest Palindromic Substring</h1><p>上面两个题的g(x)都是x大于某个值，g(x)一直为True。对应的一种变化，出现在<a href="https://aptend.github.io/2019/07/07/rabin-karp/" target="_blank" rel="noopener">Longest palindromic substring的Rabin-Karp解法</a>里，即，当x小于某个值，g(x)一直为True，最后lo的意义是使得g(x)为False的最小值。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>如果使用这种思路进行二分查找，前提是能找到这样一个具有二分性质的g(x)。返回值永远是lo，表明使得g(x)状态切换的边缘值。</p>
+<p>具体的模板，我现在更倾向使用对称的那一版，即<code>while lo &lt;= hi</code>。</p>
+<p>有一些问题，比如<a href="https://aptend.github.io/2019/06/20/rotated-array/" target="_blank" rel="noopener">Rotated Array</a>的题，因为没有合适的g(x)可用，只能回归到原始的二分思想，一步步删除不包含最终解的搜索空间。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;LeetCode</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;BinarySearch</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
