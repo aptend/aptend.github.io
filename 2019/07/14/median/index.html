@@ -92,18 +92,24 @@
 <p>首先需要知道总共有多少个元素，也就是<code>n-1+1</code>个元素，所以对n分奇偶。</p>
 <p>再考虑奇数个元素，以中位数切割(不包含中位数)，左右两边的元素个数相等，也就是，可以找到一个索引k满足:</p>
 <p>$(k-1) - 1 + 1 = n - (k+1) + 1 \Rightarrow k=(n+1)/2$，</p>
-<p>再考虑偶数个元素，为了记叙方便，把两个中位数记为<strong>上、下中位数</strong>(奇数时上下位中位数正好相等)，下位中位数的索引更小，设为k，上位中位数的索引即为k+1，再根据两边元素个数相等(包含中位数)</p>
+<p>再考虑偶数个元素，为了记叙方便，把两个中位数记为<strong>左、右中位数</strong>(奇数时左右中位数正好相等)，右中位数的索引更小，设为k，左中位数的索引即为k+1，再根据两边元素个数相等(包含中位数)</p>
 <p>$k-1+1=n-(k+1)-1 \Rightarrow k=n/2$</p>
-<h1 id="0-based-截断除法"><a href="#0-based-截断除法" class="headerlink" title="0-based + 截断除法"></a>0-based + 截断除法</h1><p>程序场景下，一般会换成0-based序列，同时考虑到，求中位数的目的经常是求索引，所以偶数个元素时，会直接用上、下中位数。利用同样的思路，本质是对<code>n+1</code>分奇偶</p>
+<h1 id="0-based-截断除法"><a href="#0-based-截断除法" class="headerlink" title="0-based + 截断除法"></a>0-based + 截断除法</h1><p>程序场景下，一般会换成0-based序列，同时考虑到，求中位数的目的经常是求索引，所以偶数个元素时，会直接用左、右中位数。利用同样的思路，本质是对<code>n+1</code>分奇偶</p>
 <p>n为偶数时，n+1为奇数</p>
 <p>$(k-1)-0+1=n-(k+1)+1 \Rightarrow k=n/2 $</p>
 <p>n为奇数时，n+1为偶数</p>
 <p>$k-0+1=n-(k+1)+1 \Rightarrow k=(n-1)/2$</p>
-<p>所以上位中位数是$(n+1)/2$</p>
+<p>所以左中位数是$(n+1)/2$</p>
 <p>到这里，可以考虑截断除法，也就是当n为奇数时，$(n-1)/2=n/2$，n为偶数时，$(n+1)/2=n/2$，利用这两个式子，就可以统一奇偶的情况：<br>$$<br>for\quad x_0, x_1, …,x_n,\quad median = x_{n/2},\space x_{(n+1)/2}<br>$$</p>
-<p>当n为偶数，奇数个元素，上下中位数索引相同。当n为奇数，偶数个元素，上下位中位数索引各异。</p>
-<h1 id="一般数列：公差为1"><a href="#一般数列：公差为1" class="headerlink" title="一般数列：公差为1"></a>一般数列：公差为1</h1><p>再考虑更一般的场景，$x_m, x_{m+1}, …,x_{m+n}$，这种可以简单地转换为0-based的情况，只要在最后的结果上加上m就可以了，也就是先尾部索引减去首部索引，求得n，得到0-based的上下位中位数，最后加上m<br>$$<br>for\quad x_m, x_{m+1}, …,x_{m+n},\quad median = x_{\frac n2+m},\space x_{\frac{n+1}2+m}<br>$$</p>
-<h1 id="等差数列：公差为k"><a href="#等差数列：公差为k" class="headerlink" title="等差数列：公差为k"></a>等差数列：公差为k</h1><p>场景还可以泛化成等差数列的索引，$x_{km+b},x_{k(m+1)+b},…,x_{k(m+n)+b}$，同样转换为0-based的情况，最后逆向结果。先求n，$n=(tail-head)/k$，得到0-based的上下位中位数，加上m，乘k，加b<br>$$<br>for\quad x_{km+b},x_{k(m+1)+b},…,x_{k(m+n)+b},\quad median = x_{k(\frac n2+m)+b},\space x_{k(\frac{n+1}2+m)+b}<br>$$</p>
+<p>当n为偶数，奇数个元素，左右中位数索引相同。当n为奇数，偶数个元素，左右中位数索引各异。</p>
+<h1 id="一般数列：公差为1"><a href="#一般数列：公差为1" class="headerlink" title="一般数列：公差为1"></a>一般数列：公差为1</h1><p>再考虑更一般的场景，$x_m, x_{m+1}, …,x_{m+n}$，这种可以简单地转换为0-based的情况，只要在最后的结果上加上m就可以了，也就是先尾部索引减去首部索引，求得n，得到0-based的左右中位数，最后加上m<br>$$<br>for\quad x_m, x_{m+1}, …,x_{m+n},\quad median = x_{\frac n2+m},\space x_{\frac{n+1}2+m}<br>$$</p>
+<h1 id="等差数列：公差为k"><a href="#等差数列：公差为k" class="headerlink" title="等差数列：公差为k"></a>等差数列：公差为k</h1><p>场景还可以泛化成等差数列的索引，$x_{km+b},x_{k(m+1)+b},…,x_{k(m+n)+b}$，同样转换为0-based的情况，最后逆向结果。先求n，$n=(tail-head)/k$，得到0-based的左右中位数，加上m，乘k，加b。以左中位数为例，索引为$k(\frac n2+m)+b=(km+b)+k\frac n2$，首部索引加上k倍0-based的左中位数。<br>$$<br>for\quad x_{km+b},x_{k(m+1)+b},…,x_{k(m+n)+b},\quad median = x_{(km+b)+k\frac n2},\space x_{(km+b)+k\frac{n+1}2}<br>$$</p>
+<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><p>首先是直接应用：</p>
+<ul>
+<li>写二分查找应该见过，说<code>mid=lo + (hi - lo) / 2</code>是为了防止溢出，实际上这也是更本质的求中位数索引的方法</li>
+<li>希尔排序，如果使用二分查找来进行插入，数组就是以步长h为公差的等差数列，中位数索引是<code>mid = lo + h * int((hi-lo)/h/2)</code></li>
+</ul>
+<p>还有跟中位数有关的题目，比如复杂的004 median of two sorted array，就不是套公式，而是需要从中位数的定义入手，利用元素个数求解。</p>
 
                 <hr>
                 <div>

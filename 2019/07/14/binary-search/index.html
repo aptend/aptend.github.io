@@ -216,6 +216,63 @@ Note:
     return lo
 </code></pre>
 <h1 id="005-Longest-Palindromic-Substring"><a href="#005-Longest-Palindromic-Substring" class="headerlink" title="005. Longest Palindromic Substring"></a>005. Longest Palindromic Substring</h1><p>上面两个题的g(x)都是x大于某个值，g(x)一直为True。对应的一种变化，出现在<a href="https://aptend.github.io/2019/07/07/rabin-karp/" target="_blank" rel="noopener">Longest palindromic substring的Rabin-Karp解法</a>里，即，当x小于某个值，g(x)一直为True，最后lo的意义是使得g(x)为False的最小值。</p>
+<h1 id="004-Median-of-Two-Sorted-Arrays"><a href="#004-Median-of-Two-Sorted-Arrays" class="headerlink" title="004. Median of Two Sorted Arrays"></a>004. Median of Two Sorted Arrays</h1><p>设两个数组A, B各有$n_1, n_2$个数，左中位数的索引设为k，$k=\frac{n_1+_2-1}2$，右中位数的索引就是$k+1$。索引还有另一个意义——在总的有序数组C中，共有k个数小于等于索引为k的数。所以思路是，尝试取$n_1$中前$m_1$个数，取$n_2$前$m_2$个数，$m_2=k-m_1$，希望这k个数确实是C最小的k个数，即前k个数。</p>
+<p><img src="https://s2.ax1x.com/2019/07/15/ZTFbqS.png" alt="ZTFbqS.png"></p>
+<p>怎么判断？大数集合和小数集合没有交叉，满足：</p>
+<ul>
+<li><code>A[m1] &gt;= A[m1-1]</code></li>
+<li><code>B[m2] &gt;= B[m2-1]</code></li>
+<li><code>A[m1] &gt;= B[m2-1]</code></li>
+<li><code>B[m2] &gt;= A[m1-1]</code></li>
+</ul>
+<p>前两个是有序数组保证的，后两个需要手动检查。</p>
+<p>在考虑如何检查之前，已经可以观察到以m1为自变量的二分查找影子，那不妨先考虑g(x)思路，g(x)表示取出的k个数都小于等于<code>A[m1]</code>。显然当m1越大，g(m1)都为True。所以我们可以找到使g(x)为True的最小m1。</p>
+<p>找出的m1，自然满足等式3：<code>A[m1]&gt;=B[m2-1]</code>。可以证明，因为是最小m1，等式4也满足。利用反证法，如果<code>B[m2] &lt; A[m1-1]</code>，这个不等式就可以看成是最小m1为m1-1时的等式3，即最小m1可以更小，推出矛盾。</p>
+<p>找到C的前k个数后，中位数的备选项就在<code>A[m1]</code>，<code>B[m2]</code>，<code>A[m1+1]</code>，<code>B[m2+1]</code>四个元素中，简单的做法就是进行排序，根据奇偶，选择第一个或者前两个元素来计算中位数。</p>
+<p>然后就是考虑边界条件了。</p>
+<ol>
+<li><p>两个数组都为空，返回None。</p>
+</li>
+<li><p>考虑二分查找时的越界：</p>
+<ul>
+<li>二分应该发生在元素更少的数组上。反例比如，10元素和0元素的数组，二分0元素数组就会造成0元素数组的越界</li>
+<li>m2-1的越界。对每一轮二分的mid，g(x)会检查A[mid]和B[k-mid-1]的大小。当k=mid时，表明C的前k个元素都由A提供，因为二分发生在元素更少的数组上，所以此时A、B元素相等，A[n1-1]、B[0]是C的左右中位数。这种情况应该列入g(x)为True，保证lo是k个数的右边界</li>
+</ul>
+</li>
+<li><p>考虑二分查找后，k寻找中位数的越界：</p>
+<p>也就是考虑<code>A[m1]</code>，<code>B[m2]</code>，<code>A[m1+1]</code>，<code>B[m2+1]</code>四个索引是否越界。可以确定的B[m2]一定存在，因为即使B对k个小数没有任何贡献，A也不可能独立提供左右中位数，不然它的容量将超过B。A为空时，或者找不到g(x)为True时，<code>A[m1]</code>不存在。然后各自检查右边界，来判断是否存在<code>A[m1+1]</code>，<code>B[m2+1]</code>。</p>
+</li>
+</ol>
+<pre><code class="python">def median(nums1, nums2):
+    n1, n2 = len(nums1), len(nums2)
+        if n1 &gt; n2:
+            return median(nums2, nums1)
+        if n2 == 0:
+            return None
+        k = (n1+n2-1) // 2
+        lo, hi = 0, n1-1
+        while lo &lt;= hi:
+            m1 = lo + (hi-lo) // 2
+            m2 = k - m1
+            if m2 == 0 or nums1[m1] &gt;= nums2[m2-1]:
+                hi = m1 - 1
+            else:
+                lo = m1 + 1
+
+        candidates = [nums2[k-lo]]
+        if n1 &gt; 0 and lo &lt; n1:
+            candidates.append(nums1[lo])
+            if lo &lt; n1 - 1:
+                candidates.append(nums1[lo+1])
+        if k-lo &lt; n2 - 1:
+            candidates.append(nums2[k-lo+1])
+        candidates.sort()
+        if (n1+n2) % 2 == 1:
+            return candidates[0]
+        else:
+            return sum(candidates[:2]) * 0.5
+</code></pre>
+<p>这个版本和官方题解有区别，也AC了。不过虽然讨论这么多，也还是感觉没有讨论得足够完备。有机会在补充，可能还要再换个角度。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>如果使用这种思路进行二分查找，前提是能找到这样一个具有二分性质的g(x)。返回值永远是lo，表明使得g(x)状态切换的边缘值。</p>
 <p>具体的模板，我现在更倾向使用对称的那一版，即<code>while lo &lt;= hi</code>。</p>
 <p>有一些问题，比如<a href="https://aptend.github.io/2019/06/20/rotated-array/" target="_blank" rel="noopener">Rotated Array</a>的题，因为没有合适的g(x)可用，只能回归到原始的二分思想，一步步删除不包含最终解的搜索空间。</p>

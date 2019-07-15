@@ -98,7 +98,7 @@
 <h1 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h1><p>思路：选择最小元素，放入有序数组的空位。</p>
 <p>选择方法：<code>n次比较+1次交换</code>。</p>
 <p>特点：过程中<strong>没有利用</strong>计算产生的新信息，即有序数组。</p>
-<p>性能：固定的$\frac{N^2}2$次比较和<code>N</code>次交换</p>
+<p>性能：固定的$N^2/2$次比较和$N$次交换</p>
 <p>稳定：否</p>
 <p>使用场景：交换操作非常昂贵，逆序对比较多</p>
 <pre><code class="python">def selection(nums):
@@ -205,7 +205,7 @@ def insertion_binary(nums):
 <p>除了上述的原理，还有实现上有两个地方注意：</p>
 <ol>
 <li>实现数组h-有序时，相当于需要对h个子数组进行排序。与其事先计算出每个子数组的index，不如扫描所有未排定的数，也就是从index=h的开始，根据它的index倒推回去，index=h表示它属于<code>h%h=0</code>号子数组，index=h+1的表示它属于1号子数组，依次类推，各自在自己的子数组里比较、插入</li>
-<li>使用binary-search优化时，mid的计算涉及到等差数列的上下中位数的计算，因为还有其他题目涉及，我总结到这篇笔记里</li>
+<li>使用binary-search优化时，mid的计算涉及到等差数列的上下中位数的计算，因为还有其他题目涉及，我总结到<a href="https://aptend.github.io/2019/07/14/median/" target="_blank" rel="noopener">这篇笔记</a>里</li>
 </ol>
 <pre><code class="python">def sort_h(nums, h=1):
     &quot;&quot;&quot;
@@ -275,6 +275,8 @@ def shell_binary(nums):
     for h in gen_seq(len(nums)):
         sort_binary_h(nums, h)
 </code></pre>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>插入排序还是本体，无论从思想上还是实现上，其他方法都可借鉴、对比</p>
+<p>基础排序实现时，关注点不妨放在“位置上”，一个萝卜一个坑，思路会更清晰一点。</p>
 
                 <hr>
                 <div>
