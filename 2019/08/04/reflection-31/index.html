@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>LeetCode刷题阶段性回顾 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">LeetCode刷题阶段性回顾</p>
+            <br>
+            
+            <p>Sunday, August 4th 2019, 9:32 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>这周新题做得少了一些，主要在复习做过的题目。顺便也简短总结一下刷题这件事。</p>
+<a id="more"></a>
+<h1 id="Why"><a href="#Why" class="headerlink" title="Why"></a>Why</h1><ol start="0">
+<li>无意间做了advent of code 2018，觉得想要解决问题，还是得打基础</li>
+<li>职业发展绕不过去，不论跳槽还是想深入一些核心工作。</li>
+<li>脑子是没有别人灵光，但是也跟了我二十多年了，不能放弃人家啊，练练，选一些难的路走。</li>
+<li>为什么是LeetCode：刷的人多，资源多</li>
+</ol>
+<h1 id="How"><a href="#How" class="headerlink" title="How"></a>How</h1><p>我做题跟着<a href="https://zxi.mytechroad.com/blog/" target="_blank" rel="noopener">花花Leetcode</a>。先数一下他的优点：</p>
+<ol>
+<li>有规模。题目讲解存量大，而且还稳定更新</li>
+<li>学习方便。大部分题目有视频讲解，新手友好。独立网站有文字、代码归档，方便复习、查阅</li>
+<li>质量高。代码质量高，兼顾效率和风格；讲解的质量也高，给总结规律和套路</li>
+</ol>
+<p>真的，只要你吹花花我们就是兄嘚。</p>
+<p>花花在<a href="https://www.bilibili.com/video/av42947553" target="_blank" rel="noopener">进入千题时代后该如何刷题?</a> 给出了他的题目分类列表，现在我也在按着这个做题。easy、medium、三星hard必做，四星hard做那种偏思路的部分题。</p>
+<p>这周复习的过程中，把花花给的题目分类表重新组织了一下。目标是方便今后复习和总结。</p>
+<p>花花提供的题目列表目前是如下图组织的：<br><img src="https://s2.ax1x.com/2019/08/04/ecPose.png" alt="huahua.png"></p>
+<p>我重做后是这样：</p>
+<p><a href="https://imgchr.com/i/ecKUIO" target="_blank" rel="noopener"><img src="https://s2.ax1x.com/2019/08/04/ecKUIO.png" alt="ecKUIO.png"></a></p>
+<p>我主要做了三个方面的加强：</p>
+<ol>
+<li><p>每个题目都显示写出题目名称，标记难度，并且增加了Digest栏，用来描述题目大意。这两个改动都是为了方便回忆题目的大概意思</p>
+</li>
+<li><p>增加题目讲解的连接。把在网站上能找到的连接都贴了，因为网站上会记录没有制作视频的题目，更全面一些。(B站的图标是个闪电，这个梗不晓得有没有人知道)</p>
+</li>
+<li><p>增加Reivew栏，写些个人看法，主要思路或者相关技巧总结</p>
+</li>
+</ol>
+<h1 id="What-Now-amp-Next"><a href="#What-Now-amp-Next" class="headerlink" title="What Now &amp; Next"></a>What Now &amp; Next</h1><p>按照HuaHua的列表刷题实际上是7月中旬，到现在8月4号，基本上把花花给的Search、Recursion、Tree、BST、BinarySearch五个tag完成了一遍，大概90题左右吧。</p>
+<p>现在的感受，从题目本身来说，Search真的是基础。Tree的路径收集、图的遍历，都是search的直接体现，后面的DP本质上可以看作是对Search的压缩。BST的中序遍历是关键。BinarySearch很容易和其他问题融合。然后就个人能力来说，现在还处在长见识的阶段，并没有达到质变的程度，轻而易举乐在其中离我太远，不求那些，但求坚持下去吧。希望自己的解题、分析能力真的有所长进。</p>
+<p>接下来应该是做DP，仍然要做好复习。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;Life</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
