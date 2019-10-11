@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>果然翻车：第二场 LeetCode 周赛 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">果然翻车：第二场 LeetCode 周赛</p>
+            <br>
+            
+            <p>Tuesday, October 8th 2019, 9:39 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>翻车。果然翻车。GG，技不如人，甘拜下风</p>
+<a id="more"></a>
+<h1 id="结果与过程"><a href="#结果与过程" class="headerlink" title="结果与过程"></a>结果与过程</h1><p>没有程序，直接处刑，排名从23到378。</p>
+<p><img src="https://s2.ax1x.com/2019/09/18/nHTys1.png" alt="ranking"></p>
+<p>问题就出在第二题。这类题我有印象，比如，<code>394-Decode String</code>，<code>726-Number of Atoms</code>。递归或者栈。如果要使用递归，先扫描找到外层括号，对剥去括号的内层字符串递归调用，对递归结果做相应处理，比如重复、反转等。总体思路，写完，提交，bug，一气呵成，被结结实实地糊了一脸。但是因为对这个题的预期时间很短，导致心态不好，没有沉下心来思考细节，用”面向实验编程”的方法，修修补补撞大运。直到40多分钟，发现错误原因，忽略了一次递归实际上可以有多个同级的括号需要剥离。AC的时候，52分钟已过。</p>
+<p>这个时候心态基本崩盘，第二题太不应该了这种想法一直在盘旋。第三题也没有直接灵光一闪，一片混沌中迎来比赛结束……</p>
+<p>等比赛结束了，才想到第三题的基本组件，就是上周才做的maximum subarray，一遍扫描得到k=1时的结果，并且用头尾两个maximum，来考虑大于等于2次重复时的情况，也就是加上数组的sum。最后各种情况取最优。明明能做，心态更没了……</p>
+<h1 id="一点想法"><a href="#一点想法" class="headerlink" title="一点想法"></a>一点想法</h1><p>现在距离比赛，实际上已经过去一个月，期间又参加了四场周赛和秋季编程大赛，成绩都比这次更好，五场成绩均在50~100。</p>
+<p>这个月，我断断续续地，在观察、沉淀、思考自己当时的心态。希望这次周赛带来的收获更深刻一些。</p>
+<h2 id="唯结果论"><a href="#唯结果论" class="headerlink" title="唯结果论"></a>唯结果论</h2><p>这类比赛，如同考试，也应该少谈发挥、少谈心态。没做出题目，就说明对考察点没有灵活掌握。没有那么多”就是这么想的，差一点做出来的”。</p>
+<p>这样的”唯结果论”的好处是，避免自己沉浸到”本可以做出来”的幻想中，提醒自己再学习。</p>
+<p>这个想法强硬，有足够的推动力，因为它用简单粗暴的归因简化了问题的复杂性，直截了当地给出改进方向: 加强技巧本身的训练。</p>
+<p>这对训练的初级、中级阶段，都很有实用价值，提醒自己，不要找借口，老老实实记忆、理解、应用。</p>
+<p>但是这里有个潜藏的问题，唯结果论强调，不要着眼心态、发挥，忘记那个”差一点就做出来”的自己，可真的能忘掉吗？</p>
+<p>如果忘不掉，怎么老老实实复习旧题呢？</p>
+<p>想的可能依旧是，要做新题，要在新题上证明自己能行，那一份”差一点”就赖发挥。在征服新题的过程中才能维持对自己的某种印象。</p>
+<p>是的，我就是那种没忘掉的人。</p>
+<p>所以，唯结果论的推动力要起效果，前提是真正地认同它，接纳它。</p>
+<p>而接纳它的本质，是承认现在的自己还不够好的事实，是认清自己需要提高的现状，是相信通过练习能够改善的未来。</p>
+<p>让你忘掉心态的唯结果论，反而最依赖心态，还是有点节目效果的🙃。</p>
+<p>其实总结下来，让唯结果论生效的心态，就是自我期望的管理，俗话说的就是，能摆正自己的位置。</p>
+<h2 id="自我期望"><a href="#自我期望" class="headerlink" title="自我期望"></a>自我期望</h2><p>认识自己很难，体现在不能把控对自己的期望。</p>
+<p>人的状态、经历，一定时间尺度内，是正弦波动的。高峰的时候，认不清，把高点当作自己的平均值，容易膨胀，对自己期望甚高，激进。低谷的时候，认不清，把低点当作自己的平均值，陷入自我怀疑，对周遭没了兴致，不再继续，不敢尝试。</p>
+<p>第一次周赛做完，第23名，那时我在高峰，虽然口头说要冷静，要复习，防止下次翻车，但还是贪婪地认为，那个能做出全部4题，排名23的才是”我”，这样的”我”不应该在本周的第二题上周旋那么久。</p>
+<p>这种因为自我期望过高而带来的弊端，还体现在平时做题的时候，遇到做不出来的题，常常过分地死磕，如果还没死磕出合理的解法，就陷入烦躁、低谷，觉得自己真的不行，笨，心态爆炸。这种低落引发的负面效果有时还会波及到周围的人。</p>
+<p>现在想来，真正的我，实际上就是一个训练数据结构与算法刚不久的非科班，掌握的套路还不够多，能力不全面，做不出题正常，参赛排名方差大也正常。</p>
+<p>排名20，说明状态好、有灵感的时候，尚有一战之力，之前的练习有效果。排名300，说明递归、栈的类型题没有想象中熟练，可以再复习总结。</p>
+<p>每一次的结果并没有定义”你是谁”，而是在告诉你，如果你想要成为你想成为的人，你可以在什么地方付出时间和思考。</p>
+<p>生活潮起潮落，一时失意，可以感慨，但尽量不要影响后续的行为。摆正自己的位置，看方差是否减小，平均值是否抬升？</p>
+<h2 id="训练心态"><a href="#训练心态" class="headerlink" title="训练心态"></a>训练心态</h2><p>这次周赛后，我觉得，处理情绪，调整心态应该是很重要的技能，应该加以训练。</p>
+<p>据我所知，一种可操作性比较强的调整方法，是具象化自己的情绪，把他们想象成大象、猴子、幼儿园的调皮学生，和他们对话，揭露他们的虚张声势，告知他们我的目标，他让们老老实实回到自己的座位上。如果任由他们折腾，除了过多地消耗我们的精力，并不会对事情的解决有决定性的作用</p>
+<p>这种具象化的意义，除了使情绪可对话，还暗示了一个比较核心的概念: 这些情绪都是和我们共存的，处理他们的方式有且仅是对话，而非驱逐。这给我指了一个大概的训练方向，就是允许情绪出现，但是训练的是在更合理的时间内，站在第三方去观察情绪，和他们对话。</p>
+<p>今后的生活中可以做两件事情：</p>
+<pre><code>1. 固定一下情绪的形象，为他们写背景故事
+2. 如果出现了强烈的情绪波动，尤其是负面情绪，尝试记录劝导过程，并且标记处理时间
+</code></pre><h1 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h1><p>处理好自己真的有点难。但是大多数事，经过训练，必有提升。希望自己能有一个更强健的心理处理能力。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Life</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
