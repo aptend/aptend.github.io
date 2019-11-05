@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>为什么Rust的std::io::Error不包含文件名等信息？ ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">为什么Rust的std::io::Error不包含文件名等信息？</p>
+            <br>
+            
+            <p>Tuesday, November 5th 2019, 4:55 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <blockquote>
+<p>为什么Rust不像Python一样，直接在io error里添加相关路径信息？<br>TLDR; 它的性能偶像包袱太重</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>当处理系统io时，如果报错没有找到文件，我们总希望知道到底是哪个文件没有找到。</p>
+<p>也就是希望相关error在使用Display trait 打印时，可以携带文件的路径信息，像这样</p>
+<pre><code class="txt">path/to/foo: No such file or directory (os error 2)
+</code></pre>
+<p>&nbsp;</p>
+<p>那为什么io::Error本身没有加上路径信息呢？这实际上是个争论点：</p>
+<ul>
+<li><p><a href="https://www.reddit.com/r/rust/comments/bsn0zs/get_which_filename_is_not_found_on_rust_file/" target="_blank" rel="noopener">Get which filename is not found on rust file opening</a></p>
+</li>
+<li><p><a href="https://internals.rust-lang.org/t/add-filename-information-to-io-error/5120" target="_blank" rel="noopener">add-filename-information-to-io-error</a></p>
+</li>
+</ul>
+<h1 id="讨论"><a href="#讨论" class="headerlink" title="讨论"></a>讨论</h1><p>总体的脉络是这样的：  </p>
+<p>添加了路径信息，当然更人性化，舒服（withoutboats，kornel），但是有以下顾虑：</p>
+<ol>
+<li>IO错误，操作系统返回就是简单的错误码，作为标准库，似乎简单地wrap住就足够了（withoutboats）</li>
+<li>添加了路径信息，有的人又不用，标准库要保持最大克制，不要做过多假设，决定权交给程序员，让他们决定是否要添加上下文信息(repax、troplin)</li>
+<li>毕竟增加了字段，性能上有损耗（alex，troplin）</li>
+</ol>
+<p>&nbsp;</p>
+<p>其中第二点，troplin还举了一个例子，现在是建议在io::Error里加入路径信息，那么以同样的理由，在某些情况下，还会希望HashMap.get()在没有找到key时返回错误，并且携带缺失的key信息。最后事情还可能演变成，希望每个函数，如果没有按照预期的轨迹运行，都把参数放入错误里返回，因为这样才是最有助于debug的。</p>
+<p>所以troplin说，错误的主要目的并非日志或者debug，而是逻辑上的“错误处理”，保留最简信息就可以了。</p>
+<p>&nbsp;</p>
+<p>zack，作为力主添加的大佬，提出了一些看法。</p>
+<p>首先他态度坚决地反对了第二点，从现实的角度而言，像这样的系统调用，只要在生产环境，就必须要记录足够细节的日志。这是他的血泪教训，换句话说，如果他的团队里来了新人，他一定不愿意将所谓的决定权给这些新手。</p>
+<blockquote>
+<blockquote>
+<p>repax: I don’t think it’s a good idea to mandate the inclusion of data or operations when they’re not universally applicable.</p>
+</blockquote>
+<p>zack: I categorically reject this position. Based on many, many years of bitter experience debugging shit in production: <em>All</em> applications, no matter what they are or what environment they are in, need the ability to capture and log system call failures in full detail, <em>somehow</em>. Anyone who thinks they don’t is wrong.</p>
+</blockquote>
+<p>他提出了一个观点，有些信息，如果lib的作者不记录，想着交给外层调用者添加，就可能永远丢失了。而这个不记录的情况，因为人的不定因素，总会发生。</p>
+<p>两个例子：</p>
+<p>第一，数据库应用(十年前的SQLite)不记录上下文，如果用户无法打开数据库，错误显示“Permission Denied”，你无法知道到底是哪个文件的权限问题，是主数据库文件，日志文件，还是某个临时文件所用的目录？</p>
+<p>第二，<code>std::fs::create_dir_all</code>，递归创建目录失败，作为调用者，你知道的上下文信息是仅仅是完整的目录，但是出问题的实际上可以是完整目录的任意前缀。</p>
+<p>&nbsp;</p>
+<p>我断断续续地，用一周的时间在理解他们的说法，并且试图还原错误是什么。</p>
+<p>先说结果吧，我认为zack的说法更具价值。troplin、repax的说法更飘，理论上怎么都不会错，但不实在。</p>
+<p>&nbsp;</p>
+<p>首先我不认同troplin的一点是，我认为错误的作用，并不是错误处理占绝对主导。做记录，给人看，帮助使用者调整输入，规避错误，达到预期目的，也是错误很重要的一环。毕竟，错误发生，意味着输入于执行逻辑不匹配，才导致处理中断，<strong>未能完成预期目的</strong>。要强调一点，对于中间层的lib，顶层用户的输入是输入，下层依赖也可以是一种输入，比如操作系统的环境设置，他们都是用户可以修改的，这就是SQLite数据库做法有误的原因。</p>
+<p>要完成目的，可以借助 <strong>错误处理</strong>，按照不同的错误<strong>类型</strong>，采取不同的处理策略，或重试、或换个姿势重试、或发起交互、或跳过，尝试达到目的。</p>
+<p>如果依然无法解决问题，那么就是输入真的有大问题，此时应该 <strong>向人类求助</strong>，告知错误信息，辅助他们调整输入，规避错误。</p>
+<p>&nbsp;</p>
+<p>所以错误的存在，本身要满足两个特性</p>
+<ol>
+<li>方便区分，进行错误处理。结构化的类型就是一种有效的区分手段；</li>
+<li>有展示的能力，并且展示的信息必须足够帮助外部人员调整输入，规避错误。也就是日志、debug的作用</li>
+</ol>
+<p>&nbsp;</p>
+<p>我是怎么得到这个结论的呢？因为我假想了一种极端情况，如果说，往错误里添加额外信息没有性能损耗，troplin例子中看似荒诞的情况，就是我们真正需要的。即，如果一个函数没有按照期望执行，就在错误里报告他所知的上下文，参数，甚至局部变量。这样就等于我们无代价地监控了程序的运行状态，debug能力直接拉满，皆大欢喜。</p>
+<p>然而现实中，因为性能原因，不允许我们这样做，于是妥协，选择放弃一部分上下文信息，只保留必要的信息。这是一种用易用性换性能的手段，而不是错误本不应该面向debug而设计。</p>
+<p>&nbsp;</p>
+<p>理解了错误的定位，那么就可以讨论要妥协到什么程度，以及为什么说，有的信息，lib不记录就永远丢失了。</p>
+<p>丢失的原因，是lib的作者误判了自己的逻辑深度和抽象边界(zack)。</p>
+<p>如果一个lib对下层依赖隔离得比较彻底，甚至没有依赖，那么把错误的上下文信息交给调用者保存，问题不大。比如文件系统，出了错，告知什么错误，这部分信息量就足够 <em>直接调用者</em> 改变自己的使用方式来规避错误。</p>
+<p>再比如，json反序列化的解析器，没有依赖带来的错误，自定义错误比如<code>ExpectedBoolean</code>, <code>ExpectedString</code>等等，都只和输入相关。告知错误，由提供输入的 <em>直接调用层</em>  来添加具体的出错位置，这是OK的。注意用户并不是 <em>直接调用者</em>， 用户只提供了总体的输入，比如1000行的json文本，而json库内部还有一层抽象去分解这1000行，按某种顺序喂给特定的解析函数，所以不妨把这三层称为 user - tokenizer - parser。解析器parser在最底层，它出错的唯一可能是输入有误，所以它可以不保存tokenizer为自己提供的上下文，让tokenizer来做。tokenizer这一层就不能再让用户来保存上下文了，用户只有1000行的文本，如果tokenizer只返回一个<code>ExpectedBoolean</code>错误，而没有大概的行、列数，这就很过分，因为无法帮助用户快速调整输入，规避错误，达到目的。</p>
+<p>同理，zack举的<code>std::fs::create_dir_all</code>，就是增加了逻辑深度，但没有记录上下文。按照repax、troplin的理想状态，决定权交给程序员，那么这里的fs实际应该自己创建一个新的错误类型，添加好上下文后再传递到更上层。</p>
+<p>但是fs没有这么做，这就是zack主张把路径放入io::Error的关键理由：不要过分信任程序员，一如rust编译器度程序员的态度。如果标准库确定要和操作系统的错误保持一致，那么每一个依赖系统调用的lib或app，都应该创建一个错误链，为io::Error添加必要的路径信息。只要生产环境，概无例外。zack用职业经验担保这一点。显然这和性能无损的监控一样不现实，连std::fs自己都没有做到。所以不如直接在io::Error里添加这样的信息。</p>
+<p>这样做，实际上是让标准库改变自己的定位，不再是操作系统的简单包装，而是一个以操作系统为依赖，拥有内部逻辑的，面向程序员使用的中间lib。当然zack还提了一个更不太现实的方案，如果编译器能发现lib的作者没有构建自己的错误链，并且把io::Error放进去，直接报错，那也可以，就不用改io::Error了。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>错误本来就应该具有 易区分 和 帮助定位问题 的 作用，因为性能原因，底层lib常常省略上下文。但是这不应成为错误的常态，中间lib，使用添加上下文的错误设计，才是为未来节省时间的良策。</li>
+<li><p>就事论事，io::Error里要不要添加路径信息？也就是标准库作为操作系统上面的那层包装，要不要牺牲一点性能，来帮助“愚蠢的程序员”？你问我资瓷不资瓷，我当然是资瓷的。即使不改io::Error，也应该为fs添加新的错误，比如PathIOError之类的，让上层用起来更方便。</p>
+</li>
+<li><p>但现实就是，标准库依然定位于操作系统层的简单包装，io::Error没有路径信息。当你在考虑需不需要为io::Error增加路径上下文时，就应该增加。</p>
+</li>
+<li>说错误影响性能，但到底有没有人测量过，加了路径信息的错误，让性能承受了多大的损失？没有量化数据，总觉得在和空气斗智斗勇 🙂</li>
+</ol>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Rust</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
