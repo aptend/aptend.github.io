@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>crate failure 的五种错误模式 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">crate failure 的五种错误模式</p>
+            <br>
+            
+            <p>Tuesday, November 5th 2019, 9:38 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <blockquote>
+<p>总结一下failure曾给出的五种错误设计模式。他们适合什么场景？现在有更好的选择吗？</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="五种模式解析"><a href="#五种模式解析" class="headerlink" title="五种模式解析"></a><a href="https://rust-lang-nursery.github.io/failure/guidance.html" target="_blank" rel="noopener">五种模式</a>解析</h2><ol>
+<li><p>String</p>
+<p>即每个函数返回的类型为Result&lt;T, String&gt;</p>
+<p>示意图：</p>
+<p><img src="https://s2.ax1x.com/2019/11/02/KqkVm9.png" alt="string-err"></p>
+<p>优点：不费脑子，基础设施代码少，方便快捷一把梭，?可以将各种错误转换为字符串</p>
+<p>缺点：</p>
+<ol>
+<li>scattering：错误信息字符串散乱在代码各处，维护起来比较困难</li>
+<li>brittle：如果调用者要针对不同的错误做特殊处理，只能靠字符串匹配，要是你改变了错误信息，下游的错误处理全部崩盘</li>
+</ol>
+<p>适用场景： 原型期，非lib工程，或者适用于那些十分罕见的错误，如果遇到要么写入日志，要么跳过，不会单独识别出来做特殊处理</p>
+</li>
+</ol>
+<p>&nbsp;</p>
+<ol start="2">
+<li><p>Using the Error type</p>
+<p>即函数的返回类型为Result&lt;T, Error&gt;</p>
+<p>示意图：</p>
+<p><img src="https://s2.ax1x.com/2019/11/02/KqkNkt.png" alt="error-type"></p>
+<p>优点</p>
+<ol>
+<li>不需要自定义错误类型</li>
+<li>因为只要实现了<code>Fail</code>的都可以转换为Error类型，可以用?操作符</li>
+<li>同时因为转换方便，面对将来新增依赖带来的新错误类型，也能不加修改地向外传递.</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>Error要新分配内存，性能有时候没有自定义错误类型好</li>
+<li>只有downcast才能获取原有的错误类型</li>
+</ol>
+<p>适用场景：错误的类型系统不是很重要，重要的是写入日志或者展示给用户。application比较适合，结构化的错误类型不是必须的，重点是能包容各方依赖的错误。其实这个看上去有点像String的升级版，不过支持downcast反向转换。</p>
+</li>
+</ol>
+<p>&nbsp;</p>
+<ol start="3">
+<li><p>Custom Fail type</p>
+<p>即函数返回的类型为Result&lt;T, ProjectError&gt;, 其中ProjectError是各种错误的枚举，并且实现相关错误Trait，比如failure::Fail、std::error::Error</p>
+<p>示意图：</p>
+<p><img src="https://s2.ax1x.com/2019/11/02/KqcM6I.png" alt="fail-type"></p>
+<p>优点：</p>
+<ol>
+<li>可以枚举可能出现的所有错误类型</li>
+<li>完全控制每个错误类型的打印格式</li>
+<li>调用者不用做downcast就可以获得详细的错误信息</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>在嵌套错误时，必须显示使用#[cause]指明下层错误，便于derive实现cause。这种形式不一定保证兼容之后所有依赖的错误类型。</li>
+<li>错误枚举选项(variants)和底层错误是一对一关系。</li>
+</ol>
+<p>我不是很理解这个两个缺点的意思，翻译得可能也不准确。</p>
+<p>第二点是不是指，如果在只使用？操作符的情况下，你只能为底层错误写一个转换到ProjectError的From trait，只能转换到ProjectError的其中一个枚举，这样语义上可能达不到要求。比如io::Error可以是FileSystemError也可以是NetworkError，在lib层面做一个区分就会更有意义，而这在第4种Error and ErrorKind中能实现，因为使用显示的context来转化。</p>
+<p>适用场景：文档说的意思是，这个模式比较适合没有底层错误的错误。如果要组合底层错误，推荐使用后面Error and ErrorKind的模式。</p>
+</li>
+</ol>
+<p>&nbsp;</p>
+<ol start="4">
+<li><p>An Error and ErrorKind pair</p>
+<p>最健壮的error管理方式，当然维护起来是最麻烦的。</p>
+<p>整体思路是2、3的整合。具体是让自定义的ProjectError，承担Error的角色，让所有错误都可以相对快捷地转换到ProjectError类型。</p>
+<p>示意图：</p>
+<p><img src="https://s2.ax1x.com/2019/11/02/KqAtu4.png" alt="ErrorKind"></p>
+<p>ProjecError的主体实际上是一个Context结构，Context左手一个ErrorKind，右手一个failure。ErrorKind就是lib层面自定义的结构化错误，外部代码可以通过对ProjectError调用kind方法来确定错误类型。failure记载导致ErrorKind的下层错误。和Custom Fail Error示意图一样，我用橙色标记了错误的主体，可以看到ErrorKind版本，实际上新增了一层统一的Context抽象，把原本当主体的ErrorKind拿来当一个字段。</p>
+<p>优点：</p>
+<ol>
+<li>兼容性好</li>
+<li>可以添加信息</li>
+<li>把底层错误转换到统一的ProjectError</li>
+<li>不用downcast</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>比较复杂，写很多模板代码</li>
+<li>结构复杂，allocation比较多，不适合性能要求高的应用</li>
+<li>[个人] 不能完全控制错误的Display的方式，Project的Display实现调用Context，Context只会打印ErrorKind的Display，在Debug Trait里则会用换行符连接ErrorKind和cause failure。你只能控制ErrorKind的展示，但是不能控制ErrorKind和cause failure在一块的展示格式。</li>
+</ol>
+<p>适用场景：中间层的lib，有众多依赖，且面向生产环境使用。希望提供完整的结构化错误，并且添加足量的上下文信息，可以使用这个模式。</p>
+</li>
+</ol>
+<p>&nbsp;</p>
+<ol start="5">
+<li><p>Strings and Custom Fail Type</p>
+<p>本质是把ErrorKind换成String、&amp;str。</p>
+<p>示意图：</p>
+<p><img src="https://s2.ax1x.com/2019/11/02/KqfclQ.png" alt="string-custom"></p>
+<p>动机说明 &amp; 优点 &amp; 适用场景：</p>
+<ol>
+<li>想提供除了Error之外的更具语义的ProjectError，比如例子中的EncodeError和DecodeError。同时还不想写复杂的ErrorKind，因为上下文实在太多了，并且上层调用实际上并不是很想错误处理，只想要一个友好的错误说明。</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>Context\&lt;String>要多出allocation</li>
+<li>[个人] string信息依然散乱在各处，不方便维护</li>
+</ol>
+</li>
+</ol>
+<p>&nbsp;</p>
+<h2 id="还有更好的选择吗"><a href="#还有更好的选择吗" class="headerlink" title="还有更好的选择吗"></a>还有更好的选择吗</h2><p>其实看下来Custom Fail Type的结构是最简单的，Error and ErrorKind在其基础上引入Context而成。</p>
+<p>ErrorKind模式不能完全控制展示格式，也正是因为引入的这个Context。如果想完全控制，就得把底层错误写入ErrorKind的字段里。这样就和Context的failure字段重复了，很呆。这个问题在使用context为io Error添加错误时有实际体现(见)。</p>
+<p>既然如此，为什么不让context方法直接返回Custom Fail Type呢？这样也能规避Coustom Fail Type和底层错误一对一绑定的尴尬。这个思想就是 <a href="https://docs.rs/snafu/0.5.0/snafu/" target="_blank" rel="noopener">crate snafu</a> 的实现依据</p>
+<pre><code class="rust">#[derive(Debug, Snafu)]
+enum Error {
+    #[snafu(display(&quot;Could not open config from {}: {}&quot;, filename.display(), source))]
+    OpenConfig {
+        filename: PathBuf,
+        source: std::io::Error,
+    },
+    #[snafu(display(&quot;Could not save config to {}: {}&quot;, filename.display(), source))]
+    SaveConfig {
+        filename: PathBuf,
+        source: std::io::Error,
+    },
+    #[snafu(display(&quot;The user id {} is invalid&quot;, user_id))]
+    UserIdInvalid { user_id: i32, backtrace: Backtrace },
+}
+
+// 理解了这个想法，使用上也挺直观的
+// OpenConfig { filename } 是一个实现了IntoError的结构，由From trait调用转换为Error
+let config = fs::read(filename).context(OpenConfig { filename })?;
+fs::write(filename, config).context(SaveConfig { filename })?;
+</code></pre>
+<p>经过一个多星期的对比，我目前觉得 snafu 的设计是挺好的，适合需要严谨设计错误的中间lib。事实上，稍微有点追求的application也可以这样搞，因为可以集中修改display的信息，虽然使用String的方案很方便，但是依然存在信息散乱，修改不方便的问题。另外，snafu依赖的也是标准库的error，之后如果有变动，迁移起来会比failure方便。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Rust</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;ErrorHandling</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
