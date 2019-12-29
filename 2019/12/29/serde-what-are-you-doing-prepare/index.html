@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>serde你在干什么 - 环境准备 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">serde你在干什么 - 环境准备</p>
+            <br>
+            
+            <p>Sunday, December 29th 2019, 11:53 am</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>serde 源码解析 准备篇</p>
+<a id="more"></a>
+<p>最近做一个练习项目，要求利用serde，为Redis Simple Protocol写一个序列化、反序列化工具。</p>
+<p>理解Redis Simple Protocol倒是不难，可是这个serde，人都给我看蒙了。尤其在看反序列化过程的时候，心态一度爆炸，写下了这样的感想：</p>
+<blockquote>
+<p>太复杂了</p>
+<p>太TM复杂了</p>
+<p>想吼想哭想闹</p>
+<p>想吃垃圾食品</p>
+<p>想一瞬间变成天上乌漆嘛黑的冰雹云</p>
+<p>轰他娘的山本联队</p>
+</blockquote>
+<p>最后总算硬着头皮写出了一版。记录下这个过程。</p>
+<p>要了解serde，光看文档难度还是太高了，像是读词典小说，文学上想想《哈扎尔辞典》，游戏上想想宫崎英高养起来的大批”魂学家”，就是那种支离破碎的感觉。所以还原为时间顺序，一步步理解起来更容易。官网给出了一个简化的json样例，叫<a href="https://github.com/serde-rs/example-format" target="_blank" rel="noopener">serde-example</a>，我的学习就是基于这份代码。按照下面的步骤，不妨先把环境搭建起来。</p>
+<h2 id="build"><a href="#build" class="headerlink" title="build"></a>build</h2><p>将仓库克隆到本地，修改<code>cargo.toml、ser.rs、de.rs</code>三个文件，支持edition-2018，也随意升级一下serde版本，没什么关系。这个时候<code>cargo check</code>应该可以通过了。</p>
+<pre><code class="rust">// cargo.toml
+[package]
+name = &quot;serde-example&quot;
+edition = &quot;2018&quot;  // 新增edition，使用2018的标准
+version = &quot;0.1.0&quot;
+authors = [&quot;David Tolnay &lt;dtolnay@gmail.com&gt;&quot;]
+license = &quot;MIT OR Apache-2.0&quot;
+description = &quot;An example Serializer and Deserializer data format for Serde&quot;
+repository = &quot;https://github.com/serde-rs/example-format&quot;
+documentation = &quot;https://serde.rs/data-format.html&quot;
+keywords = [&quot;serde&quot;]
+categories = [&quot;encoding&quot;]
+publish = false
+
+[dependencies]
+serde = { version = &quot;1.0.103&quot;, features = [&quot;derive&quot;] }  // 修改
+
+</code></pre>
+<pre><code class="rust">// ser.rs &amp; de.rs
+use crate::error::{Error, Result}; // 增加crate
+</code></pre>
+<h2 id="run"><a href="#run" class="headerlink" title="run"></a>run</h2><p>添加<code>src/bin/inspect.rs</code></p>
+<pre><code class="rust">// src/bin/inspect.rs
+use serde::{Deserialize, Serialize};
+use serde_example::{from_str, to_string};
+
+#[derive(Debug, Serialize, Deserialize)]
+enum Command {
+    Set { key: String, value: String },
+    Get { key: String },
+    Rm(String),
+    Quit,
+}
+
+fn main() {
+    let cmd = Command::Set {
+        key: &quot;A&quot;.to_owned(),
+        value: &quot;42&quot;.to_owned(),
+    };
+    let ser_cmd = to_string(&amp;cmd).unwrap();
+    let de_cmd: Command = from_str(&amp;ser_cmd).unwrap();
+    println!(
+        &quot;origin: {:?}\nserialized: {}\ndeserialized: {:?}&quot;,
+        cmd, ser_cmd, de_cmd
+    );
+}
+</code></pre>
+<p>运行<code>cargo run --bin inspect</code>就会输出</p>
+<pre><code class="shell">origin: Set { key: &quot;A&quot;, value: &quot;42&quot; }
+serialized: {&quot;Set&quot;:{&quot;key&quot;:&quot;A&quot;,&quot;value&quot;:&quot;42&quot;}}
+deserialized: Set { key: &quot;A&quot;, value: &quot;42&quot; }
+</code></pre>
+<h2 id="expand-derive"><a href="#expand-derive" class="headerlink" title="expand derive"></a>expand derive</h2><p>还有一份关键的代码，藏在<code>#[derive(Debug, Serialize, Deserialize)]</code>里，这条语句自动生成一些(很多!)代码，为<code>Command</code>实现关键的两个序列化trait。</p>
+<p>这要借助<a href="https://github.com/dtolnay/cargo-expand" target="_blank" rel="noopener">cargo-expand</a>工具，如果没有先装一下，一般下面两个命令搞定</p>
+<pre><code class="shell">$ rustup toolchain install nightly  # 如果只使用过stable版本，需要先装nightly
+$ cargo install cargo-expand
+</code></pre>
+<p>运行<code>cargo expand --bin inspect</code>，终端输出生成代码。</p>
+<p>其中一段类似下面这样，实现的是<code>Serialize</code>，把它复制到<code>derive_ser.rs</code></p>
+<pre><code class="rust">const _IMPL_SERIALIZE_FOR_Command: () = {
+    #[allow(unknown_lints)]
+    #[allow(rust_2018_idioms)]
+    extern crate serde as _serde;
+    #[automatically_derived]
+    impl _serde::Serialize for Command {
+        fn serialize&lt;__S&gt;(&amp;self, __serializer: __S) -&gt; _serde::export::Result&lt;__S::Ok, __S::Error&gt;
+        where
+            __S: _serde::Serializer,
+        {
+            match *self {
+                Command::Set { ref key, ref value } =&gt; {
+                    ...
+                    _serde::ser::SerializeStructVariant::end(__serde_state)
+                }
+                Command::Get { ref key } =&gt; {
+                    ...
+                    _serde::ser::SerializeStructVariant::end(__serde_state)
+                }
+                Command::Rm(ref __field0) =&gt; _serde::Serializer::serialize_newtype_variant(
+                    __serializer,
+                    &quot;Command&quot;,
+                    2u32,
+                    &quot;Rm&quot;,
+                    __field0,
+                ),
+                Command::Quit =&gt; _serde::Serializer::serialize_unit_variant(
+                    __serializer,
+                    &quot;Command&quot;,
+                    3u32,
+                    &quot;Quit&quot;,
+                ),
+            }
+        }
+    }
+};
+
+</code></pre>
+<p>另一段结构像这样，实现的是<code>Deserialize</code>，把它复制到<code>derive_de.rs</code></p>
+<pre><code class="rust">const _IMPL_DESERIALIZE_FOR_Command: () = {
+    #[allow(unknown_lints)]
+    #[allow(rust_2018_idioms)]
+    extern crate serde as _serde;
+    #[automatically_derived]
+    impl&lt;&#39;de&gt; _serde::Deserialize&lt;&#39;de&gt; for Command {
+        fn deserialize&lt;__D&gt;(__deserializer: __D) -&gt; _serde::export::Result&lt;Self, __D::Error&gt;
+        where
+            __D: _serde::Deserializer&lt;&#39;de&gt;,
+        {
+            #[allow(non_camel_case_types)]
+            enum __Field { __field0, __field1, __field2,  __field3, }
+            struct __FieldVisitor;
+            impl&lt;&#39;de&gt; _serde::de::Visitor&lt;&#39;de&gt; for __FieldVisitor {
+                type Value = __Field;
+                fn expecting(&amp;self, __formatter: &amp;mut _serde::export::Formatter) ... {} 
+                fn visit_u64&lt;__E&gt;(self, __value: u64) ... {}        
+                fn visit_str&lt;__E&gt;(self, __value: &amp;str) ... {}
+                fn visit_bytes&lt;__E&gt;(self, __value: &amp;[u8]) ... {}
+                }
+            }
+            impl&lt;&#39;de&gt; _serde::Deserialize&lt;&#39;de&gt; for __Field {
+                #[inline]
+                fn deserialize&lt;__D&gt;(__deserializer: __D) ... {}
+            }
+
+            struct __Visitor&lt;&#39;de&gt; { 
+                marker: _serde::export::PhantomData&lt;Command&gt;,
+                lifetime: _serde::export::PhantomData&lt;&amp;&#39;de ()&gt;,
+            }
+            impl&lt;&#39;de&gt; _serde::de::Visitor&lt;&#39;de&gt; for __Visitor&lt;&#39;de&gt; {
+                type Value = Command;
+                fn expecting(&amp;self, __formatter: &amp;mut _serde::export::Formatter)
+                fn visit_enum&lt;__A&gt;(self, __data: __A) -&gt; _serde::export::Result&lt;Self::Value, __A::Error&gt;
+                where
+                    __A: _serde::de::EnumAccess&lt;&#39;de&gt;,
+                {
+                    match match _serde::de::EnumAccess::variant(__data) {
+                        _serde::export::Ok(__val) =&gt; __val,
+                        _serde::export::Err(__err) =&gt; {
+                            return _serde::export::Err(__err);
+                        }
+                    } {
+                        (__Field::__field0, __variant) =&gt; {...}                       
+                        (__Field::__field1, __variant) =&gt; {...} 
+                        (__Field::__field2, __variant) =&gt; {...} 
+                        (__Field::__field3, __variant) =&gt; {...} 
+                    }
+                }
+            }
+
+            const VARIANTS: &amp;&#39;static [&amp;&#39;static str] = &amp;[&quot;Set&quot;, &quot;Get&quot;, &quot;Rm&quot;, &quot;Quit&quot;];
+            _serde::Deserializer::deserialize_enum(
+                __deserializer,
+                &quot;Command&quot;,
+                VARIANTS,
+                __Visitor {
+                    marker: _serde::export::PhantomData::&lt;Command&gt;,
+                    lifetime: _serde::export::PhantomData,
+                },
+            )
+        }
+    }
+};
+
+</code></pre>
+<p>好了，准备工作就这么多。开始受苦吧。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Rust</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
