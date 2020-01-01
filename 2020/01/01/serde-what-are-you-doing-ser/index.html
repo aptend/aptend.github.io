@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>serde你在干什么 - serialize ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">serde你在干什么 - serialize</p>
+            <br>
+            
+            <p>Wednesday, January 1st 2020, 11:18 am</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>serde 源码解析 serialization篇</p>
+<a id="more"></a>
+<p>关于serialize的过程，文章 <a href="https://www.joshmcguigan.com/blog/understanding-serde/" target="_blank" rel="noopener">understanding serde</a> 讲得非常详细、非常好，用的例子还是真实的源码。推荐。</p>
+<p>这篇文章最大的价值，是解释清楚了什么是所谓的<a href="https://serde.rs/data-model.html" target="_blank" rel="noopener">serde data model</a>。</p>
+<p>它本身并不是一种中间的数据结构，而是一种纯粹的概念上的分类。</p>
+<p>通常，对于序列化和反序列化，一个自然的想法，是建立一个中间抽象层，把Rust中的数据结构映射成中间的抽象层，然后再基于这个统一的抽象层，比如一个大的enum，然后对enum中的项目，则可以采用不同的翻译方式，转化成json、yaml等格式。</p>
+<p>有了这个想法，再看 <code>Serialize</code> 和 <code>Serializer</code> trait的名字，望文生义都觉得没什么不妥。<code>Serialize</code>负责将Rust的数据结构转换到中间层，<code>Serializer</code>再负责把中间层翻译成具体的json、yaml。而中间层就是<code>serde data model</code>。这个模式其实很常见，连rust的编译都没逃过，想想Rustc、LLVM、MIR，是不是呼应上了？都呼应上了。</p>
+<p>但是事情并不是这样的。</p>
+<p>带着好奇，不妨来看代码。接下来用的，是在准备篇中介绍的简化版 serde_json。</p>
+<h2 id="故事开始"><a href="#故事开始" class="headerlink" title="故事开始"></a>故事开始</h2><p>序列化的开始是在<code>bin/inpsect.rs</code>调用了<code>serde_example::to_string</code></p>
+<pre><code class="rust">// inspect.rs
+let ser_cmd = to_string(&amp;cmd).unwrap();
+</code></pre>
+<p><code>to_string</code> 构建了一个<code>crate::ser::Serializer</code>类型的实例<code>serialzer</code>，包含一个字段<code>output</code>，类型为<code>String</code>，可以猜到，接下来的序列化，就是<code>serialzer</code>的一场”看图作文”练习，根据内存中的数据，按照对应的格式，写到<code>self.output</code>中。</p>
+<p>这个动作开始于<code>value.serialize(&amp;mut serializer)?;</code>，魔法的开始之地，其中<code>value</code>是传入的<code>Command</code>实例。<code>Command</code>的<code>serialze</code>方法，由derive自动生成，所以接下来要看<code>derive_ser.rs</code></p>
+<pre><code class="rust">// ser.rs
+
+pub struct Serializer {
+    output: String,
+}
+
+pub fn to_string&lt;T&gt;(value: &amp;T) -&gt; Result&lt;String&gt;
+where
+    T: Serialize,
+{
+    let mut serializer = Serializer {
+        output: String::new(),
+    };
+    value.serialize(&amp;mut serializer)?;
+    Ok(serializer.output)
+}
+</code></pre>
+<h2 id="从serde-Serialize的角度"><a href="#从serde-Serialize的角度" class="headerlink" title="从serde::Serialize的角度"></a>从serde::Serialize的角度</h2><p>之前我们猜，<code>serde::Serialize</code>负责将Rust的原生类型整合为一个中间类型。现在就可以看到实际发生的，和猜想的有什么不同。<code>serialize</code>方法一进，劈头盖脸就是一个<code>match</code>，结构一目了然，四个枚举项，就问你们谁要序列化？</p>
+<pre><code class="rust">const _IMPL_SERIALIZE_FOR_Command: () = {
+    #[allow(unknown_lints)]
+    #[allow(rust_2018_idioms)]
+    extern crate serde as _serde;
+    #[automatically_derived]
+    impl _serde::Serialize for Command {
+        fn serialize&lt;__S&gt;(
+            &amp;self,
+            __serializer: __S,
+        ) -&gt; _serde::export::Result&lt;__S::Ok, __S::Error&gt;
+        where
+            __S: _serde::Serializer,
+        {
+            match *self {
+                Command::Set { ref key, ref value } =&gt; ...
+                Command::Get { ref key } =&gt; ...
+                Command::Rm(ref __field0) =&gt; ...
+                Command::Quit =&gt; ...
+            }
+        }
+    }
+};
+
+</code></pre>
+<p>比如<code>Command::Set</code>需要序列化，主体结构也非常明晰，给需要写作文的<code>serializer</code>安排四个步骤：</p>
+<ol>
+<li><code>serialize_struct_variant</code>，现在要序列化一个结构型的枚举项，告诉你几个关键信息好吧，枚举类型名称叫<code>&quot;Command&quot;</code>，当前枚举项排行第一，名字叫<code>&quot;Set”</code>，共有两个字段。好了，写去吧。写好了？过程中没什么意外发生吧，我检查检查，em……，Ok，在此基础上给你第二个任务 (这里的返回类型是<code>SerializeStructVariant</code>，之后再谈)；</li>
+<li><code>serialize_field</code>，接着序列化结构中的字段，字段名为”key”，实际内容也给你，写去吧。写好了？我检查检查，em……，Ok，在此基础上给你第三个任务；</li>
+<li><code>serialize_field</code>，还是序列化结构中的字段，字段名为”value”，实际内容也给你，写去吧。写好了？我检查检查，em……，Ok，在此基础上给你第四个任务；</li>
+<li><code>end</code>，结束了，没什么数据给你了，你最后收拾收拾，给小作文润色润色吧。</li>
+</ol>
+<pre><code class="rust">// ... 
+// after Command::Set was matched
+let mut __serde_state = match _serde::Serializer::serialize_struct_variant(
+    __serializer,
+    &quot;Command&quot;,
+    0u32,
+    &quot;Set&quot;,
+    0 + 1 + 1,
+) {
+    _serde::export::Ok(__val) =&gt; __val,
+    _serde::export::Err(__err) =&gt; {
+        return _serde::export::Err(__err);
+    }
+};
+match _serde::ser::SerializeStructVariant::serialize_field(
+    &amp;mut __serde_state,
+    &quot;key&quot;,
+    key,
+) {
+    _serde::export::Ok(__val) =&gt; __val,
+    _serde::export::Err(__err) =&gt; {
+        return _serde::export::Err(__err);
+    }
+};
+match _serde::ser::SerializeStructVariant::serialize_field(
+    &amp;mut __serde_state,
+    &quot;value&quot;,
+    value,
+) {
+    _serde::export::Ok(__val) =&gt; __val,
+    _serde::export::Err(__err) =&gt; {
+        return _serde::export::Err(__err);
+    }
+};
+_serde::ser::SerializeStructVariant::end(__serde_state);
+</code></pre>
+<p>我们看到，<code>serde::Serialize</code>没有想我们预想中的那样，在内存中新开辟空间来存放”中间类型”数据，而是把中间类型体现在对<code>serializer</code>的使用上，<code>Serialize</code>看出来，当前数据属于<code>struct_variant</code>，所以直接调用<code>serialize</code>中对应的方法。同理，对<code>Command::Rm</code>，调用的是<code>newtype_variant</code>，对<code>Command::Quit</code>调用的是<code>unit_variant</code>。</p>
+<pre><code class="rust">Command::Rm(ref __field0) =&gt; {
+    _serde::Serializer::serialize_newtype_variant(
+        __serializer,
+        &quot;Command&quot;,
+        2u32,
+        &quot;Rm&quot;,
+        __field0,
+    )
+}
+
+Command::Quit =&gt; _serde::Serializer::serialize_unit_variant(
+    __serializer,
+    &quot;Command&quot;,
+    3u32,
+    &quot;Quit&quot;,
+)
+</code></pre>
+<p>所以，<code>serde data model</code>是<code>serde::Serialize</code>和<code>serde::ser::Serializer</code>共同承认的一套概念。<code>serde::ser::Serializer</code>用方法的形式，明确自己对某个<code>data model</code>的处理方式。而<code>serde::Serialize</code>则负责观察数据，将其分类，告知、提示<code>serde::ser::Serializer</code>该怎么做，即调用它的方法。这个过程中，数据只有一份。所以，如果对设计模式熟悉，这可以看成是访问者模式的一种应用。</p>
+<h2 id="从serde-ser-Serializer的角度"><a href="#从serde-ser-Serializer的角度" class="headerlink" title="从serde::ser::Serializer的角度"></a>从serde::ser::Serializer的角度</h2><p>到这里，我们该看<code>serialzier</code>具体是怎么写作文的了。</p>
+<p>第一个任务，<code>serialize_struct_variant</code>。根据json，<code>Command::Set{ key: &quot;A&quot;, val: &quot;42&quot; }</code>表现为<code>{&quot;Set&quot;:{&quot;key&quot;:&quot;A&quot;,&quot;value&quot;:&quot;42&quot;}}</code>，所以忽略名称<code>&quot;Command&quot;</code> 以及枚举项的位置。作文起手，单走一个<code>{</code>，接一手字符串&amp;str<code>“Set”</code>的序列化小作文。关于字符串的<code>serde::Serialize</code>已经在<a href="https://docs.serde.rs/src/serde/ser/impls.rs.html#43-51" target="_blank" rel="noopener">Serde crate内部实现</a>，其实也很容易猜到，实现调用给定<code>serializer</code>的<code>serialze_str</code>方法，为字符传类型添加引号。到这里，<code>self.output</code>的值为<code>{&quot;Set&quot;</code>，最后再接一个<code>&quot;:{&quot;</code>形成 <code>{&quot;Set&quot;:{</code></p>
+<pre><code class="rust">// ser.rs
+fn serialize_struct_variant(
+    self,
+    _name: &amp;&#39;static str,
+    _variant_index: u32,
+    variant: &amp;&#39;static str,
+    _len: usize,
+) -&gt; Result&lt;Self::SerializeStructVariant&gt; {
+    self.output += &quot;{&quot;;
+    variant.serialize(&amp;mut *self)?;
+    self.output += &quot;:{&quot;;
+    Ok(self)
+}
+
+...
+
+fn serialize_str(self, v: &amp;str) -&gt; Result&lt;()&gt; {
+    self.output += &quot;\&quot;&quot;;
+    self.output += v;
+    self.output += &quot;\&quot;&quot;;
+    Ok(())
+}
+</code></pre>
+<p>如前所说，<code>serialize_struct_variant</code>返回的应该是一个<code>SerializeStructVariant</code>类型，这其实是一个trait，<code>ser.rs</code>为当前的<code>serializer</code>实现了该trait，所以返回的是<code>Ok(self)</code></p>
+<p>和<code>SerializeStructVariant</code>类似的，有下面这些，定义在<a href="https://docs.serde.rs/serde/ser/index.html#traits" target="_blank" rel="noopener">Serde中ser模组</a>：</p>
+<table>
+<thead>
+<tr>
+<th>Trait</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.serde.rs/serde/ser/trait.SerializeMap.html" target="_blank" rel="noopener">SerializeMap</a></td>
+<td>Returned from <code>Serializer::serialize_map</code>.</td>
+</tr>
+<tr>
+<td><a href="https://docs.serde.rs/serde/ser/trait.SerializeSeq.html" target="_blank" rel="noopener">SerializeSeq</a></td>
+<td>Returned from <code>Serializer::serialize_seq</code>.</td>
+</tr>
+<tr>
+<td><a href="https://docs.serde.rs/serde/ser/trait.SerializeStruct.html" target="_blank" rel="noopener">SerializeStruct</a></td>
+<td>Returned from <code>Serializer::serialize_struct</code>.</td>
+</tr>
+<tr>
+<td><a href="https://docs.serde.rs/serde/ser/trait.SerializeStructVariant.html" target="_blank" rel="noopener">SerializeStructVariant</a></td>
+<td>Returned from <code>Serializer::serialize_struct_variant</code>.</td>
+</tr>
+<tr>
+<td><a href="https://docs.serde.rs/serde/ser/trait.SerializeTuple.html" target="_blank" rel="noopener">SerializeTuple</a></td>
+<td>Returned from <code>Serializer::serialize_tuple</code>.</td>
+</tr>
+<tr>
+<td><a href="https://docs.serde.rs/serde/ser/trait.SerializeTupleStruct.html" target="_blank" rel="noopener">SerializeTupleStruct</a></td>
+<td>Returned from <code>Serializer::serialize_tuple_struct</code>.</td>
+</tr>
+<tr>
+<td><a href="https://docs.serde.rs/serde/ser/trait.SerializeTupleVariant.html" target="_blank" rel="noopener">SerializeTupleVariant</a></td>
+<td>Returned from <code>Serializer::serialize_tuple_variant</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>他们共同的特点，返回自一些序列化集合类型时所用的方法。目的是支持有状态的序列化，比如你可以在返回的结构里记录接下来是否是处理集合的第一项，以此来控制序列化中分隔符的使用。</p>
+<p>再聚焦到我们使用到的<code>SerializeStructVariant</code>上，必须的两个方法是<code>serialize_field</code>，<code>end</code>，这两个方法被<code>serde::Serialize</code>调用过，用于安排作文写作的2、3、4步。</p>
+<p>在<code>serialize_field</code>中，实际上并没有记录状态，因为当前简化版只支持紧密的json格式，所以可以通过看前一个字符是不是<code>{</code>来判断，是否在处理集合的第一项内容，进而决定要不要加<code>,</code>分割。</p>
+<p><code>end</code>就更简单了，小作文用<code>}}</code>收尾搞定。</p>
+<pre><code class="rust">impl&lt;&#39;a&gt; ser::SerializeStructVariant for &amp;&#39;a mut Serializer {
+    type Ok = ();
+    type Error = Error;
+
+    fn serialize_field&lt;T&gt;(&amp;mut self, key: &amp;&#39;static str, value: &amp;T) -&gt; Result&lt;()&gt;
+    where
+        T: ?Sized + Serialize,
+    {
+        if !self.output.ends_with(&#39;{&#39;) {
+            self.output += &quot;,&quot;;
+        }
+        key.serialize(&amp;mut **self)?;
+        self.output += &quot;:&quot;;
+        value.serialize(&amp;mut **self)
+    }
+
+    fn end(self) -&gt; Result&lt;()&gt; {
+        self.output += &quot;}}&quot;;
+        Ok(())
+    }
+}
+</code></pre>
+<p>至此，<code>serialzer.output</code>已经变成我们想要的样子。<code>{&quot;Set&quot;:{&quot;key&quot;:&quot;A&quot;,&quot;value&quot;:&quot;42&quot;}}</code></p>
+<h2 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h2><p>起点，有一个，Rust的数据据结构。终点，有很多，json、yaml、toml、etc。</p>
+<p>面对这个一对多的关系，通常都会想给Rust的数据结构做一个外层包装，然后各个下游的格式处理器，只和有限的数据结构做对接。这样逻辑上没有问题，但是在做包装的过程中，可能产生很多的内存分配、销毁、数据复制。</p>
+<p>仔细想想，我们包装的目的，实际上就是对数据做分类，所以直接把这些类别用函数的形式固定，避免在内存中再造数据结构的计算开销。<code>serde data model</code>把Rust的数据类型分为29种，对应到<code>Serializer::serialze_*()</code>系列方法，搭配访问者模式，保证数据只在一个地方，然后用<code>Serialize</code>去驱动，帮助<code>serializer</code>完成对数据的序列化。</p>
+<p>通过Serialize过程的观察，我们可以得到这样一条脉络，因为关注性能，所以要保证尽量减少新数据的产生，所以用访问者模式，由<code>serde::Serialize</code>带领<code>serializer</code>对原始数据参观一圈，一边走，一遍告诉<code>serializer</code>，这是A，这是B，然后小作家、小画家<code>serializer</code>就据此构建自己的作品。参观完，<code>serialzer</code>的作品也大功告成。</p>
+<p>好了，Serialize就讲到这里。下期Deserialize再见。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Rust</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
