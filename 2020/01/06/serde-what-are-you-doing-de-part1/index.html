@@ -85,7 +85,7 @@
     <div class="row">
         <div class="col-md-8 offset-md-2 ">
             <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>serde 源码解析 deserialization篇 第一部分</p>
+                <p>serde 源码解析 | Deserialization篇 第一部分</p>
 <a id="more"></a>
 <p>有了serialize的基础，知道了<code>serde data model</code>大概的定位，也知道了访问者模式的应用，接着理解deserialize会更容易一些。</p>
 <p>以<code>serde data model</code>为基础，<code>Serialize</code>是引导者的角色，引导<code>Serde::ser::Serilaizer</code>的实现者<code>serializer</code>去参观内存中的数据，帮助<code>serializer</code>完成序列化。</p>
