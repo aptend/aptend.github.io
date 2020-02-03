@@ -111,7 +111,9 @@
 <p>但是另一方面，如果冲突确实发生了，想快速插入已经连被续填充的hash表，必须得有一个更精细的冲突解决策略。同时，使用低i位为索引这行为本身，也存在脆弱的极端情况，比如，考虑<code>[i &lt;&lt; 16 for i in range(20000)]</code>作为key，去填充$2^{15}$的hash表，那么取后15位就会出现index<strong>全为0</strong>的情况</p>
 <p>但是对这种特殊情况的处理不能损害常规情况下的处理速度，所以我们还是用低i位bit作为key在表中的index，剩下的仰仗于冲突解决策略。如果通常第一次查找就能找到我们所期待的key(事实证明，这也确实是常规情况，因为会把装载率控制在2/3以下)，那么像这样，把第一次index计算整得快一点，收效会很大。</p>
 <p>冲突解决方案的第一部分:</p>
-<pre><code class="python">j = hashvalue % 2**i # 第一次映射到index，直接使用较低的i位
+<pre><code class="python"># 第一次映射到index，直接使用较低的i位
+# 因为是二次幂，等效于取余，这里为简便就这么写吧
+j = hashvalue % 2**i # j = hashvalue &amp; (2**i - 1)
 while not_found(j):
     j = ((5*j)+1) % 2**i # 然后就可以按照特定顺序遍历index
 </code></pre>
@@ -121,7 +123,7 @@ while not_found(j):
 <p>冲突解决方案的第二部分，就要在后续的每一步位置探测中都把hashvalue考虑进来。如果不考虑hashvalue，那么后i位相同的hashvalue所产生的探测序列都是一样的，这并不是一个高效的冲突解决方案。</p>
 <pre><code class="python">j = hashvalue % 2**i # 第一次映射到index，直接使用较低的i位
 perturb = hashvalue
-while not_found(j):    
+while not_found(j):
     perturb &gt;&gt;= PERTURB_SHIFT
     j = ((5*j) + 1 + perturb) % 2**i # 然后使用perturb提供的信息进行探测下一个位置
 </code></pre>
@@ -881,11 +883,11 @@ def main():
 <li>在基本序列基础上，每一步引入hashvalue的影响，以免hashvalue第一次确定的索引相同后，之后每次产生的新索引都相同(即<strong>探测链相同</strong>)</li>
 </ol>
 </li>
+<li>装载率指，删除产生的空位entry(dummy)+正在使用的entry / 总的entry数量(二次幂)，装载率超过2/3时容量改变。注意删除key不会造成容量改变。</li>
 <li>为什么3.6之后的字典能够保证插入序？因为keys和values分离了，想象keys，values都是列表，每次插入新值，values都按顺序写入值。即使发生删除，values中出现空位后，再插入值，新值也会按顺序出现在最后。探测链上的DUMMY值，只会出现在keys中，所以keys中因为删除出现的空位是可以被复用的。</li>
 <li>字典的容量伸缩机制？字典的总容量(keys的大小)，一直都是二次幂，当装载率（active+dummy）超过容量的2/3，就会触发resize，调整总容量，重新分配新的内存，把因删除产生的dummy抹除。调整的总容量，目前3.7版本的一次调整，最多翻倍，最少可以回到8的初始值。</li>
 <li>现在应该更能理解__slots__在做什么。一个实例字典，都要殚精竭虑地share key来减少内存使用。那么直接定义slots，让额外的__dict__消失岂不美滋滋？也就是《Fluent Python》中强调的，__slots__的本质就是减少内存，不是给你用来做限制的。</li>
 <li>再黑魔法都是人写出来的，消除神秘感，也算是增强自己的信心，不要怕。一步一步做，他们也会写出bug啊。看Raymond的演讲，知道方案也是慢慢深入的，没有一步登天。</li>
-<li>我画图有点好看，Doge。</li>
 </ul>
 
                 <hr>
