@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>Python的垃圾回收梗概 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">Python的垃圾回收梗概</p>
+            <br>
+            
+            <p>Wednesday, February 5th 2020, 11:17 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>If there’s no one left in the living world to remember you, you disappear from this world.</p>
+<p>​                                                                        ——Moive <em>Coco</em></p>
+<a id="more"></a>
+<h1 id="REFCNT"><a href="#REFCNT" class="headerlink" title="REFCNT"></a>REFCNT</h1><p>引用计数基于一个朴素的想法，一块内存，如果没有引用指向它，就不可达，不能再被访问，因此可以被释放回收。</p>
+<p>有什么优势？</p>
+<p>实时性。不用等到某个特殊的时刻，内存对象一旦引用为0就销毁。相对于一些集中进行垃圾检测、并回收的方案，引用计数把内存管理的花费分摊到运行时，程序更平稳一些。</p>
+<p>有什么劣势？</p>
+<ol>
+<li>额外的时间和空间的开销。伴随内存对象的创建，都需要维护的refcnt字段，并作相应的加减判断运算。一个有意思的场景是，对一些大量快速创建并自毁的对象来说，如果其生存周期处在非实时gc方案的两次收集之间，gc根本就不曾知道这些对象存在过，没有多余的开销；但对实时的引用计数，每个对象都得管理其引用计数。Python内部为了提高内存对象创建的效率，采用了建立对象池的方案。int、str、dict、list都建立相应的对象池。</li>
+<li>不可达的循环引用。存在循环引用的对象，即使外部已经不存在对它的引用，无法访问到，它还是会因为引用计数大于0而无法回收。这是引用计数无解的死穴，必须通过其他方法来消除。</li>
+</ol>
+<p>以整型42为例：</p>
+<p>引用何处增加？</p>
+<ul>
+<li>被赋值，a = 42，+1</li>
+<li>添加新引用，b = a，+1</li>
+<li>当作参数传入函数<code>is_anwser(candidate=a)</code>，+2(candidate一次新引用，frame的栈上一次)</li>
+<li>加入容器，<code>answers.apend(a)</code> ，+1</li>
+</ul>
+<p>引用何处减少？</p>
+<ul>
+<li>del语句，<code>del a</code>，显示切断名字a和内存对象42的引用联系</li>
+<li>出离作用域。is_answer函数调用完成后，42的引用个数会减2。实际上，大部分内存回收都因为这个</li>
+<li>从容器删除，<code>answers.pop()</code></li>
+</ul>
+<h1 id="分代标记-清除"><a href="#分代标记-清除" class="headerlink" title="分代标记-清除"></a>分代标记-清除</h1><p>分代的标记-清除，就是用来消除循环引用问题的。</p>
+<p>因此，先明确分代标记-清除的定位，它是引用计数方案的补充，专门用于清除存在不可达的循环引用对象。</p>
+<p>行为上，分代标记-清除，在特定时刻被调用，首先探测不可达的循环引用对象，然后将这些对象的refcnt强行置为0，引发引用计数方案的回收动作，从而释放内存</p>
+<p>所以核心问题，怎么探测到不可达的循环引用对象？</p>
+<h2 id="标记-清除"><a href="#标记-清除" class="headerlink" title="标记-清除"></a>标记-清除</h2><p>想要构成循环引用，只能是容器，list、dict、instance、tuple之类的，所以python用双向链表来组织运行过程中建立的容器对象</p>
+<p>如下图，黑色表示实际的引用关系，黄色双向箭头表示双向链表组织。希望标记出链表末尾的不可达循环引用对象，一个做法是，遍历元素，把元素的指向的子元素的refcnt减1，形成<strong>有效计数</strong>，因为如果有效计数还大于1，说明它是存在外部引用的可达对象，即root object，那么他们的子元素也是可达对象。</p>
+<p><img src="https://s2.ax1x.com/2019/02/14/kB0eLq.png" alt="kB0eLq.png"></p>
+<p>首先先做一个refcnt的备份，然后在备份上计算出有效计数</p>
+<p><img src="https://s2.ax1x.com/2019/02/14/kB00YD.png" alt="kB00YD.png"></p>
+<p>然后根据有效计数将链表分为reachable和unreachable两个链表。既然这里已经求出有效计数， 引用还大于0的，就是引用入口，最直观的做法就是从它开始dfs，设置标志，没有访问到的则是需要清理的不可达的对象。</p>
+<!--但是CPython的实现形式稍有不同，具体细节参见在[源码](https://github.com/python/cpython/blob/3.7/Modules/gcmodule.c#L354)， 大致的流程是这样：
+
+```python
+# 遍历列表元素，如果有效计数为0，可能是不可达的，也可能引用它的容器在链表后面，
+# 此时暂时标记为tentatively-unreachable，放入unreachable链表；
+# 如果有效计数大于0，说明是一个可达对象，不需要回收，遍历它的子元素，
+#   子元素如果为0，gc_refs设为1，表明可达身份，
+#   如果发现被标注了tentatively-unreachable，gc_refs设为1，并且从unreachable链表中拿出。
+
+gc = young.next
+while gc != young:
+    if obj.gc_refs == 0:
+        obj.gc_refs = -4 # "tentatively_unreachable"
+        put_to(obj, unreachable)
+    elif obj.gc_refs > 0:
+        obj.gc_refs = -3 # "reachable"
+        for inner_obj in obj.refs:
+            if inner_obj.gc_refs == 0:
+                inner_obj.gc_refs = 1
+            elif inner_obj.gc_refs == -4:
+                inner_obj.gc_refs = 1
+                put_to(inner_obj, linked_list)
+     gc = gc.next
+```
+-->
+<h2 id="分代"><a href="#分代" class="headerlink" title="分代"></a>分代</h2><p>没有经过更精细的处理时，标记操作和容器对象数量成正比。但是统计发现，程序运行也存在马太效应，存活得久的对象，越有可能一直存在，被释放回收的概率更低。因此分了0，1，2三代，代数越高，表示对象获得更长，活得长的对象就可以减少扫描标记的次数。</p>
+<p>因此，在标记-清除的原理之上，现在维护三个双向链表。每新建一个容器，添加到0代链表，当0代链表添加动作超过700，触发一次垃圾回收。但是并不是每次垃圾收集都是从0代发起的，这样就没办法扫描1代或2代中的内容了。因此触发动作一次开始会从最高代开始查看，是否超过其触发阈值(2代1代均为10次)，如果超过，就从超过阈值的最高代发起垃圾回收，具体的标识工作开始前，还会把更年轻代的链表合并到发起收集的这代链表上。标记完成后，把可达对象链表合并到发起收集链表的更高一代。</p>
+<h1 id="关于PEP442：-del-陷阱"><a href="#关于PEP442：-del-陷阱" class="headerlink" title="关于PEP442：__del__陷阱"></a>关于PEP442：__del__陷阱</h1><p>在完成可达和不可达对象的标识之后，就应该按照unreachable一个个进行真正的销毁：减少他们的ob_refcnt，触发引用计数为0造成的内存回收。</p>
+<p>但是，这其中有一个特殊的，就是具有__del__的instance。当引用计数销毁他们时，会主动调用__del__，那么如果引用、循环引用等本来就发生在del中，错误的销毁就会造成一些问题。3.4之前，Python就非常保守地选择了不销毁这些特殊容器，单独放到gc模块的garbage中，由用户自己控制。</p>
+<p>在3.4里，<a href="https://www.python.org/dev/peps/pep-0442/" target="_blank" rel="noopener">PEP442</a>提出了一个方案，不要等着引用计数为0来触发__del__，可以先进行__del__的调用，然后再检查一遍unreachable，如果发生了resurrection，就中止这次回收</p>
+<pre><code class="python">import gc
+import time
+global_list = []
+class SelfCycle:
+    def __init__(self):
+        self.p = self
+    def __del__(self):
+        print(&quot;resurrect&quot;)
+        global_list.append(self) # 在del中把自己变成了可达对象，所以发生了resurrection
+
+class SelfCycleI:
+    def __init__(self):
+        self.p = self
+    def __del__(self):
+        print(&quot;del from I&quot;)
+
+class SelfCycleII:
+    def __init__(self):
+        self.p = self
+    def __del__(self):
+        print(&quot;del from II&quot;)
+
+gc.set_debug(gc.DEBUG_SAVEALL)
+SelfCycle()
+SelfCycleI()
+SelfCycleII()
+gc.collect()      # 打印resurrect    del from I    del from II
+# 这次收集时发生了resurrection，所以garbage为空
+print([obj for obj in gc.garbage if &quot;SelfCycle&quot; in str(obj)]) 
+gc.collect()
+# 这次收集没有resurrection，所以garbage出现了SelfCycleI和SelfCycleII
+print([obj for obj in gc.garbage if &quot;SelfCycle&quot; in str(obj)])
+
+del global_list
+gc.collect()
+# 连SelfCycle都出现了，说明del没有被调用，直接销毁
+print([obj for obj in gc.garbage if &quot;SelfCycle&quot; in str(obj)])
+time.sleep(1000)
+
+# -----output-------
+resurrect
+del from I
+del from II
+[]
+[&lt;__main__.SelfCycleI object at 0x000002AB0B691240&gt;, {&#39;p&#39;: &lt;__main__.SelfCycleI object at 0x000002AB0B691240&gt;}, &lt;__main__.SelfCycleII object at 0x000002AB0B691278&gt;, {&#39;p&#39;: &lt;__main__.SelfCycleII object at 0x000002AB0B691278&gt;}]
+[&lt;__main__.SelfCycleI object at 0x000002AB0B691240&gt;, {&#39;p&#39;: &lt;__main__.SelfCycleI object at 0x000002AB0B691240&gt;}, &lt;__main__.SelfCycleII object at 0x000002AB0B691278&gt;, {&#39;p&#39;: &lt;__main__.SelfCycleII object at 0x000002AB0B691278&gt;}, &lt;__main__.SelfCycle object at 0x000002AB0B691208&gt;, {&#39;p&#39;: &lt;__main__.SelfCycle object at 0x000002AB0B691208&gt;}]
+
+</code></pre>
+<p>关于这里的东西，需要联系<a href="https://docs.python.org/3/reference/datamodel.html#object.__del__" target="_blank" rel="noopener">data modal文档</a>和这篇<a href="https://code.activestate.com/lists/python-dev/137698/" target="_blank" rel="noopener">邮件通讯</a>来看更能理解</p>
+<p>文档有三个点值得注意：</p>
+<ol>
+<li>del语法只是摘除名字对内存对象的引用，并不一定调用__del__</li>
+<li>一个鲜活的循环引用的例子，捕获异常( A common cause of reference cycles is when an exception has been caught in a local variable. The frame’s locals then reference the exception, which references its own traceback, which references the locals of all frames caught in the traceback.)</li>
+<li>Cpython的实现保证__del__只调用一次</li>
+</ol>
+<p>第一点是正视听，<code>__del__</code>只有回收发生时才会调用。</p>
+<p>第二点注意是因为之前看过一个观点，为了性能可以关闭gc，但要小心写代码不要产生循环依赖，看了第二点，我觉得这个说法非常不现实，不如说成手动调用gc且不故意引入循环依赖。关闭gc后，普通的，不经意的循环引用很容易出现，每个都要甄别，你还不如把瓶颈功能换其他语言重写算了。</p>
+<p>第三点是和邮件通讯中的一个问题呼应——</p>
+<p>通讯有两个点值得注意：</p>
+<ol>
+<li>保留tp-del新增tp-finalize是为了向后兼容</li>
+<li><code>__del__</code>只调用一次(exactly once)只对被gc监控的对象有效。最后的结论是文档并不严谨</li>
+</ol>
+<p>第一点说明，3.4之后绝大多数情况下gc.garbage都是空的，因为__del__会被赋予一个新的tp_finalizer标识从而被新的逻辑处理回收掉。除非使用C-Python混合编程创建了tp_del不为空的对象</p>
+<p>第二点，对于del的只调用一次的保证，在3.4代码里，调用del过程中可以看到</p>
+<pre><code class="c">if (!_PyGCHead_FINALIZED(gc) &amp;&amp;
+        PyType_HasFeature(Py_TYPE(op), Py_TPFLAGS_HAVE_FINALIZE) &amp;&amp;
+        (finalize = Py_TYPE(op)-&gt;tp_finalize) != NULL) {
+    _PyGCHead_SET_FINALIZED(gc, 1); /*[1]*/
+    Py_INCREF(op);
+    finalize(op);
+    Py_DECREF(op);
+}
+</code></pre>
+<p>[1]处会在调用时设置FINALIZED标志位，这样下次销毁就不会再调用。结合那个邮件列表来看，可以推测引用计数为0引发的销毁也会检查这个标志来确定是否需要调用__del__，由于只有gc会设置这个标志位，所以不被gc跟踪的__del__可以被调用多次。</p>
+<h1 id="一些工具和方法"><a href="#一些工具和方法" class="headerlink" title="一些工具和方法"></a>一些工具和方法</h1><h2 id="package"><a href="#package" class="headerlink" title="package"></a>package</h2><table>
+<thead>
+<tr>
+<th>工具名</th>
+<th>适用情景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gc</td>
+<td>查看gc过程，设置开闭、执行阈值</td>
+</tr>
+<tr>
+<td>tracemalloc</td>
+<td>可通过快照对比内存的使用情况，可以定位到问题代码的具体位置，debug首选</td>
+</tr>
+<tr>
+<td>pympler</td>
+<td>Python2中tracemalloc的替代品，开销更大</td>
+</tr>
+<tr>
+<td>objgraph</td>
+<td>绘制对象引用图，如果存在复杂的三方库，结果会很乱。适合小范围的展示工作，对真正的debug帮助有限。</td>
+</tr>
+</tbody>
+</table>
+<p>关于内存泄漏的工具，这篇以tracemalloc为切入点的<a href="https://blog.louie.lu/2017/08/04/tracemalloc-python-standard-library-09/" target="_blank" rel="noopener">文章</a>不错，看最后的discussion</p>
+<h2 id="commands"><a href="#commands" class="headerlink" title="commands"></a>commands</h2><p>查看进程的线程数量<code>ps -o nlwp &lt;pid&gt;</code></p>
+<p>根据对象的id/address动态获取对象<code>obj = ctypes.cast(&lt;addr_or_id&gt;, ctypes.py_object).value</code></p>
+<p>对象销毁的回调函数<code>weakref.finalize(obj, callback)</code></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Q: 什么情况下会内存泄漏，怎么处理？</p>
+<p>A:  据我所知，在python3.4之前，常见的内存泄露方式有三种：</p>
+<ol>
+<li>因为第三方库，不需要跟踪的对象被一些隐秘的长生命周期的变量强引用</li>
+<li>gc被关闭，并且代码中出现了循环引用</li>
+<li>含有__del__魔法方法类实例</li>
+</ol>
+<p>第三条已经在python3.4中被修复</p>
+<p>第二条排查起来比较容易，检查gc是否开启</p>
+<p>因此，如果Python3发生内存泄漏，问题基本出现在全局变量持有的隐秘强引用上，(其实感觉严格意义上说，这种情况好像不叫内存泄漏，无论如何你都是可以访问到引用的)</p>
+<p>看过别人记录的，一个这种类型的内存泄漏的例子，关于常用的logging库</p>
+<p>代码过程是为每一个tcp连接新建Connection对象，并且在这个对象里以内存地址为name，维护了一个logger，logger添加syslogHandler，向514端口发送日志。</p>
+<p>上线一段时间后syslog的UDP连接达到了8W。syslogHandler的emit函数就是使用socket和514建立UDP连接。这说明即使connection对象不再有引用，其内部的syslogHandler依然没有释放</p>
+<p>作者发现logging模块在manager里维护了一个全局的loggerDict字典，以name为key，logger对象为value。所以即使connnect实例被销毁，内部的logger依然存在引用，无法回收</p>
+<p>于是作者在connection关闭时，把loggerDict字典中的对应logger移除，就可以释放所以slogHandler了</p>
+<p>整个事件看完，我的感受是需要弄明白logger的定位，这是一个大方向。</p>
+<p>一方面，如果对每个对象新建logger是合理的，那么可以调整的有两个地方：</p>
+<ol>
+<li><p>connection关闭时，应当调用sysloghandler的close方法，保证不会出现大量连接</p>
+</li>
+<li><p>loggerDict中维护的所有logger的做法有待商榷。创建的loggger的所有权我个人认为不应该属于logging模块，所以这里的loggerDict更适合使用WeakValueDictionary。而且loggerDict目的就是cache，weakref用在cache的场景是非常合适的[fluent python p.236]</p>
+</li>
+</ol>
+<p>另一方面，如果不合理，就应该明确logger的地位，全局变量，所有权在logging。个性化的logger可以通过加入不同的信息来实现，比如使用LoggerAdapter，保证全局logger的精简</p>
+<p>此外关于内存泄漏的排查过程，对于Python3，首先确定gc是否打开，如果问题依然存在，使用内置的tracemalloc的快照对比功能来定位发生泄漏的代码位置，一般来说会发现一段将泄露对象添加到一个或多个全局容器的代码，针对问题代码给出解决方案。事后总结展示的时候可以添加objgraph画出的局部引用图，给其他人一个直观的理解。</p>
+<h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><p>有一个直观的图表：<a href="https://blog.csdn.net/m345376054/article/details/79214382" target="_blank" rel="noopener">https://blog.csdn.net/m345376054/article/details/79214382</a></p>
+<p>有排错的过程，提到PEP442问题：<a href="https://www.jianshu.com/p/2d06a1a01cc3" target="_blank" rel="noopener">https://www.jianshu.com/p/2d06a1a01cc3</a></p>
+<p>一个清晰的整体梳理：<a href="https://rushter.com/blog/python-garbage-collector/" target="_blank" rel="noopener">https://rushter.com/blog/python-garbage-collector/</a></p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Python</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
