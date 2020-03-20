@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>client-go工作队列学习(一) - 普通队列 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">client-go工作队列学习(一) - 普通队列</p>
+            <br>
+            
+            <p>Friday, March 20th 2020, 6:42 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>第一篇，基础队列</p>
+<a id="more"></a>
+<p>队列作为解耦上下游强依赖关系的常见工具，为应对不同的场景，也诞生了不同的定制化。</p>
+<p>K8s中client-go中的工作队列有三种：普通队列、延时队列、限速队列。分层依赖的关系。</p>
+<p>每个队列我都会用单独的一篇文章记录。这个系列的主要参考是<a href="https://blog.csdn.net/weixin_42663840/article/details/81482553" target="_blank" rel="noopener">大佬的博客</a>，会加上我自己的一些理解和补充。这些理解甚至包括，学习过程中我自己对一些设计的猜测，这些猜测甚至是错误的🙃，小心阅读。</p>
+<h2 id="普通队列"><a href="#普通队列" class="headerlink" title="普通队列"></a>普通队列</h2><p>先看普通的队列的接口</p>
+<pre><code class="go">// client-go/util/workqueue/queue.go
+
+type Interface interface {
+  Add(item interface{})       // 向队列中添加一个元素，interface{}类型，说明可以添加任何类型的元素
+  Len() int                   // 元素的个数
+  Get() (item interface{}, shutdown bool) // 从队列中获取一个元素，第二个返回值告知队列是否已经关闭
+  Done(item interface{})         // 告知队列该元素已经处理完了
+  ShutDown()                    // 关闭队列
+  ShuttingDown() bool           // 查询队列是否正在关闭
+}
+</code></pre>
+<p>和传统的队列有一个不同，传统队列的接口时是push and pop，但这里pop换成了Get，Get时并不会从队列中删除该元素，而是要显示调用Done之后，才从队列中删除。</p>
+<p>我猜这是给处理失败留下了空间。如果直接弹出，而线程处理崩溃，这个任务就永远消失了。所以要让处理逻辑显示通知队列删除该任务。</p>
+<p>因此：</p>
+<ol>
+<li>一个任务被处理逻辑认领处理，而未commit时，应该将该项任务做标记，避免其他逻辑前来认领。</li>
+<li>还有记录超时的结构，让久未确认的任务重新回到队列。</li>
+</ol>
+<p>然后看队列实现时用了什么字段：</p>
+<pre><code class="go">// client-go/util/workqueue/queue.go
+type Type struct {
+  queue []t       // 元素数组
+  dirty set       // dirty的元素集合
+  processing set     // 正在处理的元素集合
+  cond *sync.Cond    // 自带互斥锁的条件变量
+  shuttingDown bool   // 关闭标记
+  metrics queueMetrics  // prometheus的metrics概念相同*
+}
+
+// 以下的这些类型定义为了用map凹出一个set类型，等用于python的set和Rust的HashSet
+type empty struct{}    // 空类型，因为sizeof(struct{})=0
+type t interface{}     // 任意元素类型
+type set map[t]empty   // 用map实现的set
+
+</code></pre>
+<blockquote>
+<p>现去看了看 Prometheus 的 metrics 概念。<br>metrics 是时间序列数值，单点的数据模型是:<br><code>&lt;metric_name&gt;{label1: A, label2: B}=3.1415926 &amp; timestamp=123443242352</code><br>可以根据 label 新建分析维度。按照时间序列上的属性变动，可以分为单调递增的 Counter，任意波动的 Gauge，按时间段统计的 Hist，Summary 等等。<br>所以这里的 metrics 应该是某种统计类型，调用接口来生成一个单点数据，供 Prometheus 拉取。</p>
+</blockquote>
+<p>看这个结构，猜一下实现：</p>
+<ul>
+<li><p>queue保证出入顺序</p>
+</li>
+<li><p>processing是被认领但未提交的任务</p>
+</li>
+<li><p>条件变量来维持线程同步，比如队列为空时阻塞消费线程</p>
+</li>
+<li><p>shuttingdown标记，ShutDown将该标记值为True，之后不再接受新任务，但是可以继续被消费。</p>
+</li>
+</ul>
+<p>可是dirty是什么呢？没有维护超时的结构吗？</p>
+<p>再看具体实现：</p>
+<pre><code class="go">func (q *Type) Add(item interface{}) {
+  // 条件变量自带了与之搭配的互斥锁，L
+  q.cond.L.Lock()
+
+  defer q.cond.L.Unlock()
+
+  // 队列正在关闭，拒绝一切新输入
+  if q.shuttingDown {
+    return
+  }
+
+  // 去重，dirty为queue的set，正在queue中还未处理，就丢弃
+  if q.dirty.has(item) {
+    return
+  }
+
+  // 告知metrics添加了元素
+  q.metrics.add(item)
+
+  // 添加到脏数据集合中
+  q.dirty.insert(item)
+
+  // 元素刚被拿走处理，那就直接返回
+  if q.processing.has(item) {
+    return
+  }
+
+  // 追加到元素数组的尾部，没有大小限制，是无界队列
+  q.queue = append(q.queue, item)
+
+  // 通知有新元素到了，此时有协程阻塞就会被唤醒
+  q.cond.Signal()
+}
+
+</code></pre>
+<p>反正我是看蒙了，为什么相同元素就不入队列？每个新元素都会先进入dirty，然后用dirty来去重？</p>
+<p>感觉这里要把自己以前的认识打碎，现在这个队列是面向应用场景的队列，需要从业务层面判断是否重复，比如这里就是K8s的的api对象。书本上的队列，都是没有业务概念的，每个push的对象都看作不同。</p>
+<p>dirty大多数情况下，是queue的set版本，但是注意<code>dirty.insert</code>和<code>queue.append</code>并不是完全同步，中间被检查processing隔断：当对象正在被处理，期间又Add相同的对象，只会进入dirty而不会进入queue，多的这一份，会在Done时，检查dirty，补充加入queue。<strong>这个处理方式，保证的是正在处理的对象，一定不会出现在queue中。换句话说，同一个对象，不会被被两个逻辑流同时处理</strong>。普通实现这个保证，只要把dirty完全做成queue的set版本就可以，也就是把Add中的检查processing提前到dirty insert之前。这样，处理期间到来的对象会被拒绝，只有处理完成后，才能接受该对象的新版本。而当前实现，凡是在开始处理后加入的相同对象，就会被记录，并在处理完成后立即加入queue。窗口变大了，但是不知道为什么要这么做？</p>
+<p>一个典型的过程描述如下：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>dirty</th>
+<th>processing</th>
+<th>queue</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add 1</td>
+<td>{1}</td>
+<td>{}</td>
+<td>[1]</td>
+<td></td>
+</tr>
+<tr>
+<td>Add 2</td>
+<td>{1, 2}</td>
+<td>{}</td>
+<td>[1, 2]</td>
+<td></td>
+</tr>
+<tr>
+<td>Add 1</td>
+<td>{1, 2}</td>
+<td>{}</td>
+<td>[1, 2]</td>
+<td></td>
+</tr>
+<tr>
+<td>GET</td>
+<td>{2}</td>
+<td>{1}</td>
+<td>[2]</td>
+<td></td>
+</tr>
+<tr>
+<td>Add 1</td>
+<td>{1, 2}</td>
+<td>{1}</td>
+<td>[2]</td>
+<td>dirty中的1就是处理期间到来的新版本</td>
+</tr>
+<tr>
+<td>Done 1</td>
+<td>{1, 2}</td>
+<td>{}</td>
+<td>[2, 1]</td>
+<td>从dirty中拿出处理期间得到的新对象</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="go">func (q *Type) Done(item interface{}) {
+  q.cond.L.Lock()
+  defer q.cond.L.Unlock()
+
+  q.metrics.done(item)
+  q.processing.delete(item)
+
+  // 此处判断脏元素集合，看看处理期间是不是又被添加，如果是那就在放到队列中
+  if q.dirty.has(item) {
+    q.queue = append(q.queue, item)
+    q.cond.Signal()
+  }
+}
+
+func (q *Type) Get() (item interface{}, shutdown bool) {
+  q.cond.L.Lock()
+  defer q.cond.L.Unlock()
+
+  // 没有数据，阻塞协程
+  for len(q.queue) == 0 &amp;&amp; !q.shuttingDown {
+    q.cond.Wait()
+  }
+
+  // 协程被激活但还没有数据，说明队列被关闭了
+  if len(q.queue) == 0 {
+    return nil, true
+  }
+
+  // 弹出第一个元素
+  item, q.queue = q.queue[0], q.queue[1:]
+  q.metrics.get(item)
+
+  // 从dirty集合中移除，加入到processing集合
+  q.processing.insert(item)
+  q.dirty.delete(item)
+  return item, false
+}
+
+func (q *Type) ShutDown() {
+  q.cond.L.Lock()
+  defer q.cond.L.Unlock()
+
+  q.shuttingDown = true
+  // 关闭时通知全部可能阻塞的携程，起来后发现queue为0就自己退出
+  q.cond.Broadcast()
+}
+
+</code></pre>
+<h2 id="总结一下"><a href="#总结一下" class="headerlink" title="总结一下"></a>总结一下</h2><ul>
+<li>无界队列，条件变量阻塞消费者</li>
+<li><strong>队列元素有对象身份的概念</strong>，在一个时间，<strong>同一个对象只能被一个消费者处理</strong>，一个对象，要么在processing中，要么在queue中，这个这个队列的独特性质。</li>
+<li>通过dirty和queue的差异，提前记录处理过程中出现的相同对象，处理完成后加入queue，此时processing和dirty中有重复对象</li>
+<li>最后也没有出现超时的处理。所以Get+Done的作用应该不是像我猜的那样，为了消费者崩溃，自动超时并重入队列，而就要是维持第二点的性质——如果没有调用Done，对象就一直存在于processing集合中，这个队列不会再分配其他对象。否则，没有processing的状态，就可能把相同对象分配到另外的消费者里。</li>
+</ul>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;Go</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;Kubernetes</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
