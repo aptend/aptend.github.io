@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>client-go工作队列学习(三) - 限速队列 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">client-go工作队列学习(三) - 限速队列</p>
+            <br>
+            
+            <p>Friday, March 20th 2020, 9:08 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>第三篇，限速队列: 等多久？让我找个大仙算算</p>
+<a id="more"></a>
+<h2 id="限速队列"><a href="#限速队列" class="headerlink" title="限速队列"></a>限速队列</h2><p>限速队列之前都没听说过，看了接口定义也不懂，直接看限速器的定义了</p>
+<pre><code class="go">// client-go/util/workqueue/rate_limiting_queue.go
+
+type RateLimitingInterface interface {
+
+  DelayingInterface                // 组合延时队列
+  AddRateLimited(item interface{}) // 按照限速方式添加元素的接口
+  Forget(item interface{})         // 丢弃指定元素
+  NumRequeues(item interface{}) int // 查询元素放入队列的次数
+
+}
+
+// 限速队列的实现
+type rateLimitingType struct {
+  DelayingInterface         // 组合延迟队列
+  rateLimiter RateLimiter    // 限速器
+}
+
+//client-go/blob/master/util/workqueue/default_rate_limiters.go
+type RateLimiter interface {
+  When(item interface{}) time.Duration // 返回元素item需要等待多长时间
+  Forget(item interface{})            // 从限速器中丢弃该元素，比如元素重入队列的次数该清零
+  NumRequeues(item interface{}) int  // 元素重入队列的次数
+}
+</code></pre>
+<p>最开始不是很明白<code>Forget</code>和<code>NumRequeues</code>的作用，但是根据<code>When</code>和限速的语义，是这么猜的，限速队列的入队列接口是<code>AddRateLimited</code>，<code>When</code>自动计算延时时间<code>duration</code>，再安排调用<code>AddAfter(item，duration)</code>。比如说现在一秒内调用了10次<code>AddRateLimited</code>，但是可以通过限速器，把对象真正加入队列的时间分配到10s上。<code>AddAfter(obj0, 0)</code>, <code>AddAfter(obj1, 1)</code>, <code>AddAfter(obj2, 2)</code>……这样就把每秒10次限速到了1秒1次。</p>
+<p>没错，限速队列的实现上就是调用<code>AddAfter</code>。<code>duration</code>的计算靠限速器实现。</p>
+<pre><code class="go">func (q *rateLimitingType) AddRateLimited(item interface{}) {
+  // 通过限速器获取延迟时间，然后加入到延时队列
+  q.DelayingInterface.AddAfter(item, q.rateLimiter.When(item))
+}
+
+func (q *rateLimitingType) NumRequeues(item interface{}) int {
+  return q.rateLimiter.NumRequeues(item)
+}
+
+func (q *rateLimitingType) Forget(item interface{}) {
+  q.rateLimiter.Forget(item)
+}
+</code></pre>
+<p>所以现在重点是猜一下限速器的实现？具体实现，大概会把每秒钟看成一个盒子，只能放一个Add事件。基于这个思路用Python写了一版:</p>
+<pre><code class="python">import time
+
+
+class BucketRateLimiter:
+    def __init__(self, period, quota):
+        # capacity for every bucket
+        self.b_quota = quota
+        # current bucket start postion
+        self.b_pos = self.tick()
+        # current bucket span
+        self.b_span = period
+        # how many items in current bucket
+        self.b_cnt = 0
+
+    def tick(self):
+        # return fractional seconds
+        return time.monotonic()
+
+    def inc_current_bucket(self):
+        self.b_cnt += 1
+        if self.b_cnt &gt;= self.b_quota:
+            # use next bucket
+            self.new_bucket_at(self.b_pos+self.b_span)
+
+    def new_bucket_at(self, pos):
+        self.b_pos = pos
+        self.b_cnt = 0
+
+    def when(self, _obj):
+        now = time.monotonic()
+        # at any time, we ensure that the current bucket is not full
+        # so we can calculate `delay` first
+        delay = max(0, self.b_pos - now)
+        if now &gt; self.b_pos + self.b_span:
+            self.new_bucket_at(now)
+            self.inc_current_bucket()
+        else:
+            self.inc_current_bucket()
+        return delay
+
+    def forget(self, _obj):
+        pass
+
+    def num_requeues(self, _obj):
+        pass
+
+
+if __name__ == &quot;__main__&quot;:
+    rate_limiter = BucketRateLimiter(1, 4)
+    for _ in range(10):
+        print(rate_limiter.when(None))
+
+</code></pre>
+<p>看上去效果还行。</p>
+<p>思路是维护<code>period</code>长的<code>bucket</code>窗口，保证当前窗口永远不满，<code>when</code>时计算当前时间和窗口左边缘的距离，得到等待的时间。然后根据当前时间和窗口的位置关系，往窗口添加事件或者新建窗口再添加事件。时间用的<code>monotonic</code>，符合这种只关注时间跨度的场景，而<code>pref_counter</code>精度更高，且忽略线程休眠的时间，没有必要。</p>
+<p>但是重入队列该怎么理解？<code>NumRequeues</code>和<code>Forget</code>有什么用？我是这么猜的，<code>NumRequeues</code>是个只读接口，修改它，必然是靠<code>When</code>来修改。所以限速器内部会有一个字典结构，对每个对象<code>When</code>一下，就把该对象的<code>NumRequeues+1</code>，重入队列就是字面意义上的对相同对象调用多次<code>AddRateLimited</code>，这个动作就是重试，这是用户发起的，并不是限速队列帮你重试。<code>NumRequeues</code>的值越大，限速器就会把该对象入队列的时间越往后延，等于说限速器帮你实现重试时间backoff的逻辑。而<code>Forget</code>就是忘记该对象的重试历史，重置backoff的时间序列。</p>
+<p>共有如下几个限速器的具体实现： </p>
+<ul>
+<li>BucketRateLimiter </li>
+<li>ItemBucketRateLimiter</li>
+<li>ItemExponentialFailureRateLimiter</li>
+<li>ItemFastSlowRateLimiter</li>
+<li>MaxOfRateLimiter</li>
+</ul>
+<p>前三个，看名字也差不多能猜到是什么了。具体说明：</p>
+<table>
+<thead>
+<tr>
+<th>限速器</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BucketRateLimiter</td>
+<td>无视对象身份的速率限制(就是我的Python版本)</td>
+</tr>
+<tr>
+<td>ItemBucketRateLimiter</td>
+<td>对每个对象使用一个BucketRateLimiter，限制每个对象的插入速率</td>
+</tr>
+<tr>
+<td>ItemExponentialFailureRateLimiter</td>
+<td>对每个重试项的指数型backoff控制，backoff = min(base * 2 ^ times, max_delay)，实现上要注意防止指数计算溢出</td>
+</tr>
+<tr>
+<td>ItemFastSlowRateLimiter</td>
+<td>对每个重试项的阶跃型backoff控制，backoff = fast_delay  if times &lt; n else slow_delay</td>
+</tr>
+<tr>
+<td>MaxOfRateLimiter</td>
+<td>聚合类型，包装其他Limiter，从中取最长的等待时间，最大重试次数</td>
+</tr>
+</tbody>
+</table>
+<p>其中BucketRateLimiter是基于 “<a href="https://godoc.org/golang.org/x/time/rate" target="_blank" rel="noopener">golang.org/x/time/rate</a>“ 实现的。</p>
+<p>看了一下，使用的是名为令牌桶的方案。思路是维护一个容量为quota的桶，每秒往桶里放入n个token，如果满了就不放置。消费者从桶里拿token，拿到表示允许事件发生，拿不到就阻塞或者返回需要等待的时间。</p>
+<p>关键动作是：</p>
+<p><code>ReserveN(time time.Time, n int)</code></p>
+<p>表示从time时间点(一般传入当前时间)<strong>预定</strong>n个token，需要等待多长时间。</p>
+<p><code>n &gt; quota</code>等待时间就是无限长。返回的是一个名为<code>Reservation</code>的结构r，r.Delay()可查询等待的时间，ok查询是否<code>n &gt; quota</code>。该结构一返回，就表示n个token被消费的事实。</p>
+<p>在<code>ReserveN</code>的基础上，就可以派生出其他行为</p>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>等效</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reserve()</td>
+<td>ReserveN(now, 1)</td>
+<td>得到时间，自由调度</td>
+</tr>
+<tr>
+<td>Allow()</td>
+<td>AllowN(now, 1) = Reserve(now,  1).ok</td>
+<td>用于高峰直接丢弃过多的请求</td>
+</tr>
+<tr>
+<td>Wait(context)</td>
+<td>WaitN(context, 1) = 阻塞时长Reserve().Delay()</td>
+<td>主动等待，尽量不丢失请求</td>
+</tr>
+</tbody>
+</table>
+<p>所以使用rate提供的limiter来实现<code>BucketRateLimiter</code>，就是在<code>When</code>时调用<code>Reserve().Delay()</code>，源码就是这样搞的:</p>
+<pre><code class="go">func (r *BucketRateLimiter) When(item interface{}) time.Duration {
+  return r.Limiter.Reserve().Delay()
+}
+</code></pre>
+<h2 id="总结一下"><a href="#总结一下" class="headerlink" title="总结一下"></a>总结一下</h2><ul>
+<li><p>限速队列，就是通过把操作延时到未来发生，控制后得到某条事件发生曲线，平稳限速或者实现重试时间backoff的指数增长</p>
+</li>
+<li><p>我猜的限时器实现使用的滑动窗口，go中rate的方案果然更工程化，接口更丰富，更灵活，适用场景更多</p>
+</li>
+</ul>
+<p>至此，三个队列都学习完了，对我这种菜鸡，收获感还是很足</p>
+<p><strong>普通队列 （保证相同对象不会被不同消费者处理、Get+Done的接口组合） -&gt;</strong> </p>
+<p><strong>延时队列 （引入优先队列，高效地协程唤醒策略，基于Add实现AddAfter） -&gt;</strong> </p>
+<p><strong>限速队列 （引入限速器，自动分配延长时间，基于AddAfter实现AddRateLimit)</strong></p>
+<p>分层的设计，复用下层实现，附加电池，创造了更多功能，不愧是你啊阿谷😍</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;Go</span>
+                        &nbsp;
+                         
+                        <span class="badge badge-light">#&nbsp;Kubernetes</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
