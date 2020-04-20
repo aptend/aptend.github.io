@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>课程 nand2tetris Part-I 回顾 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">课程 nand2tetris Part-I 回顾</p>
+            <br>
+            
+            <p>Saturday, April 18th 2020, 10:51 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>⭐⭐⭐⭐⭐推荐</p>
+<a id="more"></a>
+<h1 id="课程脉络"><a href="#课程脉络" class="headerlink" title="课程脉络"></a>课程脉络</h1><h2 id="布尔逻辑"><a href="#布尔逻辑" class="headerlink" title="布尔逻辑"></a>布尔逻辑</h2><p>关键的理论保证：<strong>任何一个真值表，都能用布尔表达式来实现</strong></p>
+<p>这一章以与非门为起点，构建了基础了逻辑门，Not、And、Or、Xor, 并且实现了选择器(Mux)和分发器(DMux)。</p>
+<p>两个想法：</p>
+<ol>
+<li><p>用我自己的话说，Mux就是赛马比赛，分半区，一个个地选择局部冠军，最后到总冠军；DMux就是在二叉树中的接力赛，一层层传递，但是每层只有一个节点包含输入值。</p>
+</li>
+<li><p>Mux启示，在布尔逻辑层，<code>if</code>的实现是两个分支都计算，然后选择结果，而不是像高级语言那样，判断条件后选择分支去计算结果。</p>
+</li>
+</ol>
+<h2 id="算术逻辑单元"><a href="#算术逻辑单元" class="headerlink" title="算术逻辑单元"></a>算术逻辑单元</h2><p>构建的逻辑是</p>
+<pre><code class="txt">半加器 两个bit，(a, b)，计算出(进位，结果)
+
+|
+v
+
+全加器 三个bit，(进位，a，b)，计算出(进位，结果)
+
+|
+v
+
+加法器 串联全加器，每个全加器给出一位结果，并向下一个全加器传入进位
+
+|
+v
+
+算术逻辑单元  给出控制位，控制计算行为，比如计算a+b, !a, -a, a &amp; b等
+             这是CPU芯片能力的体现，乘除法、浮点计算可以有专门的单元
+
+</code></pre>
+<h2 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h2><p>构建的逻辑</p>
+<pre><code class="txt">DFF 原语
+
+|
+v
+
+Bit寄存器 Mux + DFF + load控制位
+
+|
+v
+
+16位寄存器
+
+|
+v
+
+RAM N个16位寄存器 + address, N=8,64, 512, 4K,...
+
+\_ PC 程序计数器
+</code></pre>
+<h3 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h3><p>区分了两类元件，<code>combinational</code> 和 <code>sequential</code></p>
+<p>关键在于元件是否含有触发器(flip-flop)，在本课程中，特指DFF，Data Flip Flop。包含的就属于<code>sequential</code>。</p>
+<p>DFF的特点是，它的输出，是前一个时刻的输入，表达式为<code>out(t) = in(t-1)</code></p>
+<p>所谓时刻，是指计算机都有一个全局的时钟脉冲，高-低-高-低的循环往复，tick, tock, tick, tock。而触发器总会被高电平或者低电平所”触发”而产生输出，而这个输出，像前面说的，就是上一个脉冲时，输入是多少。</p>
+<p>正是因为这样的特性，<code>sequential</code>可以把输出接到输入上，因为他们实际上是<strong>不同时刻</strong>的值，不会造成问题。而<code>combinational</code>的输入和输出是在同一时刻确定的，所以不能形成有效的loop，比如之前的And、Or、加法器等等。输出接输入loop的意义是，DFF可以记住自己的值，也就是在时间(tick-tock)流动过程中，保持输出值不变。</p>
+<p>寄存器就是在利用DFF，增加一个<code>load</code>的控制，显示控制是否让DFF记住新的值，换个说法就是读/写模式的切换。如下图</p>
+<pre><code>                |
+                | load
+in              v
+------------&gt;+--+--+      +-----+            out
+             | Mux +----&gt; + DFF + ---------------&gt; 
+          --&gt;+-----+      +-----+    |
+          |                          |
+          ----------------------------
+</code></pre><p><code>load=1</code>的时刻，寄存器的输出仍然时上一次储存的值，但是Mux已经选择了<code>in</code>成为DFF的输入，所以下一个时刻，寄存器将输出<code>in</code>。</p>
+<h3 id="RAM"><a href="#RAM" class="headerlink" title="RAM"></a>RAM</h3><p>字：用16位的寄存器来造内存，16就是字长</p>
+<p>RAM由多个寄存器组成，输入为<code>load</code>， <code>address[16]</code>，输出为<code>out[16]</code></p>
+<p><code>address</code>能够指定了读写具体发生在哪一个寄存器上</p>
+<p>RAM的全称为Random Access Memory，含义是，任意指定<code>address</code>，都能在相同的单位时间内完成读写。这是<code>Mux</code>、 <code>DMux</code>下层电路的能力。</p>
+<p>RAM的叠加过程很简单，MSB指定大区，剩下的指定具体位置，然后递归，在每个大区里面执行一样的动作。</p>
+<h3 id="Counter"><a href="#Counter" class="headerlink" title="Counter"></a>Counter</h3><p>程序计数器三个基本控制位:</p>
+<ul>
+<li><code>reset</code> 起始数字归0</li>
+<li><code>load</code> 写入新的起始数字</li>
+<li><code>inc</code> +1输出</li>
+</ul>
+<p>优先级依次降低，实现上可以反向计算结果，然后选择结果输出</p>
+<p>下面一张图，更清晰地理解，上一时刻的状态决定当前时间输出的特性：</p>
+<p><img src="https://s1.ax1x.com/2020/04/14/GzfRkq.png" alt="GzfRkq.png"></p>
+<h2 id="机器码和汇编"><a href="#机器码和汇编" class="headerlink" title="机器码和汇编"></a>机器码和汇编</h2><p>机器码是给CPU看的，一串01010101001， 要包含三方面的信息：</p>
+<p><strong>从哪来？干什么？到哪去？</strong></p>
+<ol>
+<li>操作数在哪里，怎么读取它？ 比如操作数直接在寄存器里，或者在主存某个位置</li>
+<li>要执行什么操作？ 比如之前造的ALU支持6位的控制位，那么机器码至少要包含这6个控制位，ALU才能读懂要做什么事情。</li>
+<li>当前指令执行完后，下一条执行什么？ 没有指定，就顺序执行，否则就按照指令中的规则跳转</li>
+</ol>
+<pre><code class="txt">000010101 0010101 01010
+--------- ------- -----
+  指令     操作数   跳转
+</code></pre>
+<p>所谓寻址，是看待操作数的0101的不妨方式</p>
+<ul>
+<li>立即数，操作数本身就是数据，实际上没有必要寻址 e.g. <code>LOADI R1, 67  // R1 &lt;- 67</code> </li>
+<li>寄存器寻址，操作数是寄存器的地址，从寄存器中读取数据 e.g. <code>Add R2, R1, R3/ / R2 &lt;- R1 + R3</code> </li>
+<li>直接寻址，数据在主存中，操作数就是数据在主存中的地址，到内存中读取得到数据 e.g. <code>LOAD R1, 67 // R1 &lt;- M[67]</code></li>
+<li>间接寻址，操作数是一个地址，读取其内容(主存、寄存器)后，才得到数据在内存中的地址，再从内中得到数据 e.g. <code>LOAD* R2, R1 // R2 &lt;- M[R1]</code></li>
+</ul>
+<blockquote>
+<p>所以间接寻址，就可以看作是C语言中的指针的实现</p>
+</blockquote>
+<p>指令包含加减法、布尔操作等</p>
+<p>跳转指根据ALU的计算结果(<code>&gt;0, &lt;0 ...</code>)来触发跳转</p>
+<p><strong>汇编语言</strong>就是建立起字符串和底层01001的映射关系，方便人来书写。并且支持一定的符号解析功能。符号解析在第六章-构建汇编器，有仔细说明</p>
+<h2 id="制作CPU"><a href="#制作CPU" class="headerlink" title="制作CPU"></a>制作CPU</h2><p>CPU要能理解上一节的机器码，因此它的主要功能有：</p>
+<ol>
+<li>解析机器码，转化为内部CPU的控制位</li>
+<li>读取、储存操作数，因此需要<strong>内部寄存器</strong>作为CPU的组件</li>
+<li>执行计算，因此需要一个<strong>ALU</strong>作为组件</li>
+<li>判断是否跳转，<strong>输出</strong>下一条指令的位置，因此需要一个<strong>Counter</strong>作为组件</li>
+</ol>
+<blockquote>
+<p>在Hack中，内存的操作数的读取是用A-instruction读取的，所以没有同步的问题</p>
+</blockquote>
+<h2 id="编写汇编器"><a href="#编写汇编器" class="headerlink" title="编写汇编器"></a>编写汇编器</h2><p>总体上，汇编器是简单的文本处理程序，翻译为二进制格式。</p>
+<p>只是会因为增加更多的数据类型以及支持符号解析而变得复杂一些。</p>
+<p>本课程中的符号分为标签和变量。标签是机器码指令的地址。变量是内存地址。变量对应的具体的内存地址的值不重要，一般按照地址空间递增就好了。高级语言的变量其实也是这样，变量就是某个内存地址，变量的值，是那个地址中的内容。</p>
+<p>流程是两次扫描。第一次解析全局标签。第二次生成机器码。</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>课程配套简直完美。教材语言简单直接，Project环境完备操作方便反馈清晰，每个Project难度适中，对我来说刚刚好，做起来很顺畅，做完有收获有成就感。</p>
+<p>总体脉络写的是通用的知识点，HACK本身的一些笔记和想法，放在了<a href="https://github.com/aptend/nand2tetris" target="_blank" rel="noopener">gitbub</a>上备份存档</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;TYCS</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
