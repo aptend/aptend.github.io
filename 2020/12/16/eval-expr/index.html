@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
+    <link rel="icon" type="image/png" href="/howl.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="Is Life Always This Hard? / After all this time?">
+    <meta name="author" content="aptend">
+    <meta name="keywords" content>
+    <title>使用递归下降和Pratt方法求值算术表达式 ~ No one</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/github.min.css">
+    
+    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">使用递归下降和Pratt方法求值算术表达式</p>
+            <br>
+            
+            <p>Wednesday, December 16th 2020, 4:02 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="markdown-body post-content py-5 z-depth-3 main">
+                <p>复习向，<a href="https://craftinginterpreters.com/contents.html" target="_blank" rel="noopener"><em>Crafting Interpreters</em></a> 中介绍的两种方法</p>
+<a id="more"></a>
+<h2 id="表达式定义"><a href="#表达式定义" class="headerlink" title="表达式定义"></a>表达式定义</h2><p>简单起见，算数表达式只包含以下元素：</p>
+<ul>
+<li>整数</li>
+<li>括号</li>
+<li>一元运算符：<code>-</code></li>
+<li>二元运算符：<code>+ - * /</code></li>
+</ul>
+<p>比如<code>-1 + 2*(1 + 3 - 2)</code></p>
+<h2 id="Lexer"><a href="#Lexer" class="headerlink" title="Lexer"></a>Lexer</h2><p>第一步将输入表达式分成小单位的token，因为表达式内容较少，只用产出如下组件：</p>
+<ul>
+<li>整数</li>
+<li><code>(</code></li>
+<li><code>)</code></li>
+<li><code>+</code></li>
+<li><code>-</code></li>
+<li><code>*</code></li>
+<li><code>/</code></li>
+</ul>
+<p>表达式<code>-112 + 2*(1 + 3 - 42)</code> 产出的token序列为<code>-, 112, +, 2, *, (, 1, +, 3, -, 42, ), None</code></p>
+<p>此外增加peek功能，方便后续解析，Lexer如下</p>
+<pre><code class="python">class Lexer:
+    def __init__(self, expr: str):
+        self.expr_str = expr
+        self.peeked = None
+        self.tokens = self.tokens_iter()
+
+    def tokens_iter(self):
+        num = None
+        for ch in self.expr_str:
+            if ch.isdigit():
+                if num:
+                    num = 10 * num + int(ch)
+                else:
+                    num = int(ch)
+            else:
+                if num is not None:                    
+                    yield num # yield an int
+                    num = None
+                if ch != &#39; &#39;:                    
+                    yield ch # yield an operation
+        if num:
+            yield num
+
+    def next(self):
+        &quot;&quot;&quot;consume next token and return it
+        None means end of the token stream
+        &quot;&quot;&quot;
+        if self.peeked is not None:
+            ret = self.peeked
+            self.peeked = None
+        else:
+            try:
+                ret = next(self.tokens)
+            except StopIteration:
+                return None
+        return ret
+
+    def peek(self):
+        &quot;&quot;&quot;peek the next token without consuming it 
+        &quot;&quot;&quot;
+        if self.peeked is None:
+            self.peeked = self.next()
+        return self.peeked
+
+</code></pre>
+<h2 id="EvalBase"><a href="#EvalBase" class="headerlink" title="EvalBase"></a>EvalBase</h2><p>写一个求值的基类，把Lexer组合进去，复用一点代码</p>
+<pre><code class="python">class Eval:
+    def __init__(self, expr: str):
+        self.lexer = Lexer(expr)
+
+    def next(self):
+        return self.lexer.next()
+
+    def peek(self):
+        return self.lexer.peek()
+</code></pre>
+<h2 id="递归下降"><a href="#递归下降" class="headerlink" title="递归下降"></a>递归下降</h2><ul>
+<li><p>编程领域的语言都有明确的生成规则，算术表达式的生成规则如下：</p>
+<ol>
+<li><code>expr: factor ( (&#39;+&#39; | &#39;-&#39;) factor )*</code></li>
+<li><code>factor: unary ( (&#39;*&#39; | &#39;/&#39;) unary)*</code></li>
+<li><code>unary: &#39;-&#39;? unary | primary</code></li>
+<li><code>primary: num | &#39;(&#39; expr &#39;)&#39;</code></li>
+</ol>
+</li>
+<li><p>从上往下，计算的优先级依次升高，问题的求解规模减少，直到遇到计算数据的基本单位，一个整形<code>num</code>。</p>
+</li>
+<li>所谓递归下降，就把每个生成规则都做成一个函数，调用更规模更小的子问题，子问题的优先级一般会更高，如果同级，就表示右结合的运算，比如一元运算符<code>-</code>。</li>
+<li>易错点是写出无限循环，自己调用自己，问题规模没有减小，就是常说的直接、间接左递归</li>
+<li>每一个函数完整控制着表达式中的一个计算单元，可以利用他们的返回值进行运算。</li>
+</ul>
+<pre><code class="python">class Descent(Eval):
+    def primary(self):
+        token = self.next()
+        if isinstance(token, int):
+            return token
+        elif token == &#39;(&#39;:
+            ret = self.expr()
+            assert &#39;)&#39; == self.next(), &#39;unbalanced parentheses&#39;
+            return ret
+        else:
+            raise ValueError(f&#39;unrecognized token {token!r}&#39;)
+
+    def unary(self):
+        token = self.peek()
+        if token == &#39;-&#39;:
+            self.next()
+            return - self.unary()
+        else:
+            return self.primary()
+
+    def factor(self):
+        left = self.unary()
+        while self.peek() in (&#39;*&#39;, &#39;/&#39;):
+            op = self.next()
+            if op == &#39;*&#39;:
+                left *= self.unary()
+            elif op == &#39;/&#39;:
+                left //= self.unary()
+            else:
+                raise ValueError(f&#39;unrecognized operator {op!r}&#39;)
+        return left
+
+    def expr(self):
+        left = self.factor()
+        while self.peek() in (&#39;+&#39;, &#39;-&#39;):
+            op = self.next()
+            if op == &#39;+&#39;:
+                left += self.factor()
+            elif op == &#39;-&#39;:
+                left -= self.factor()
+            else:
+                raise ValueError(f&#39;unrecognized operator {op!r}&#39;)
+        return left
+
+    def eval(self):
+        return self.expr()
+</code></pre>
+<h2 id="Pratt方法"><a href="#Pratt方法" class="headerlink" title="Pratt方法"></a>Pratt方法</h2><ul>
+<li>每一次表达式解析，都是将一个表达式看作 <code>一个前缀表达式 (若干中缀表达式)*</code>进行收集，求值后入栈，该次收集的表达式所涉及的操作数的优先级，一定不高于参数所给定的优先级。比如<code>1 + 2 + 3</code>解析，参数为最低优先级：前缀表达式<code>1</code>，中缀表达式<code>+ 2</code>，中缀表达式<code>+ 3</code>。两个中缀表达式去掉操作符后，再递归调用表达式解析，各自通过两个前缀表达式得到 <code>2</code> 和 <code>3</code>。</li>
+<li><p>收集函数根据token进行查找确定。同样的<code>-</code>，可以分发到作为前缀的<code>unary</code>，也可以分发到作为中缀的<code>bianry</code>，视上下文而定。</p>
+</li>
+<li><p>中缀表达式的停止，用操作符的优先级来进行，比如<code>1 + 2 + 3</code>中，<code>+</code> 操作符分发的<code>binary</code>开启的新一轮表达式收集，只能包含比自己更高的操作符，比如<code>* /</code>，看到<code>2</code>后面的<code>+</code>号和自己同级，于是停止，形成一个左结合的操作。</p>
+</li>
+<li>需要一个最低的优先级<code>Null</code>，可以停止一切中缀表达式的匹配。</li>
+<li>和递归下降的模拟生成规则的函数不同，Pratt中的分发函数属于收集函数，只会根据优先级收集计算单元的某部分，没有完整信息，所以需要使用栈记录信息并求值。</li>
+</ul>
+<p>代码方面，首先记录运算符的优先级，而递归下降中的类似</p>
+<pre><code class="python">from enum import Enum
+class Prec(Enum): # precedence
+    Null = auto()
+    Term = auto()     # &#39;+ -&#39; 
+    Factor = auto()   # &#39;* /&#39;
+    Unary = auto()    # &#39;-&#39;
+    Primary = auto()  # num &#39;(&#39; expr &#39;)&#39;
+
+    def next(self):
+        &quot;&quot;&quot;return the next level precedence
+        Prec.Primary will return itself&quot;&quot;&quot;
+        return Prec(min(self.value + 1, self.Primary.value))
+
+    def __le__(self, other: &#39;Prec&#39;):
+        return self.value &lt;= other.value
+</code></pre>
+<p>新建一个Pratt类，主要构建出根据token进行分发的函数表格。</p>
+<ul>
+<li>加入Prec信息和<code>prec_of</code>，是因为合并了一些逻辑，比如<code>binary</code>的参数token可能横跨两个优先级，需要识别出以继续收集。事实上，如果没有合并，每个收集函数，对自己该继续收集什么层级的表达式，都是清楚的，比如之后会看到的unary直接调用<code>parse_with(Prec::Unary)</code>，这也是<code>-</code>在表中只记录它在<code>binary</code>中的优先级的原因。</li>
+<li>默认返回的优先级是<code>Null</code>，所以最后的中止token为None，可以用来跳出所有中缀表达式的调用，结束解析</li>
+<li>stack用来求值</li>
+</ul>
+<pre><code class="python">
+@dataclass
+class DispatchEntry:
+    prefix: MethodWrapperType = None
+    infix: MethodWrapperType = None
+    prec: Prec = Prec.Null
+
+
+EmptyEntry = DispatchEntry()
+
+
+class Pratt(Eval):
+
+    def __init__(self, expr: str):
+        super().__init__(expr)
+        self.stack = []
+        self.index_map = {
+            &#39;num&#39;: DispatchEntry(self.num, None, Prec.Null),
+            &#39;+&#39;: DispatchEntry(None, self.binary, Prec.Term),
+            &#39;-&#39;: DispatchEntry(self.unary, self.binary, Prec.Term),
+            &#39;*&#39;: DispatchEntry(None, self.binary, Prec.Factor),
+            &#39;/&#39;: DispatchEntry(None, self.binary, Prec.Factor),
+            &#39;(&#39;: DispatchEntry(self.group, None, Prec.Null)
+        }
+
+    def fetch_entry(self, token: str):
+        if token and isinstance(token, int):
+            token = &#39;num&#39;
+        return self.index_map.get(token, EmptyEntry)
+
+    def prefix_fn_call(self, token: str):
+        if fn := self.fetch_entry(token).prefix:
+            return fn(token)
+        raise ValueError(f&#39;unkown token to dispatch prefix: {token!r}&#39;)
+
+    def infix_fn_call(self, token: str):
+        if fn := self.fetch_entry(token).infix:
+            return fn(token)
+        raise ValueError(f&#39;unkown token to dispatch infix: {token!r}&#39;)
+
+    def prec_of(self, token: str):
+        return self.fetch_entry(token).prec
+</code></pre>
+<p>然后加入被分配的收集函数</p>
+<pre><code class="python"># in class Pratt
+    def parse_with(self, prec: Prec):
+        token = self.next()
+        self.prefix_fn_call(token)
+        while prec &lt;= self.prec_of(self.peek()):
+            token = self.next()
+            self.infix_fn_call(token)
+
+    def unary(self, token: str):
+        self.parse_with(Prec.Unary)
+        if token == &#39;-&#39;:
+            self.stack[-1] = -self.stack[-1]
+
+    def binary(self, token):
+        self.parse_with(self.prec_of(token).next())
+        right = self.stack.pop()
+        left = self.stack.pop()
+        if token == &#39;+&#39;:
+            self.stack.append(left + right)
+        elif token == &#39;-&#39;:
+            self.stack.append(left - right)
+        elif token == &#39;*&#39;:
+            self.stack.append(left * right)
+        elif token == &#39;/&#39;:
+            self.stack.append(left // right)
+
+    def group(self, token):
+        self.expr()
+        assert &#39;)&#39; == self.next(), &#39;unbalanced parentheses&#39;
+
+    def num(self, token: int):
+        self.stack.append(token)
+
+    def expr(self):
+        self.parse_with(Prec.Null.next())
+
+    def eval(self):
+        self.expr()
+        return self.stack[-1]
+</code></pre>
+<p>画了一个调用栈来表示解析过程，<code>paser_with</code>都用主色表示，它所引发的prefix调用都用浅色表示，所引发的infix调用使用深色。</p>
+<p><img src="https://s3.ax1x.com/2020/12/16/rQbV0J.png" alt="pratt-call-stack"></p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li>递归下降中的规则从上往下，优先级上升，问题规模下降</li>
+<li>Pratt方法的核心是<code>parse_with(prec :Prec) { 前缀表达式 (中缀表达式)*}</code>将下一个表示式的值入栈，该值的求解过程中使用的操作数，都大于等于prec优先级</li>
+<li>Pratt中的<code>prec_of</code>出现是因为收集函数的逻辑合并</li>
+<li>Pratt方法中的最小逻辑用来跳出中缀匹配</li>
+</ul>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Algo</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
+    <div id="tocbot"></div>
+  </div>
+
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
+
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script src="/js/post.js"></script>
+
+<script src="/js/plugins/prettify.js"></script>
+<script>
+  $(document).ready(function () {
+    $('pre').addClass('prettyprint');
+    prettyPrint();
+  })
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+</body>
+</html>
