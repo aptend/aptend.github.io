@@ -103,6 +103,9 @@
 </ol>
 <h3 id="Hash-Table"><a href="#Hash-Table" class="headerlink" title="Hash Table"></a>Hash Table</h3><p>关于hash表的考量，同样来自源码的<a href="https://github.com/python/cpython/blob/3.7/Objects/dictobject.c#L134" target="_blank" rel="noopener">注释</a>，以下为个人意译</p>
 <p>Python选择开放地址法而不是拉链法，因为拉链法要维护额外的连接，开销更大</p>
+<blockquote>
+<p>来自未来的说明 2020-12:<br>开放地址法能更好地利用CPU的缓存</p>
+</blockquote>
 <p>大多数hash方案都依赖于一个“好”的hash函数，能出色地模拟随机性，均匀地散布key。但Python并没有沿着这条路走，它最重要的hash函数，针对int类型的，显得非常平常，可预期：</p>
 <pre><code class="python">  &gt;&gt;&gt;[hash(i) for i in range(4)]
   [0, 1, 2, 3]
@@ -266,7 +269,7 @@ def dict_del(dc, key, hashvalue):
         entry.me_key = DUMMY
         entry.me_hash = None
         entry.me_value = None
-        dc.ma_used -=   
+        dc.ma_used -= 1 
 </code></pre>
 <h3 id="容量伸缩"><a href="#容量伸缩" class="headerlink" title="容量伸缩"></a>容量伸缩</h3><p>字典的大小(ma_mask+1)必须为二次幂，而为了保证hash表的效率，使用过的entry应当是总体容量的2/3。也就是，当ma_fill超过(ma_size+1)的2/3，字典容量需要进行一次调整，调整的依据称为增长率</p>
 <p>Python各版本的增长率如下表</p>
