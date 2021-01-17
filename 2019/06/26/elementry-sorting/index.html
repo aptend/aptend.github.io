@@ -1,91 +1,200 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>基础排序算法总结：从逆序对的角度 - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>基础排序算法总结：从逆序对的角度 ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="基础排序算法总结：从逆序对的角度">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-06-26 23:28" pubdate>
+        June 26, 2019 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.1k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">基础排序算法总结：从逆序对的角度</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Wednesday, June 26th 2019, 11:28 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>从逆序对inversion的角度，重新审视基础排序算法，选择、插入、冒泡、希尔，他们到底什么关系？</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">基础排序算法总结：从逆序对的角度</h1>
+            
+            <div class="markdown-body">
+              <p>从逆序对inversion的角度，重新审视基础排序算法，选择、插入、冒泡、希尔，他们到底什么关系？</p>
 <a id="more"></a>
 <p>首先证明：</p>
 <p>在数组中交换一个逆序对，一定会使总的逆序对减小</p>
@@ -93,7 +202,7 @@
 <p>Given an array of N keys, let a[i] and a[j] be an inversion (i &lt; j but a[i] &gt; a[j]). Prove or disprove: swapping a[i] and a[j] strictly decreases the number of inversions</p>
 </blockquote>
 <p>处在i，j两侧的数不会因为这次交换产生逆序对的变动，只需要考虑<code>nums[i+1:j]</code>中的数，自然地，把这个区间的数根据<code>nums[i], nums[j]</code>分成三堆（忽略相等的情况，对逆序对没有影响），分别统计这三堆因为这次交换产生的逆序对变动就可以。</p>
-<p><img src="https://s2.ax1x.com/2019/06/25/ZZgjoR.png" alt="ZZgjoR.png"></p>
+<p><img src="https://s2.ax1x.com/2019/06/25/ZZgjoR.png" srcset="/img/loading.gif" alt="ZZgjoR.png"></p>
 <p>可以看到，交换一个inversion，至少减少一个inversion。当<code>j-i=1</code>，交换相邻的inversion，确定地减少一个inversion。交换不相邻的inversion，inversion的总数有可能减少得更快。</p>
 <h1 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h1><p>思路：选择最小元素，放入有序数组的空位。</p>
 <p>选择方法：<code>n次比较+1次交换</code>。</p>
@@ -101,15 +210,7 @@
 <p>性能：固定的$N^2/2$次比较和$N$次交换</p>
 <p>稳定：否</p>
 <p>使用场景：交换操作非常昂贵，逆序对比较多</p>
-<pre><code class="python">def selection(nums):
-    N = len(nums)
-    for i in range(N):
-        m, v = i, nums[v]
-        for j in range(i+1, N):
-            if nums[j] &lt; v:
-                m = j
-        nums[i], nums[m] = nums[m], nums[i]
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">selection</span>(<span class="hljs-params">nums</span>):</span><br>    N = <span class="hljs-built_in">len</span>(nums)<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(N):<br>        m, v = i, nums[v]<br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i+<span class="hljs-number">1</span>, N):<br>            <span class="hljs-keyword">if</span> nums[j] &lt; v:<br>                m = j<br>        nums[i], nums[m] = nums[m], nums[i]<br></code></pre></div></td></tr></table></figure>
 <h1 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h1><p>思路：将一个新元素，插入进一个有序数组，原数组中所有元素插入完毕，排序结束。</p>
 <p>插入方法： <code>比较+交换 or 比较+移动 or 二分+移动</code></p>
 <p>特点：过程中<strong>利用了</strong>计算产生的新信息，即有序数组</p>
@@ -121,83 +222,14 @@
 <li>一个有序的大数组接一个小数组</li>
 <li>数组中只有几个元素位置不正确</li>
 </ul>
-<pre><code class="python">def insertion(nums):
-    &quot;&quot;&quot;
-    交换的次数就是逆序对的个数，设为V
-    如果内循环是break跳出的，那么比较次数=交换次数+1
-    如果内循环是range跳出的，那么比较次数=交换次数。比如nums[j]比nums[:i]都小
-    看最外层循环，最多有range(1, N)个break的机会
-    所以比较的次数C有V &lt;= C &lt;= V + len(nums)-1
-    &quot;&quot;&quot;
-    N = len(nums)
-    for i in range(1, N):
-        for j in range(i-1, -1, -1):  # 询问左侧每个位置，要不要交换
-            if nums[j] &gt; nums[j+1]:
-                nums[j+1], nums[j] = nums[j], nums[j+1]
-            else:
-                break
-
-
-def insertion_no_exchange(nums):
-    &quot;&quot;&quot;
-    把交换操作变为移动，也就是把一个数字往后移动一格。数组访问的次数由4变为2
-    数组比较次数没有变
-    减少控制流比较的方式是使用flag, Algo4给出方案(练习)的是使用哨兵。
-    &quot;&quot;&quot;
-    N = len(nums)
-    for i in range(1, N):
-        v = nums[i]
-        use_break = False
-        for j in range(i-1, -1, -1):  # 询问每个左侧每个位置，要不要移动
-            if nums[j] &gt; v:
-                nums[j+1] = nums[j]
-            else:
-                use_break = True
-                break
-        if use_break:       # nums[j] &lt;= v, nums[j+1] 是为 v 空出来的格子
-            nums[j+1] = v
-        else:               # 每个位置都要求交换, nums[0] 就是为 v 空出来的格子
-            nums[0] = v
-
-
-def insertion_binary(nums):
-    &quot;&quot;&quot;
-    同样数组的移动次数等于逆序对个数
-    比较次数由平均n/2减少到logn，所以O(n^2)的常数因子会变得更小一些
-    整个过程还是由移动dominant
-    &quot;&quot;&quot;
-    N = len(nums)
-    for i in range(1, N):
-        v = nums[i]
-        lo, hi = 0, i-1
-        while lo &lt;= hi:
-            mid = (lo + hi) // 2
-            if nums[mid] &gt; v:
-                hi = mid - 1
-            else:
-                lo = mid + 1
-
-        for j in range(i-1, lo-1, -1):
-            nums[j+1] = nums[j]
-        nums[lo] = v
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">insertion</span>(<span class="hljs-params">nums</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    交换的次数就是逆序对的个数，设为V</span><br><span class="hljs-string">    如果内循环是break跳出的，那么比较次数=交换次数+1</span><br><span class="hljs-string">    如果内循环是range跳出的，那么比较次数=交换次数。比如nums[j]比nums[:i]都小</span><br><span class="hljs-string">    看最外层循环，最多有range(1, N)个break的机会</span><br><span class="hljs-string">    所以比较的次数C有V &lt;= C &lt;= V + len(nums)-1</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    N = <span class="hljs-built_in">len</span>(nums)<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, N):<br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i-<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>):  <span class="hljs-comment"># 询问左侧每个位置，要不要交换</span><br>            <span class="hljs-keyword">if</span> nums[j] &gt; nums[j+<span class="hljs-number">1</span>]:<br>                nums[j+<span class="hljs-number">1</span>], nums[j] = nums[j], nums[j+<span class="hljs-number">1</span>]<br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-keyword">break</span><br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">insertion_no_exchange</span>(<span class="hljs-params">nums</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    把交换操作变为移动，也就是把一个数字往后移动一格。数组访问的次数由4变为2</span><br><span class="hljs-string">    数组比较次数没有变</span><br><span class="hljs-string">    减少控制流比较的方式是使用flag, Algo4给出方案(练习)的是使用哨兵。</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    N = <span class="hljs-built_in">len</span>(nums)<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, N):<br>        v = nums[i]<br>        use_break = <span class="hljs-literal">False</span><br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i-<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>):  <span class="hljs-comment"># 询问每个左侧每个位置，要不要移动</span><br>            <span class="hljs-keyword">if</span> nums[j] &gt; v:<br>                nums[j+<span class="hljs-number">1</span>] = nums[j]<br>            <span class="hljs-keyword">else</span>:<br>                use_break = <span class="hljs-literal">True</span><br>                <span class="hljs-keyword">break</span><br>        <span class="hljs-keyword">if</span> use_break:       <span class="hljs-comment"># nums[j] &lt;= v, nums[j+1] 是为 v 空出来的格子</span><br>            nums[j+<span class="hljs-number">1</span>] = v<br>        <span class="hljs-keyword">else</span>:               <span class="hljs-comment"># 每个位置都要求交换, nums[0] 就是为 v 空出来的格子</span><br>            nums[<span class="hljs-number">0</span>] = v<br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">insertion_binary</span>(<span class="hljs-params">nums</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    同样数组的移动次数等于逆序对个数</span><br><span class="hljs-string">    比较次数由平均n/2减少到logn，所以O(n^2)的常数因子会变得更小一些</span><br><span class="hljs-string">    整个过程还是由移动dominant</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    N = <span class="hljs-built_in">len</span>(nums)<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, N):<br>        v = nums[i]<br>        lo, hi = <span class="hljs-number">0</span>, i-<span class="hljs-number">1</span><br>        <span class="hljs-keyword">while</span> lo &lt;= hi:<br>            mid = (lo + hi) // <span class="hljs-number">2</span><br>            <span class="hljs-keyword">if</span> nums[mid] &gt; v:<br>                hi = mid - <span class="hljs-number">1</span><br>            <span class="hljs-keyword">else</span>:<br>                lo = mid + <span class="hljs-number">1</span><br><br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i-<span class="hljs-number">1</span>, lo-<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>):<br>            nums[j+<span class="hljs-number">1</span>] = nums[j]<br>        nums[lo] = v<br></code></pre></div></td></tr></table></figure>
 <h1 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h1><p>思路：结构上同选择排序，选择最大元素，放入有序数组空位。</p>
 <p>选择方法： <code>比较+交换</code></p>
 <p>特点：过程中<strong>利用了</strong>计算产生的新信息，但没有利用有序数组，利用的剩下的、经过交换的<strong>部分有序</strong>数组</p>
 <p>性能：在比较中使用了交换，所以最终总的交换(移动)次数等于总的逆序对个数。但是比较仍然和选择相同，$N^2/2$。不过可以通过加入一个flag，标记本轮没有发生交换后提早退出。</p>
 <p>稳定：是</p>
 <p>所以冒泡排序实际上处于一个很尴尬的位置。交换虽然没有多做，但是有很多无意义的比较，因为要从部分有序数组里面寻找逆序对，会比较很多已经有序的数对。尽管设置flag可以减少很多，但是在最后一轮中，如果逆序对出现在靠后的位置，前面还是做了一些多余的比较，依然达不到插入那样节省。</p>
-<pre><code class="python">def bubble(nums):
-    N = len(nums)
-    for i in range(N-1, 0, -1):  # 总共填充N-1个位置，剩余一个自然有序
-        changed = False
-        for j in range(0, i):  # 从开始处冒泡
-            if nums[j] &gt; nums[j+1]:
-                nums[j+1], nums[j] = nums[j], nums[j+1]
-                changed = True
-        if not changed:    # 逆序对为0，全部有序
-            break
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">bubble</span>(<span class="hljs-params">nums</span>):</span><br>    N = <span class="hljs-built_in">len</span>(nums)<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(N-<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>):  <span class="hljs-comment"># 总共填充N-1个位置，剩余一个自然有序</span><br>        changed = <span class="hljs-literal">False</span><br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, i):  <span class="hljs-comment"># 从开始处冒泡</span><br>            <span class="hljs-keyword">if</span> nums[j] &gt; nums[j+<span class="hljs-number">1</span>]:<br>                nums[j+<span class="hljs-number">1</span>], nums[j] = nums[j], nums[j+<span class="hljs-number">1</span>]<br>                changed = <span class="hljs-literal">True</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> changed:    <span class="hljs-comment"># 逆序对为0，全部有序</span><br>            <span class="hljs-keyword">break</span><br></code></pre></div></td></tr></table></figure>
 <h1 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h1><p>思路：利用插入排序，在更大跨度上做排序，最后使用跨度为1的插入排序保证全部有序。</p>
 <p>基础方法：生成递增序列+插入排序</p>
 <p>特点 &amp; 性能：希尔排序就是插入排序的直接拓展，由inversion的证明可知，希尔排序通过大跨度扫描，交换inversion，可以更快地减少总的inversion，为接下来的小跨度扫瞄交换创造有利条件。和归并、快排的性能差距在常数级别</p>
@@ -205,150 +237,278 @@ def insertion_binary(nums):
 <p>除了上述的原理，还有实现上有两个地方注意：</p>
 <ol>
 <li>实现数组h-有序时，相当于需要对h个子数组进行排序。与其事先计算出每个子数组的index，不如扫描所有未排定的数，也就是从index=h的开始，根据它的index倒推回去，index=h表示它属于<code>h%h=0</code>号子数组，index=h+1的表示它属于1号子数组，依次类推，各自在自己的子数组里比较、插入</li>
-<li>使用binary-search优化时，mid的计算涉及到等差数列的上下中位数的计算，因为还有其他题目涉及，我总结到<a href="https://aptend.github.io/2019/07/14/median/" target="_blank" rel="noopener">这篇笔记</a>里</li>
+<li>使用binary-search优化时，mid的计算涉及到等差数列的上下中位数的计算，因为还有其他题目涉及，我总结到<a target="_blank" rel="noopener" href="https://aptend.github.io/2019/07/14/median/">这篇笔记</a>里</li>
 </ol>
-<pre><code class="python">def sort_h(nums, h=1):
-    &quot;&quot;&quot;
-    利用插入排序，将nums变为h-有序的
-    对于每个数，通过插入排序，和自己同组元素比较、移动
-    每个数安排完，就可以了
-    &gt;&gt;&gt; a = [7, 6, 2, 4, 9, 8, 1]
-    &gt;&gt;&gt; a1, a2, a3 = a[:], a[:], a[:]
-    &gt;&gt;&gt; sort_h(a1, h=1)
-    &gt;&gt;&gt; sort_h(a2, h=2) # [1,x,2,x,7,x,9] + [x,4,x,6,x,8]
-    &gt;&gt;&gt; sort_h(a3, h=3) # [1,x,x,4,x,x,7] + [x,6,x,x,9,x,x] + [x,x,2,x,x,8,x]
-    &gt;&gt;&gt; a1
-    [1, 2, 4, 6, 7, 8, 9]
-    &gt;&gt;&gt; a2
-    [1, 4, 2, 6, 7, 8, 9]
-    &gt;&gt;&gt; a3
-    [1, 6, 2, 4, 9, 8, 7]
-    &quot;&quot;&quot;
-    N = len(nums)
-    for i in range(h, N):  # [0:h]是各组数第一个，跳过它
-        v = nums[i]
-        use_break = False
-        for j in range(i-h, -1, -h):  # 询问每个左侧每个同组的位置，要不要移动
-            if nums[j] &gt; v:
-                nums[j+h] = nums[j]
-            else:
-                use_break = True
-                break
-        if use_break:       # nums[j] &lt;= v, nums[j+h]是为 v空出来的格子
-            nums[j+h] = v
-        else:               # 每个位置都要求交换, 同组的第一个就是空出来的位置
-            nums[i%h] = v
-
-
-def sort_binary_h(nums, h=1):    
-    N = len(nums)
-    for i in range(h, N):
-        v = nums[i]
-        lo, hi = i%h, i-h
-        while lo &lt;= hi:
-            mid = int((hi - lo) / h / 2)
-            mid = lo + mid*h
-            if nums[mid] &gt; v:
-                hi = mid - h
-            else:
-                lo = mid + h
-        for j in range(i-h, lo-1, -h):
-            nums[j+h] = nums[j]
-        nums[lo] = v
-
-
-def gen_seq(N):
-    h = 1
-    while h &lt; N // 3:
-        h = 3*h + 1
-    while h &gt;= 1:
-        yield h
-        h = h // 3
-
-
-def shell(nums):
-    for h in gen_seq(len(nums)):
-        sort_h(nums, h)
-
-
-def shell_binary(nums):
-    for h in gen_seq(len(nums)):
-        sort_binary_h(nums, h)
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">sort_h</span>(<span class="hljs-params">nums, h=<span class="hljs-number">1</span></span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    利用插入排序，将nums变为h-有序的</span><br><span class="hljs-string">    对于每个数，通过插入排序，和自己同组元素比较、移动</span><br><span class="hljs-string">    每个数安排完，就可以了</span><br><span class="hljs-string">    &gt;&gt;&gt; a = [7, 6, 2, 4, 9, 8, 1]</span><br><span class="hljs-string">    &gt;&gt;&gt; a1, a2, a3 = a[:], a[:], a[:]</span><br><span class="hljs-string">    &gt;&gt;&gt; sort_h(a1, h=1)</span><br><span class="hljs-string">    &gt;&gt;&gt; sort_h(a2, h=2) # [1,x,2,x,7,x,9] + [x,4,x,6,x,8]</span><br><span class="hljs-string">    &gt;&gt;&gt; sort_h(a3, h=3) # [1,x,x,4,x,x,7] + [x,6,x,x,9,x,x] + [x,x,2,x,x,8,x]</span><br><span class="hljs-string">    &gt;&gt;&gt; a1</span><br><span class="hljs-string">    [1, 2, 4, 6, 7, 8, 9]</span><br><span class="hljs-string">    &gt;&gt;&gt; a2</span><br><span class="hljs-string">    [1, 4, 2, 6, 7, 8, 9]</span><br><span class="hljs-string">    &gt;&gt;&gt; a3</span><br><span class="hljs-string">    [1, 6, 2, 4, 9, 8, 7]</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    N = <span class="hljs-built_in">len</span>(nums)<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(h, N):  <span class="hljs-comment"># [0:h]是各组数第一个，跳过它</span><br>        v = nums[i]<br>        use_break = <span class="hljs-literal">False</span><br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i-h, -<span class="hljs-number">1</span>, -h):  <span class="hljs-comment"># 询问每个左侧每个同组的位置，要不要移动</span><br>            <span class="hljs-keyword">if</span> nums[j] &gt; v:<br>                nums[j+h] = nums[j]<br>            <span class="hljs-keyword">else</span>:<br>                use_break = <span class="hljs-literal">True</span><br>                <span class="hljs-keyword">break</span><br>        <span class="hljs-keyword">if</span> use_break:       <span class="hljs-comment"># nums[j] &lt;= v, nums[j+h]是为 v空出来的格子</span><br>            nums[j+h] = v<br>        <span class="hljs-keyword">else</span>:               <span class="hljs-comment"># 每个位置都要求交换, 同组的第一个就是空出来的位置</span><br>            nums[i%h] = v<br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">sort_binary_h</span>(<span class="hljs-params">nums, h=<span class="hljs-number">1</span></span>):</span>    <br>    N = <span class="hljs-built_in">len</span>(nums)<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(h, N):<br>        v = nums[i]<br>        lo, hi = i%h, i-h<br>        <span class="hljs-keyword">while</span> lo &lt;= hi:<br>            mid = <span class="hljs-built_in">int</span>((hi - lo) / h / <span class="hljs-number">2</span>)<br>            mid = lo + mid*h<br>            <span class="hljs-keyword">if</span> nums[mid] &gt; v:<br>                hi = mid - h<br>            <span class="hljs-keyword">else</span>:<br>                lo = mid + h<br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i-h, lo-<span class="hljs-number">1</span>, -h):<br>            nums[j+h] = nums[j]<br>        nums[lo] = v<br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">gen_seq</span>(<span class="hljs-params">N</span>):</span><br>    h = <span class="hljs-number">1</span><br>    <span class="hljs-keyword">while</span> h &lt; N // <span class="hljs-number">3</span>:<br>        h = <span class="hljs-number">3</span>*h + <span class="hljs-number">1</span><br>    <span class="hljs-keyword">while</span> h &gt;= <span class="hljs-number">1</span>:<br>        <span class="hljs-keyword">yield</span> h<br>        h = h // <span class="hljs-number">3</span><br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">shell</span>(<span class="hljs-params">nums</span>):</span><br>    <span class="hljs-keyword">for</span> h <span class="hljs-keyword">in</span> gen_seq(<span class="hljs-built_in">len</span>(nums)):<br>        sort_h(nums, h)<br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">shell_binary</span>(<span class="hljs-params">nums</span>):</span><br>    <span class="hljs-keyword">for</span> h <span class="hljs-keyword">in</span> gen_seq(<span class="hljs-built_in">len</span>(nums)):<br>        sort_binary_h(nums, h)<br></code></pre></div></td></tr></table></figure>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>插入排序还是本体，无论从思想上还是实现上，其他方法都可借鉴、对比</p>
 <p>基础排序实现时，关注点不妨放在“位置上”，一个萝卜一个坑，思路会更清晰一点。</p>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Algo</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Algo/">Algo</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/07/07/rabin-karp/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">使用Rabin-Karp算法查找最长回文字符串</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/06/20/rotated-array/">
+                        <span class="hidden-mobile">Rotated Array 相关四题总结</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

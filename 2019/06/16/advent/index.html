@@ -1,99 +1,208 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>Advent of Code 2018 回顾 - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>Advent of Code 2018 回顾 ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Advent of Code 2018 回顾">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-06-16 17:12" pubdate>
+        June 16, 2019 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.5k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">Advent of Code 2018 回顾</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Sunday, June 16th 2019, 5:12 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <blockquote>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Advent of Code 2018 回顾</h1>
+            
+            <div class="markdown-body">
+              <blockquote>
 <p>在AoC里狗刨的20天。</p>
 </blockquote>
 <a id="more"></a>
-<p><img src="https://s2.ax1x.com/2019/06/16/V7J4aT.gif" alt="V7J4aT.gif"></p>
+<p><img src="https://s2.ax1x.com/2019/06/16/V7J4aT.gif" srcset="/img/loading.gif" alt="V7J4aT.gif"></p>
 <p>从哪知道AoC的？已经记不清了。但是，故事的收尾，我总结为，两个“真的”，两个“重要”。</p>
 <p><strong>菜。我是真的菜。</strong></p>
 <p><strong>厉害，排行榜上的人是真的厉害</strong>。</p>
-<p>总排行第4，Robert Xiao。没想到在这儿还能遇到。CMU FIG组成员，论文<a href="https://www.robertxiao.ca/research/viband/" target="_blank" rel="noopener">ViBand</a>当时都给我看傻了，视频演出效果简直梦幻。个个都是人才，十几二十分钟就把问题解决了。</p>
+<p>总排行第4，Robert Xiao。没想到在这儿还能遇到。CMU FIG组成员，论文<a target="_blank" rel="noopener" href="https://www.robertxiao.ca/research/viband/">ViBand</a>当时都给我看傻了，视频演出效果简直梦幻。个个都是人才，十几二十分钟就把问题解决了。</p>
 <p>我菜嘛，那就不谈了。都没敢定时做，把题盘清楚了，老老实实写出来就是我现阶段的目标。既然因为菜，就要多总结，希望有所成长</p>
 <p><strong>基础算法很重要</strong></p>
 <p><strong>代码的可读性很重要</strong></p>
@@ -112,74 +221,18 @@
 <blockquote>
 <p>Deques support thread-safe, memory efficient appends and pops from either side of the deque with approximately the same O(1) performance in either direction.</p>
 </blockquote>
-<pre><code class="c">typedef struct BLOCK {
-    struct BLOCK *leftlink;
-    PyObject *data[BLOCKLEN];
-    struct BLOCK *rightlink;
-} block;
-
-typedef struct {
-    PyObject_VAR_HEAD
-    block *leftblock;
-    block *rightblock;
-    Py_ssize_t leftindex;       /* 0 &lt;= leftindex &lt; BLOCKLEN */
-    Py_ssize_t rightindex;      /* 0 &lt;= rightindex &lt; BLOCKLEN */
-    size_t state;               /* incremented whenever the indices move */
-    Py_ssize_t maxlen;          /* maxlen is -1 for unbounded deques */
-    PyObject *weakreflist;
-} dequeobject;
-
-deque_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    ...
-    b = newblock();
-    if (b == NULL) {
-        Py_DECREF(deque);
-        return NULL;
-    }
-    MARK_END(b-&gt;leftlink);
-    MARK_END(b-&gt;rightlink);
-
-    Py_SIZE(deque) = 0;
-    deque-&gt;leftblock = b;
-    deque-&gt;rightblock = b;
-    deque-&gt;leftindex = CENTER + 1;
-    deque-&gt;rightindex = CENTER;
-    deque-&gt;state = 0;
-    deque-&gt;maxlen = -1;
-    deque-&gt;weakreflist = NULL;
-    ...
-}
-</code></pre>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BLOCK</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BLOCK</span> *<span class="hljs-title">leftlink</span>;</span><br>    PyObject *data[BLOCKLEN];<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BLOCK</span> *<span class="hljs-title">rightlink</span>;</span><br>&#125; block;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    PyObject_VAR_HEAD<br>    block *leftblock;<br>    block *rightblock;<br>    Py_ssize_t leftindex;       <span class="hljs-comment">/* 0 &lt;= leftindex &lt; BLOCKLEN */</span><br>    Py_ssize_t rightindex;      <span class="hljs-comment">/* 0 &lt;= rightindex &lt; BLOCKLEN */</span><br>    <span class="hljs-keyword">size_t</span> state;               <span class="hljs-comment">/* incremented whenever the indices move */</span><br>    Py_ssize_t maxlen;          <span class="hljs-comment">/* maxlen is -1 for unbounded deques */</span><br>    PyObject *weakreflist;<br>&#125; dequeobject;<br><br>deque_new(PyTypeObject *type, PyObject *args, PyObject *kwds)<br>&#123;<br>    ...<br>	b = newblock();<br>    <span class="hljs-keyword">if</span> (b == <span class="hljs-literal">NULL</span>) &#123;<br>        Py_DECREF(<span class="hljs-built_in">deque</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>    &#125;<br>    MARK_END(b-&gt;leftlink);<br>    MARK_END(b-&gt;rightlink);<br><br>    Py_SIZE(<span class="hljs-built_in">deque</span>) = <span class="hljs-number">0</span>;<br>    <span class="hljs-built_in">deque</span>-&gt;leftblock = b;<br>    <span class="hljs-built_in">deque</span>-&gt;rightblock = b;<br>    <span class="hljs-built_in">deque</span>-&gt;leftindex = CENTER + <span class="hljs-number">1</span>;<br>    <span class="hljs-built_in">deque</span>-&gt;rightindex = CENTER;<br>    <span class="hljs-built_in">deque</span>-&gt;state = <span class="hljs-number">0</span>;<br>    <span class="hljs-built_in">deque</span>-&gt;maxlen = <span class="hljs-number">-1</span>;<br>    <span class="hljs-built_in">deque</span>-&gt;weakreflist = <span class="hljs-literal">NULL</span>;<br>    ...<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>但从这个题来看，会在链表的中间添加和删除，deque的解法使用rotate再append、pop，rotate的复杂度也不是O(1)，所以从时间复杂度看不会比完全的双向链表快。那还比我快10倍，大概就是Python慢吧……</p>
 <h1 id="day13"><a href="#day13" class="headerlink" title="day13"></a>day13</h1><p>思路上把矿车单独提出来成为一个集合，然后模拟前进、转弯。具体的有两处值得拿出来讲：</p>
 <ol>
 <li>允许矿车出现拐角处和十字交汇处。代码会自动推断矿车所处的位置。但是推断建立在不存在T型路口的前提下</li>
 <li>转弯部分的逻辑使用的旋转矩阵，避免穷举</li>
 </ol>
-<pre><code class="python">DIRECTIONS = {
-    &#39;&gt;&#39;: (0, 1),
-    &#39;&lt;&#39;: (0, -1),
-    &#39;^&#39;: (-1, 0),
-    &#39;v&#39;: (1, 0)
-}
-TURNS = {
-    &#39;left&#39;: [[0, 1], [-1, 0]],
-    &#39;ahead&#39;: [[1, 0], [0, 1]],
-    &#39;right&#39;: [[0, -1], [1, 0]]
-}
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">DIRECTIONS = &#123;<br>    <span class="hljs-string">&#x27;&gt;&#x27;</span>: (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>),<br>    <span class="hljs-string">&#x27;&lt;&#x27;</span>: (<span class="hljs-number">0</span>, -<span class="hljs-number">1</span>),<br>    <span class="hljs-string">&#x27;^&#x27;</span>: (-<span class="hljs-number">1</span>, <span class="hljs-number">0</span>),<br>    <span class="hljs-string">&#x27;v&#x27;</span>: (<span class="hljs-number">1</span>, <span class="hljs-number">0</span>)<br>&#125;<br>TURNS = &#123;<br>    <span class="hljs-string">&#x27;left&#x27;</span>: [[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>], [-<span class="hljs-number">1</span>, <span class="hljs-number">0</span>]],<br>    <span class="hljs-string">&#x27;ahead&#x27;</span>: [[<span class="hljs-number">1</span>, <span class="hljs-number">0</span>], [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>]],<br>    <span class="hljs-string">&#x27;right&#x27;</span>: [[<span class="hljs-number">0</span>, -<span class="hljs-number">1</span>], [<span class="hljs-number">1</span>, <span class="hljs-number">0</span>]]<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>最后把运行图画出来看起来还是挺好看的。</p>
 <h1 id="day17"><a href="#day17" class="headerlink" title="day17"></a>day17</h1><p>思路是每一处溢出的地方，可以看成一个新的喷泉，形成一个可以递归的子问题。对每一处下降的水流，寻找地面(# or ~)，然后向左右两端寻找墙角或者溢出口，如果溢出口已经存在‘|’，不要进入下次递归，因为这表示已经有函数在做过了。这也是寻找的地面不包含‘|’的原因：如果地面是‘|’，那么溢出口也一定是‘|’，反正会终止。下面代码就是在水面两侧的类型</p>
-<pre><code>class End(Enum):
-    &quot;&quot;&quot;
-    #x                x            x    
-    ####  :WALL      |### :WATER   .### :EMPTY
-    &quot;&quot;&quot;
-    WALL = 0   # 墙角，填充返回就好
-    WATER = 1  # 溢出口，但是不需要进入递归
-    EMPTY = 2  # 溢出口，需要进入递归
-</code></pre><h1 id="day20"><a href="#day20" class="headerlink" title="day20"></a>day20</h1><p>这个题难了我好久。首先是题目是这么说的</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">End</span>(<span class="hljs-params">Enum</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    #x                x            x    </span><br><span class="hljs-string">    ####  :WALL      |### :WATER   .### :EMPTY</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    WALL = <span class="hljs-number">0</span>   <span class="hljs-comment"># 墙角，填充返回就好</span><br>    WATER = <span class="hljs-number">1</span>  <span class="hljs-comment"># 溢出口，但是不需要进入递归</span><br>    EMPTY = <span class="hljs-number">2</span>  <span class="hljs-comment"># 溢出口，需要进入递归</span><br></code></pre></div></td></tr></table></figure>
+<h1 id="day20"><a href="#day20" class="headerlink" title="day20"></a>day20</h1><p>这个题难了我好久。首先是题目是这么说的</p>
 <blockquote>
 <p>So, <code>^N(E|W)N$</code> contains a branch: after going north, you must choose to go <em>either east or west</em> before finishing your route by going north again. </p>
 </blockquote>
@@ -189,147 +242,281 @@ TURNS = {
 <p>在<code>(oo|)</code>模式为原路返回的假设下(虽然输入也确实也是如此)，<code>ooo(oo|)o(oooo|)o(oooooo|)oo</code> 本身也应该是一种递归，本质长这样子：<code>ooo(o|o(oo|o(ooo|oo)))</code></p>
 <p>我还是没能在同一个递归里处理清楚这两种行为很不相同，实际上又相互联系的模式。最后走向了迭代的路子。</p>
 <p>正是因为两种模式的行为差别，在迭代里维护了两个栈，记录分岔点，当前层级的分支个数。对<code>)</code>和<code>|)</code>也是分开处理，才能完成“平行空间”的要求</p>
-<pre><code>if ch == &#39;(&#39;:
-    stack.append((x, y))
-    forks_stack.append(n_forks)
-    n_forks = 0
-elif ch == &#39;|&#39;:
-    if ins[i+1] == &#39;)&#39;:  # 遇到原路返回型岔路，备选+1，回到(开始处
-        i += 1
-        x, y = stack.pop()
-        n_forks = forks_stack.pop()
-        steps = rooms[(x, y)]
-    else:                # 当前点入栈，因为平行空间可能在此基础上继续。
-                         # 备选+1，回到(开始处
-        stack.append((x, y))
-        n_forks += 1
-        x, y = stack[-1 - n_forks]
-        steps = rooms[(x, y)]
-elif ch == &#39;)&#39;:
-    for _ in range(n_forks):   # 在最长岔路基础上继续
-        fork = stack.pop()
-        if rooms[fork] &gt; steps:
-            x, y = fork
-            steps = rooms[fork]
-    stack.pop()                  # 抛弃原始(开始处
-    n_forks = forks_stack.pop()  # 回到上层的岔路计数
-</code></pre><p>总结一下，像这种求全局最大值，又有明晰的指令，一步一步模拟出来可能是比递归更自然的解决方式。</p>
+<figure class="highlight nix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nix"><span class="hljs-keyword">if</span> <span class="hljs-attr">ch</span> == &#x27;(&#x27;:<br>    stack.append((x, y))<br>    forks_stack.append(n_forks)<br>    <span class="hljs-attr">n_forks</span> = <span class="hljs-number">0</span><br>elif <span class="hljs-attr">ch</span> == &#x27;|&#x27;:<br>    <span class="hljs-keyword">if</span> ins[i+<span class="hljs-number">1</span>] == &#x27;)&#x27;:  <span class="hljs-comment"># 遇到原路返回型岔路，备选+1，回到(开始处</span><br>        i += <span class="hljs-number">1</span><br>        x, <span class="hljs-attr">y</span> = stack.pop()<br>        <span class="hljs-attr">n_forks</span> = forks_stack.pop()<br>        <span class="hljs-attr">steps</span> = rooms[(x, y)]<br>    <span class="hljs-keyword">else</span>:                <span class="hljs-comment"># 当前点入栈，因为平行空间可能在此基础上继续。</span><br>                         <span class="hljs-comment"># 备选+1，回到(开始处</span><br>        stack.append((x, y))<br>        n_forks += <span class="hljs-number">1</span><br>        x, <span class="hljs-attr">y</span> = stack[-<span class="hljs-number">1</span> - n_forks]<br>        <span class="hljs-attr">steps</span> = rooms[(x, y)]<br>elif <span class="hljs-attr">ch</span> == &#x27;)&#x27;:<br>    for _ <span class="hljs-keyword">in</span> range(n_forks):   <span class="hljs-comment"># 在最长岔路基础上继续</span><br>        <span class="hljs-attr">fork</span> = stack.pop()<br>        <span class="hljs-keyword">if</span> rooms[fork] &gt; steps:<br>            x, <span class="hljs-attr">y</span> = fork<br>            <span class="hljs-attr">steps</span> = rooms[fork]<br>    stack.pop()                  <span class="hljs-comment"># 抛弃原始(开始处</span><br>    <span class="hljs-attr">n_forks</span> = forks_stack.pop()  <span class="hljs-comment"># 回到上层的岔路计数</span><br></code></pre></div></td></tr></table></figure>
+<p>总结一下，像这种求全局最大值，又有明晰的指令，一步一步模拟出来可能是比递归更自然的解决方式。</p>
 <h1 id="day22"><a href="#day22" class="headerlink" title="day22"></a>day22</h1><p>在最短路径算法的应用上，我的思路是，每一块地形，都对应两种工具，所以每一块地都有两个点，在同一块地上切换工具，路径权重就是7</p>
-<pre><code class="python">g.add_edge(Edge(src, src+1, 7))
-g.add_edge(Edge(src+1, src, 7))
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">g.add_edge(Edge(src, src+<span class="hljs-number">1</span>, <span class="hljs-number">7</span>))<br>g.add_edge(Edge(src+<span class="hljs-number">1</span>, src, <span class="hljs-number">7</span>))<br></code></pre></div></td></tr></table></figure>
 <p>然后就是该地形指向周围4个地型的边，只有是相同工具时，才能移动，就是1，否则需要在本地切换工具再移动。转换信息用deltas表示，转换顺序用edge_order表示</p>
-<pre><code class="python"># 0: rocky  [torch gear]
-# 1: wet    [gear neither]
-# 2: narrow [torch neither]
-
-# delta[0][1] means 
-# (rocky[0] -&gt; wet[0], # rocky with torch -&gt; wet with gear
-#  rocky[0] -&gt; wet[1],
-#  rocky[1] -&gt; wet[0],
-#  rocky[1] -&gt; wet[1])
-
-deltas = [
-    [(1, None, None, 1), (None, None, 1, None), (1, None, None, None)],
-    [(None, 1, None, None), (1, None, None, 1), (None, None, None, 1)],
-    [(1, None, None, None), (None, None, None, 1), (1, None, None, 1)],
-]
-edge_order = [(0, 0), (0, 1), (1, 0), (1, 1)]
-...
-
-delta = deltas[src_type][to_type]
-for idx, weight in enumerate(delta):
-    if weight is None:
-        continue
-    d1, d2 = edge_order[idx]
-    g.add_edge(Edge(src+d1, to+d2, weight))
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-comment"># 0: rocky  [torch gear]</span><br><span class="hljs-comment"># 1: wet    [gear neither]</span><br><span class="hljs-comment"># 2: narrow [torch neither]</span><br><br><span class="hljs-comment"># delta[0][1] means </span><br><span class="hljs-comment"># (rocky[0] -&gt; wet[0], # rocky with torch -&gt; wet with gear</span><br><span class="hljs-comment">#  rocky[0] -&gt; wet[1],</span><br><span class="hljs-comment">#  rocky[1] -&gt; wet[0],</span><br><span class="hljs-comment">#  rocky[1] -&gt; wet[1])</span><br><br>deltas = [<br>    [(<span class="hljs-number">1</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-number">1</span>), (<span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-number">1</span>, <span class="hljs-literal">None</span>), (<span class="hljs-number">1</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>)],<br>    [(<span class="hljs-literal">None</span>, <span class="hljs-number">1</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>), (<span class="hljs-number">1</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-number">1</span>), (<span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-number">1</span>)],<br>    [(<span class="hljs-number">1</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>), (<span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">1</span>, <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>, <span class="hljs-number">1</span>)],<br>]<br>edge_order = [(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">0</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>)]<br>...<br><br>delta = deltas[src_type][to_type]<br><span class="hljs-keyword">for</span> idx, weight <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(delta):<br>    <span class="hljs-keyword">if</span> weight <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-keyword">continue</span><br>    d1, d2 = edge_order[idx]<br>    g.add_edge(Edge(src+d1, to+d2, weight))<br></code></pre></div></td></tr></table></figure>
 <p>还有就是python没有内置可以方便修改值的优先队列，所以在Dijkstra内部本来需要修改点的地方，不用判断是否在优先队列里，直接添加，在外面通过一个集合去重</p>
-<pre><code class="python">dist, v = heappop(heap)
-if v == target:
-    return dist, path
-if v in seen:
-    continue
-seen.add(v)
-for e in g.adj[v]:
-    w = e.to
-    if dist_to[w] &gt; dist_to[v] + e.weight:
-        dist_to[w] = dist_to[v] + e.weight
-        edge_to[w] = v
-        heappush(heap, (dist_to[w], w))
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">dist, v = heappop(heap)<br><span class="hljs-keyword">if</span> v == target:<br>    <span class="hljs-keyword">return</span> dist, path<br><span class="hljs-keyword">if</span> v <span class="hljs-keyword">in</span> seen:<br>    <span class="hljs-keyword">continue</span><br>seen.add(v)<br><span class="hljs-keyword">for</span> e <span class="hljs-keyword">in</span> g.adj[v]:<br>    w = e.to<br>    <span class="hljs-keyword">if</span> dist_to[w] &gt; dist_to[v] + e.weight:<br>        dist_to[w] = dist_to[v] + e.weight<br>        edge_to[w] = v<br>        heappush(heap, (dist_to[w], w))<br></code></pre></div></td></tr></table></figure>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Algo</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Algo/">Algo</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/06/20/rotated-array/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Rotated Array 相关四题总结</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/04/pydict/">
+                        <span class="hidden-mobile">Python字典内部实现</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

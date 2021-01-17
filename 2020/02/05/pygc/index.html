@@ -1,91 +1,200 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>Python的垃圾回收梗概 - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>Python的垃圾回收梗概 ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Python的垃圾回收梗概">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-02-05 23:17" pubdate>
+        February 5, 2020 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      946 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">Python的垃圾回收梗概</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Wednesday, February 5th 2020, 11:17 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>If there’s no one left in the living world to remember you, you disappear from this world.</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Python的垃圾回收梗概</h1>
+            
+            <div class="markdown-body">
+              <p>If there’s no one left in the living world to remember you, you disappear from this world.</p>
 <p>​                                                                        ——Moive <em>Coco</em></p>
 <a id="more"></a>
 <h1 id="REFCNT"><a href="#REFCNT" class="headerlink" title="REFCNT"></a>REFCNT</h1><p>引用计数基于一个朴素的想法，一块内存，如果没有引用指向它，就不可达，不能再被访问，因此可以被释放回收。</p>
@@ -116,89 +225,21 @@
 <p>所以核心问题，怎么探测到不可达的循环引用对象？</p>
 <h2 id="标记-清除"><a href="#标记-清除" class="headerlink" title="标记-清除"></a>标记-清除</h2><p>想要构成循环引用，只能是容器，list、dict、instance、tuple之类的，所以python用双向链表来组织运行过程中建立的容器对象</p>
 <p>如下图，黑色表示实际的引用关系，黄色双向箭头表示双向链表组织。希望标记出链表末尾的不可达循环引用对象，一个做法是，遍历元素，把元素的指向的子元素的refcnt减1，形成<strong>有效计数</strong>，因为如果有效计数还大于1，说明它是存在外部引用的可达对象，即root object，那么他们的子元素也是可达对象。</p>
-<p><img src="https://s2.ax1x.com/2019/02/14/kB0eLq.png" alt="kB0eLq.png"></p>
+<p><img src="https://s2.ax1x.com/2019/02/14/kB0eLq.png" srcset="/img/loading.gif" alt="kB0eLq.png"></p>
 <p>首先先做一个refcnt的备份，然后在备份上计算出有效计数</p>
-<p><img src="https://s2.ax1x.com/2019/02/14/kB00YD.png" alt="kB00YD.png"></p>
+<p><img src="https://s2.ax1x.com/2019/02/14/kB00YD.png" srcset="/img/loading.gif" alt="kB00YD.png"></p>
 <p>然后根据有效计数将链表分为reachable和unreachable两个链表。既然这里已经求出有效计数， 引用还大于0的，就是引用入口，最直观的做法就是从它开始dfs，设置标志，没有访问到的则是需要清理的不可达的对象。</p>
 <!--但是CPython的实现形式稍有不同，具体细节参见在[源码](https://github.com/python/cpython/blob/3.7/Modules/gcmodule.c#L354)， 大致的流程是这样：
 
-```python
-# 遍历列表元素，如果有效计数为0，可能是不可达的，也可能引用它的容器在链表后面，
-# 此时暂时标记为tentatively-unreachable，放入unreachable链表；
-# 如果有效计数大于0，说明是一个可达对象，不需要回收，遍历它的子元素，
-#   子元素如果为0，gc_refs设为1，表明可达身份，
-#   如果发现被标注了tentatively-unreachable，gc_refs设为1，并且从unreachable链表中拿出。
-
-gc = young.next
-while gc != young:
-    if obj.gc_refs == 0:
-        obj.gc_refs = -4 # "tentatively_unreachable"
-        put_to(obj, unreachable)
-    elif obj.gc_refs > 0:
-        obj.gc_refs = -3 # "reachable"
-        for inner_obj in obj.refs:
-            if inner_obj.gc_refs == 0:
-                inner_obj.gc_refs = 1
-            elif inner_obj.gc_refs == -4:
-                inner_obj.gc_refs = 1
-                put_to(inner_obj, linked_list)
-     gc = gc.next
-```
--->
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-comment"># 遍历列表元素，如果有效计数为0，可能是不可达的，也可能引用它的容器在链表后面，</span><br><span class="hljs-comment"># 此时暂时标记为tentatively-unreachable，放入unreachable链表；</span><br><span class="hljs-comment"># 如果有效计数大于0，说明是一个可达对象，不需要回收，遍历它的子元素，</span><br><span class="hljs-comment">#   子元素如果为0，gc_refs设为1，表明可达身份，</span><br><span class="hljs-comment">#   如果发现被标注了tentatively-unreachable，gc_refs设为1，并且从unreachable链表中拿出。</span><br><br>gc = young.<span class="hljs-built_in">next</span><br><span class="hljs-keyword">while</span> gc != young:<br>    <span class="hljs-keyword">if</span> obj.gc_refs == <span class="hljs-number">0</span>:<br>        obj.gc_refs = -<span class="hljs-number">4</span> <span class="hljs-comment"># &quot;tentatively_unreachable&quot;</span><br>        put_to(obj, unreachable)<br>    <span class="hljs-keyword">elif</span> obj.gc_refs &gt; <span class="hljs-number">0</span>:<br>        obj.gc_refs = -<span class="hljs-number">3</span> <span class="hljs-comment"># &quot;reachable&quot;</span><br>        <span class="hljs-keyword">for</span> inner_obj <span class="hljs-keyword">in</span> obj.refs:<br>            <span class="hljs-keyword">if</span> inner_obj.gc_refs == <span class="hljs-number">0</span>:<br>                inner_obj.gc_refs = <span class="hljs-number">1</span><br>            <span class="hljs-keyword">elif</span> inner_obj.gc_refs == -<span class="hljs-number">4</span>:<br>                inner_obj.gc_refs = <span class="hljs-number">1</span><br>                put_to(inner_obj, linked_list)<br> 	gc = gc.<span class="hljs-built_in">next</span><br></code></pre></div></td></tr></table></figure>
+<p>–&gt;</p>
 <h2 id="分代"><a href="#分代" class="headerlink" title="分代"></a>分代</h2><p>没有经过更精细的处理时，标记操作和容器对象数量成正比。但是统计发现，程序运行也存在马太效应，存活得久的对象，越有可能一直存在，被释放回收的概率更低。因此分了0，1，2三代，代数越高，表示对象获得更长，活得长的对象就可以减少扫描标记的次数。</p>
 <p>因此，在标记-清除的原理之上，现在维护三个双向链表。每新建一个容器，添加到0代链表，当0代链表添加动作超过700，触发一次垃圾回收。但是并不是每次垃圾收集都是从0代发起的，这样就没办法扫描1代或2代中的内容了。因此触发动作一次开始会从最高代开始查看，是否超过其触发阈值(2代1代均为10次)，如果超过，就从超过阈值的最高代发起垃圾回收，具体的标识工作开始前，还会把更年轻代的链表合并到发起收集的这代链表上。标记完成后，把可达对象链表合并到发起收集链表的更高一代。</p>
 <h1 id="关于PEP442：-del-陷阱"><a href="#关于PEP442：-del-陷阱" class="headerlink" title="关于PEP442：__del__陷阱"></a>关于PEP442：__del__陷阱</h1><p>在完成可达和不可达对象的标识之后，就应该按照unreachable一个个进行真正的销毁：减少他们的ob_refcnt，触发引用计数为0造成的内存回收。</p>
 <p>但是，这其中有一个特殊的，就是具有__del__的instance。当引用计数销毁他们时，会主动调用__del__，那么如果引用、循环引用等本来就发生在del中，错误的销毁就会造成一些问题。3.4之前，Python就非常保守地选择了不销毁这些特殊容器，单独放到gc模块的garbage中，由用户自己控制。</p>
-<p>在3.4里，<a href="https://www.python.org/dev/peps/pep-0442/" target="_blank" rel="noopener">PEP442</a>提出了一个方案，不要等着引用计数为0来触发__del__，可以先进行__del__的调用，然后再检查一遍unreachable，如果发生了resurrection，就中止这次回收</p>
-<pre><code class="python">import gc
-import time
-global_list = []
-class SelfCycle:
-    def __init__(self):
-        self.p = self
-    def __del__(self):
-        print(&quot;resurrect&quot;)
-        global_list.append(self) # 在del中把自己变成了可达对象，所以发生了resurrection
-
-class SelfCycleI:
-    def __init__(self):
-        self.p = self
-    def __del__(self):
-        print(&quot;del from I&quot;)
-
-class SelfCycleII:
-    def __init__(self):
-        self.p = self
-    def __del__(self):
-        print(&quot;del from II&quot;)
-
-gc.set_debug(gc.DEBUG_SAVEALL)
-SelfCycle()
-SelfCycleI()
-SelfCycleII()
-gc.collect()      # 打印resurrect    del from I    del from II
-# 这次收集时发生了resurrection，所以garbage为空
-print([obj for obj in gc.garbage if &quot;SelfCycle&quot; in str(obj)]) 
-gc.collect()
-# 这次收集没有resurrection，所以garbage出现了SelfCycleI和SelfCycleII
-print([obj for obj in gc.garbage if &quot;SelfCycle&quot; in str(obj)])
-
-del global_list
-gc.collect()
-# 连SelfCycle都出现了，说明del没有被调用，直接销毁
-print([obj for obj in gc.garbage if &quot;SelfCycle&quot; in str(obj)])
-time.sleep(1000)
-
-# -----output-------
-resurrect
-del from I
-del from II
-[]
-[&lt;__main__.SelfCycleI object at 0x000002AB0B691240&gt;, {&#39;p&#39;: &lt;__main__.SelfCycleI object at 0x000002AB0B691240&gt;}, &lt;__main__.SelfCycleII object at 0x000002AB0B691278&gt;, {&#39;p&#39;: &lt;__main__.SelfCycleII object at 0x000002AB0B691278&gt;}]
-[&lt;__main__.SelfCycleI object at 0x000002AB0B691240&gt;, {&#39;p&#39;: &lt;__main__.SelfCycleI object at 0x000002AB0B691240&gt;}, &lt;__main__.SelfCycleII object at 0x000002AB0B691278&gt;, {&#39;p&#39;: &lt;__main__.SelfCycleII object at 0x000002AB0B691278&gt;}, &lt;__main__.SelfCycle object at 0x000002AB0B691208&gt;, {&#39;p&#39;: &lt;__main__.SelfCycle object at 0x000002AB0B691208&gt;}]
-
-</code></pre>
-<p>关于这里的东西，需要联系<a href="https://docs.python.org/3/reference/datamodel.html#object.__del__" target="_blank" rel="noopener">data modal文档</a>和这篇<a href="https://code.activestate.com/lists/python-dev/137698/" target="_blank" rel="noopener">邮件通讯</a>来看更能理解</p>
+<p>在3.4里，<a target="_blank" rel="noopener" href="https://www.python.org/dev/peps/pep-0442/">PEP442</a>提出了一个方案，不要等着引用计数为0来触发__del__，可以先进行__del__的调用，然后再检查一遍unreachable，如果发生了resurrection，就中止这次回收</p>
+ <figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> gc<br><span class="hljs-keyword">import</span> time<br>global_list = []<br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SelfCycle</span>:</span><br>	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span>(<span class="hljs-params">self</span>):</span><br>		self.p = self<br>	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__del__</span>(<span class="hljs-params">self</span>):</span><br>		print(<span class="hljs-string">&quot;resurrect&quot;</span>)<br>		global_list.append(self) <span class="hljs-comment"># 在del中把自己变成了可达对象，所以发生了resurrection</span><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SelfCycleI</span>:</span><br>	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span>(<span class="hljs-params">self</span>):</span><br>		self.p = self<br>	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__del__</span>(<span class="hljs-params">self</span>):</span><br>		print(<span class="hljs-string">&quot;del from I&quot;</span>)<br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SelfCycleII</span>:</span><br>	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span>(<span class="hljs-params">self</span>):</span><br>		self.p = self<br>	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__del__</span>(<span class="hljs-params">self</span>):</span><br>		print(<span class="hljs-string">&quot;del from II&quot;</span>)<br><br>gc.set_debug(gc.DEBUG_SAVEALL)<br>SelfCycle()<br>SelfCycleI()<br>SelfCycleII()<br>gc.collect()      <span class="hljs-comment"># 打印resurrect    del from I    del from II</span><br><span class="hljs-comment"># 这次收集时发生了resurrection，所以garbage为空</span><br>print([obj <span class="hljs-keyword">for</span> obj <span class="hljs-keyword">in</span> gc.garbage <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;SelfCycle&quot;</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">str</span>(obj)]) <br>gc.collect()<br><span class="hljs-comment"># 这次收集没有resurrection，所以garbage出现了SelfCycleI和SelfCycleII</span><br>print([obj <span class="hljs-keyword">for</span> obj <span class="hljs-keyword">in</span> gc.garbage <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;SelfCycle&quot;</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">str</span>(obj)])<br><br><span class="hljs-keyword">del</span> global_list<br>gc.collect()<br><span class="hljs-comment"># 连SelfCycle都出现了，说明del没有被调用，直接销毁</span><br>print([obj <span class="hljs-keyword">for</span> obj <span class="hljs-keyword">in</span> gc.garbage <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;SelfCycle&quot;</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">str</span>(obj)])<br>time.sleep(<span class="hljs-number">1000</span>)<br><br><span class="hljs-comment"># -----output-------</span><br>resurrect<br><span class="hljs-keyword">del</span> <span class="hljs-keyword">from</span> I<br><span class="hljs-keyword">del</span> <span class="hljs-keyword">from</span> II<br>[]<br>[&lt;__main__.SelfCycleI <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691240</span>&gt;, &#123;<span class="hljs-string">&#x27;p&#x27;</span>: &lt;__main__.SelfCycleI <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691240</span>&gt;&#125;, &lt;__main__.SelfCycleII <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691278</span>&gt;, &#123;<span class="hljs-string">&#x27;p&#x27;</span>: &lt;__main__.SelfCycleII <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691278</span>&gt;&#125;]<br>[&lt;__main__.SelfCycleI <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691240</span>&gt;, &#123;<span class="hljs-string">&#x27;p&#x27;</span>: &lt;__main__.SelfCycleI <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691240</span>&gt;&#125;, &lt;__main__.SelfCycleII <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691278</span>&gt;, &#123;<span class="hljs-string">&#x27;p&#x27;</span>: &lt;__main__.SelfCycleII <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691278</span>&gt;&#125;, &lt;__main__.SelfCycle <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691208</span>&gt;, &#123;<span class="hljs-string">&#x27;p&#x27;</span>: &lt;__main__.SelfCycle <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002AB0B691208</span>&gt;&#125;]<br><br></code></pre></div></td></tr></table></figure>
+<p>关于这里的东西，需要联系<a target="_blank" rel="noopener" href="https://docs.python.org/3/reference/datamodel.html#object.__del__">data modal文档</a>和这篇<a target="_blank" rel="noopener" href="https://code.activestate.com/lists/python-dev/137698/">邮件通讯</a>来看更能理解</p>
 <p>文档有三个点值得注意：</p>
 <ol>
 <li>del语法只是摘除名字对内存对象的引用，并不一定调用__del__</li>
@@ -215,15 +256,7 @@ del from II
 </ol>
 <p>第一点说明，3.4之后绝大多数情况下gc.garbage都是空的，因为__del__会被赋予一个新的tp_finalizer标识从而被新的逻辑处理回收掉。除非使用C-Python混合编程创建了tp_del不为空的对象</p>
 <p>第二点，对于del的只调用一次的保证，在3.4代码里，调用del过程中可以看到</p>
-<pre><code class="c">if (!_PyGCHead_FINALIZED(gc) &amp;&amp;
-        PyType_HasFeature(Py_TYPE(op), Py_TPFLAGS_HAVE_FINALIZE) &amp;&amp;
-        (finalize = Py_TYPE(op)-&gt;tp_finalize) != NULL) {
-    _PyGCHead_SET_FINALIZED(gc, 1); /*[1]*/
-    Py_INCREF(op);
-    finalize(op);
-    Py_DECREF(op);
-}
-</code></pre>
+<figure class="highlight c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (!_PyGCHead_FINALIZED(gc) &amp;&amp;<br>        PyType_HasFeature(Py_TYPE(op), Py_TPFLAGS_HAVE_FINALIZE) &amp;&amp;<br>        (finalize = Py_TYPE(op)-&gt;tp_finalize) != <span class="hljs-literal">NULL</span>) &#123;<br>    _PyGCHead_SET_FINALIZED(gc, <span class="hljs-number">1</span>); <span class="hljs-comment">/*[1]*/</span><br>    Py_INCREF(op);<br>    finalize(op);<br>    Py_DECREF(op);<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>[1]处会在调用时设置FINALIZED标志位，这样下次销毁就不会再调用。结合那个邮件列表来看，可以推测引用计数为0引发的销毁也会检查这个标志来确定是否需要调用__del__，由于只有gc会设置这个标志位，所以不被gc跟踪的__del__可以被调用多次。</p>
 <h1 id="一些工具和方法"><a href="#一些工具和方法" class="headerlink" title="一些工具和方法"></a>一些工具和方法</h1><h2 id="package"><a href="#package" class="headerlink" title="package"></a>package</h2><table>
 <thead>
@@ -251,7 +284,7 @@ del from II
 </tr>
 </tbody>
 </table>
-<p>关于内存泄漏的工具，这篇以tracemalloc为切入点的<a href="https://blog.louie.lu/2017/08/04/tracemalloc-python-standard-library-09/" target="_blank" rel="noopener">文章</a>不错，看最后的discussion</p>
+<p>关于内存泄漏的工具，这篇以tracemalloc为切入点的<a target="_blank" rel="noopener" href="https://blog.louie.lu/2017/08/04/tracemalloc-python-standard-library-09/">文章</a>不错，看最后的discussion</p>
 <h2 id="commands"><a href="#commands" class="headerlink" title="commands"></a>commands</h2><p>查看进程的线程数量<code>ps -o nlwp &lt;pid&gt;</code></p>
 <p>根据对象的id/address动态获取对象<code>obj = ctypes.cast(&lt;addr_or_id&gt;, ctypes.py_object).value</code></p>
 <p>对象销毁的回调函数<code>weakref.finalize(obj, callback)</code></p>
@@ -280,81 +313,276 @@ del from II
 </ol>
 <p>另一方面，如果不合理，就应该明确logger的地位，全局变量，所有权在logging。个性化的logger可以通过加入不同的信息来实现，比如使用LoggerAdapter，保证全局logger的精简</p>
 <p>此外关于内存泄漏的排查过程，对于Python3，首先确定gc是否打开，如果问题依然存在，使用内置的tracemalloc的快照对比功能来定位发生泄漏的代码位置，一般来说会发现一段将泄露对象添加到一个或多个全局容器的代码，针对问题代码给出解决方案。事后总结展示的时候可以添加objgraph画出的局部引用图，给其他人一个直观的理解。</p>
-<h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><p>有一个直观的图表：<a href="https://blog.csdn.net/m345376054/article/details/79214382" target="_blank" rel="noopener">https://blog.csdn.net/m345376054/article/details/79214382</a></p>
-<p>有排错的过程，提到PEP442问题：<a href="https://www.jianshu.com/p/2d06a1a01cc3" target="_blank" rel="noopener">https://www.jianshu.com/p/2d06a1a01cc3</a></p>
-<p>一个清晰的整体梳理：<a href="https://rushter.com/blog/python-garbage-collector/" target="_blank" rel="noopener">https://rushter.com/blog/python-garbage-collector/</a></p>
+<h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><p>有一个直观的图表：<a target="_blank" rel="noopener" href="https://blog.csdn.net/m345376054/article/details/79214382">https://blog.csdn.net/m345376054/article/details/79214382</a></p>
+<p>有排错的过程，提到PEP442问题：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/2d06a1a01cc3">https://www.jianshu.com/p/2d06a1a01cc3</a></p>
+<p>一个清晰的整体梳理：<a target="_blank" rel="noopener" href="https://rushter.com/blog/python-garbage-collector/">https://rushter.com/blog/python-garbage-collector/</a></p>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Python</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Python/">Python</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/03/20/work-queue-normal/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">client-go工作队列学习(一) - 普通队列</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/02/01/threadpool-impl/">
+                        <span class="hidden-mobile">Rust线程池源码拆解及实现</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

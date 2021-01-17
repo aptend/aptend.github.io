@@ -1,91 +1,200 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>serde你在干什么 - 实践篇 - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>serde你在干什么 - 实践篇 ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="serde你在干什么 - 实践篇">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-01-10 22:34" pubdate>
+        January 10, 2020 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.3k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">serde你在干什么 - 实践篇</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Friday, January 10th 2020, 10:34 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>serde 源码解析 | 用Redis Simple Protocol做练习</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">serde你在干什么 - 实践篇</h1>
+            
+            <div class="markdown-body">
+              <p>serde 源码解析 | 用Redis Simple Protocol做练习</p>
 <a id="more"></a>
 <p><code>serde你在干什么</code>的实践篇。基于serde框架，我们来写一个redis协议的deserializer和serializer</p>
 <h2 id="Redis-Protocol"><a href="#Redis-Protocol" class="headerlink" title="Redis Protocol"></a>Redis Protocol</h2><h3 id="overview"><a href="#overview" class="headerlink" title="overview"></a>overview</h3><p>redis 客户端和服务端通信的序列化标准</p>
@@ -109,57 +218,22 @@
 <li>For <strong>Arrays</strong> the first byte of the reply is “<code>*</code>“，即Vec</li>
 </ul>
 <p>Simple Strings</p>
-<pre><code class="txt">&quot;+OK\r\n&quot;
-</code></pre>
+<figure class="highlight txt"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs txt">&quot;+OK\r\n&quot;<br></code></pre></div></td></tr></table></figure>
 <p>​    </p>
 <p>Errors</p>
-<pre><code>&quot;-Error message\r\n&quot;
-</code></pre><p>​    和Simple Strings基本相同，但是添加一个错误类型段</p>
+<figure class="highlight swift"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs swift"><span class="hljs-string">&quot;-Error message<span class="hljs-subst">\r</span><span class="hljs-subst">\n</span>&quot;</span><br></code></pre></div></td></tr></table></figure>
+<p>​    和Simple Strings基本相同，但是添加一个错误类型段</p>
 <p>Integers</p>
-<pre><code class="txt">&quot;:1000\r\n&quot;
-</code></pre>
+<figure class="highlight txt"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs txt">&quot;:1000\r\n&quot;<br></code></pre></div></td></tr></table></figure>
 <p>​    bool值也使用0、1整型表示</p>
 <p>Bulk Strings</p>
-<pre><code class="txt">&quot;$6\r\nfoobar\r\n&quot;  [u8; 6]
-&quot;$-1\r\n&quot;  () None
-</code></pre>
+<figure class="highlight txt"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs txt">&quot;$6\r\nfoobar\r\n&quot;  [u8; 6]<br>&quot;$-1\r\n&quot;  () None<br></code></pre></div></td></tr></table></figure>
 <p>Arrays</p>
-<pre><code>&quot;*2\r\n$3\r\nfoo\r\n$3\r\nbar\r\n&quot;  [b&quot;foo&quot;, b&quot;bar&quot;]
-&quot;*3\r\n:1\r\n:2\r\n:3\r\n&quot;  [1, 2, 3]
-&quot;*0\r\n&quot; []
-
-*2\r\n
-*3\r\n
-:1\r\n
-:2\r\n
-:3\r\n
-*2\r\n
-+Foo\r\n
--Bar\r\n  [[1, 2, 3], [&quot;Foo&quot;, Err(Bar)]]
-
-*3\r\n
-$3\r\n
-foo\r\n
-$-1\r\n
-$3\r\n
-bar\r\n  [&quot;foo&quot;,nil,&quot;bar&quot;]
-</code></pre><h3 id="使用样例"><a href="#使用样例" class="headerlink" title="使用样例"></a>使用样例</h3><p>使用上，客户端发送 用 <strong>Array of Bulk Strings</strong> 的形式给服务器端发送 <strong>命令及参数</strong> 作为 Request；服务器端给客户端发送 任意的类型(组合) 作为 Response。</p>
-<pre><code class="txt">C: *2\r\n$3\r\nget\r\n$4\r\nkey1\r\n   get key1
-S: $3\r\n101\rn  101
-</code></pre>
-<p>redis 支持多个command的提交，一次性运行，提升单位时间的执行数量。成为<a href="https://redis.io/topics/pipelining" target="_blank" rel="noopener">piplining</a></p>
-<pre><code class="shell">$ printf &#39;*2\r\n$3\r\nget\r\n$1\r\nA\r\n*2\r\n$3\r\nget\r\n$1\r\nA\r\n&#39; | nc localhost 6379
-$3
-101
-$3
-101
-
-$ printf &#39;get A\n get A\n&#39; | nc localhost 6379
-$3
-101
-$3
-101
-</code></pre>
+<figure class="highlight taggerscript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs taggerscript">&quot;*2<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>$3<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>foo<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>$3<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>bar<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>&quot;  [b&quot;foo&quot;, b&quot;bar&quot;]<br>&quot;*3<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>:1<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>:2<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>:3<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>&quot;  [1, 2, 3]<br>&quot;*0<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>&quot; []<br><br>*2<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>*3<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>:1<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>:2<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>:3<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>*2<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>+Foo<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>-Bar<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>  [[1, 2, 3], [&quot;Foo&quot;, Err(Bar)]]<br><br>*3<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>$3<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>foo<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>$-1<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>$3<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span><br>bar<span class="hljs-symbol">\r</span><span class="hljs-symbol">\n</span>  [&quot;foo&quot;,nil,&quot;bar&quot;]<br></code></pre></div></td></tr></table></figure>
+<h3 id="使用样例"><a href="#使用样例" class="headerlink" title="使用样例"></a>使用样例</h3><p>使用上，客户端发送 用 <strong>Array of Bulk Strings</strong> 的形式给服务器端发送 <strong>命令及参数</strong> 作为 Request；服务器端给客户端发送 任意的类型(组合) 作为 Response。</p>
+<figure class="highlight txt"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs txt">C: *2\r\n$3\r\nget\r\n$4\r\nkey1\r\n   get key1<br>S: $3\r\n101\rn  101<br></code></pre></div></td></tr></table></figure>
+<p>redis 支持多个command的提交，一次性运行，提升单位时间的执行数量。成为<a target="_blank" rel="noopener" href="https://redis.io/topics/pipelining">piplining</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> <span class="hljs-built_in">printf</span> <span class="hljs-string">&#x27;*2\r\n$3\r\nget\r\n$1\r\nA\r\n*2\r\n$3\r\nget\r\n$1\r\nA\r\n&#x27;</span> | nc localhost 6379</span><br><span class="hljs-meta">$</span><span class="bash">3</span><br>101<br><span class="hljs-meta">$</span><span class="bash">3</span><br>101<br><br><span class="hljs-meta">$</span><span class="bash"> <span class="hljs-built_in">printf</span> <span class="hljs-string">&#x27;get A\n get A\n&#x27;</span> | nc localhost 6379</span><br><span class="hljs-meta">$</span><span class="bash">3</span><br>101<br><span class="hljs-meta">$</span><span class="bash">3</span><br>101<br></code></pre></div></td></tr></table></figure>
 <h2 id="serde实现"><a href="#serde实现" class="headerlink" title="serde实现"></a>serde实现</h2><p>如前所述，正常情况下，客户端 –&gt; 服务端， 得用 <strong>Array of Bulk Strings</strong> 的格式告知 <strong>命令及参数</strong>；但是服务端反馈结果给客户端时，可以使用<strong>任意的格式组合</strong>。这其实表示了有两套序列化和反序列化的接口：</p>
 <ol>
 <li>客户端的序列化，服务端的反序列化，以 <strong>Array of Bulk Strings</strong> 为中介</li>
@@ -167,167 +241,288 @@ $3
 </ol>
 <p>当前实践篇，主要目的还是学习，简化一下，暂时忽略第二种，姑且认为服务端给客户端发送的也是<strong>Array of Bulk Strings</strong>，类型由rust本身的类型系统进行约束。</p>
 <p>因此，我们希望客户端和服务端都有一套<strong>共同的Request/Response类型</strong>。还是以<code>Get</code>、<code>Set</code>、<code>Remove</code>三兄弟为例来设计。</p>
-<pre><code class="rust">#[derive(Debug, Serialize, Deserialize)]
-enum Request {
-    Get { key: String },
-    Set { key: String, value: String },
-    Remove { key: String },
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum GetResponse {
-    Ok(Option&lt;String&gt;),
-    Err(String),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum SetResponse {
-    Ok(()),
-    Err(String),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum RemoveResponse {
-    Ok(()),
-    Err(String),
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-meta">#[derive(Debug, Serialize, Deserialize)]</span><br><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Request</span></span> &#123;<br>    Get &#123; key: <span class="hljs-built_in">String</span> &#125;,<br>    Set &#123; key: <span class="hljs-built_in">String</span>, value: <span class="hljs-built_in">String</span> &#125;,<br>    Remove &#123; key: <span class="hljs-built_in">String</span> &#125;,<br>&#125;<br><br><span class="hljs-meta">#[derive(Debug, Serialize, Deserialize)]</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">GetResponse</span></span> &#123;<br>    <span class="hljs-literal">Ok</span>(<span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">String</span>&gt;),<br>    <span class="hljs-literal">Err</span>(<span class="hljs-built_in">String</span>),<br>&#125;<br><br><span class="hljs-meta">#[derive(Debug, Serialize, Deserialize)]</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">SetResponse</span></span> &#123;<br>    <span class="hljs-literal">Ok</span>(()),<br>    <span class="hljs-literal">Err</span>(<span class="hljs-built_in">String</span>),<br>&#125;<br><br><span class="hljs-meta">#[derive(Debug, Serialize, Deserialize)]</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">RemoveResponse</span></span> &#123;<br>    <span class="hljs-literal">Ok</span>(()),<br>    <span class="hljs-literal">Err</span>(<span class="hljs-built_in">String</span>),<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>根据协议要求，服务端接受的一定是 <strong>Array of Bulk Strings</strong>，用<code>u8</code>序列表示，所以，假定序列化接口为</p>
-<pre><code class="rust">pub fn&lt;T: Serialize&gt; to_bytes(value: &amp;T) -&gt; Result&lt;Vec&lt;u8&gt;&gt;
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span></span>&lt;T: Serialize&gt; to_bytes(value: &amp;T) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u8</span>&gt;&gt;<br></code></pre></div></td></tr></table></figure>
 <p>序列化过程可以通过如下的测试：</p>
-<pre><code class="rust">#[test]
-fn test_ser() {
-    let get = Request::Get {
-        key: &quot;key1&quot;.to_owned(),
-    };
-    assert_eq!(
-        to_bytes(&amp;get).unwrap(),
-        b&quot;*2\r\n$3\r\nGet\r\n$4\r\nkey1\r\n&quot;
-    );
-    let set = Request::Set {
-        key: &quot;key1&quot;.to_owned(),
-        value: &quot;value1&quot;.to_owned(),
-    };
-    assert_eq!(
-        to_bytes(&amp;set).unwrap(),
-        &quot;*3\r\n$3\r\nSet\r\n$4\r\nkey1\r\n$6\r\nvalue1\r\n&quot;.as_bytes()
-    );
-    let rm = Request::Remove {
-        key: &quot;key1&quot;.to_owned(),
-    };
-    assert_eq!(
-        to_bytes(&amp;rm).unwrap(),
-        b&quot;*2\r\n$6\r\nRemove\r\n$4\r\nkey1\r\n&quot;
-    );
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-meta">#[test]</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">test_ser</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> get = Request::Get &#123;<br>        key: <span class="hljs-string">&quot;key1&quot;</span>.to_owned(),<br>    &#125;;<br>    <span class="hljs-built_in">assert_eq!</span>(<br>        to_bytes(&amp;get).unwrap(),<br>        <span class="hljs-string">b&quot;*2\r\n$3\r\nGet\r\n$4\r\nkey1\r\n&quot;</span><br>    );<br>    <span class="hljs-keyword">let</span> set = Request::Set &#123;<br>        key: <span class="hljs-string">&quot;key1&quot;</span>.to_owned(),<br>        value: <span class="hljs-string">&quot;value1&quot;</span>.to_owned(),<br>    &#125;;<br>    <span class="hljs-built_in">assert_eq!</span>(<br>        to_bytes(&amp;set).unwrap(),<br>        <span class="hljs-string">&quot;*3\r\n$3\r\nSet\r\n$4\r\nkey1\r\n$6\r\nvalue1\r\n&quot;</span>.as_bytes()<br>    );<br>    <span class="hljs-keyword">let</span> rm = Request::Remove &#123;<br>        key: <span class="hljs-string">&quot;key1&quot;</span>.to_owned(),<br>    &#125;;<br>    <span class="hljs-built_in">assert_eq!</span>(<br>        to_bytes(&amp;rm).unwrap(),<br>        <span class="hljs-string">b&quot;*2\r\n$6\r\nRemove\r\n$4\r\nkey1\r\n&quot;</span><br>    );<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>在这个过程中，enum的名字不重要，每个variant的名字才是”命令”，所以放入array的第一项，variant的数据字段，追加到array中作为命令的参数。</p>
 <p>影响序列化的关键一点是，不管”参数”是什么类型，最后都会以bulk string的形式作为array的元素。即使数据本身是int型，比如42，也会序列化为<code>$2\r\n\42\r\n</code>，而不是<code>:42\r\n</code>。</p>
 <p>在服务端一侧，数据是从网络连接中读取的，因此我们假定反序列化接口为，</p>
-<pre><code class="rust">pub fn from_reader(r: R) -&gt; Result&lt;T&gt;
-where
-    R: io:Read,
-    T: DeserializeOwned
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">from_reader</span></span>(r: R) -&gt; <span class="hljs-built_in">Result</span>&lt;T&gt;<br><span class="hljs-keyword">where</span><br>	R: io:Read,<br>	T: DeserializeOwned<br></code></pre></div></td></tr></table></figure>
 <p>反序列化过程可以通过如下的测试：</p>
-<pre><code class="rust">
-#[test]
-fn test_de() {
-    let get = &quot;*2\r\n$3\r\nGet\r\n$4\r\nkey1\r\n&quot;.as_bytes();
-    match from_reader::&lt;_, Request&gt;(get).unwrap() {
-        Request::Get { key } =&gt; assert_eq!(key, &quot;key1&quot;.to_owned()),
-        _ =&gt; assert!(false, &quot;fail to deserialize into `Get`&quot;),
-    }
-
-    let set = &quot;*3\r\n$3\r\nSet\r\n$4\r\nkey1\r\n$6\r\nvalue1\r\n&quot;.as_bytes();
-    match from_reader::&lt;_, Request&gt;(set).unwrap() {
-        Request::Set { key, value } =&gt; {
-            assert_eq!(key, &quot;key1&quot;.to_owned());
-            assert_eq!(value, &quot;value1&quot;.to_owned());
-        }
-        _ =&gt; assert!(false, &quot;fail to deserialize into `Set`&quot;),
-    }
-    // Remove 略
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><br><span class="hljs-meta">#[test]</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">test_de</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> get = <span class="hljs-string">&quot;*2\r\n$3\r\nGet\r\n$4\r\nkey1\r\n&quot;</span>.as_bytes();<br>    <span class="hljs-keyword">match</span> from_reader::&lt;_, Request&gt;(get).unwrap() &#123;<br>        Request::Get &#123; key &#125; =&gt; <span class="hljs-built_in">assert_eq!</span>(key, <span class="hljs-string">&quot;key1&quot;</span>.to_owned()),<br>        _ =&gt; <span class="hljs-built_in">assert!</span>(<span class="hljs-literal">false</span>, <span class="hljs-string">&quot;fail to deserialize into `Get`&quot;</span>),<br>    &#125;<br><br>    <span class="hljs-keyword">let</span> set = <span class="hljs-string">&quot;*3\r\n$3\r\nSet\r\n$4\r\nkey1\r\n$6\r\nvalue1\r\n&quot;</span>.as_bytes();<br>    <span class="hljs-keyword">match</span> from_reader::&lt;_, Request&gt;(set).unwrap() &#123;<br>        Request::Set &#123; key, value &#125; =&gt; &#123;<br>            <span class="hljs-built_in">assert_eq!</span>(key, <span class="hljs-string">&quot;key1&quot;</span>.to_owned());<br>            <span class="hljs-built_in">assert_eq!</span>(value, <span class="hljs-string">&quot;value1&quot;</span>.to_owned());<br>        &#125;<br>        _ =&gt; <span class="hljs-built_in">assert!</span>(<span class="hljs-literal">false</span>, <span class="hljs-string">&quot;fail to deserialize into `Set`&quot;</span>),<br>    &#125;<br>    <span class="hljs-comment">// Remove 略</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>对于<code>GetResponse</code>等结构，也是基本相同的过程，只不过由服务端序列化后，交给客户端去反序列化。</p>
 <p>有了基本的测试用例，就可以着手具体实现了，还是分为Serialize和Deserialize两个过程。</p>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Rust</span>
-                        &nbsp;
-                         
-                        <span class="badge badge-light">#&nbsp;Serde你在干什么</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Rust/">Rust</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Serde%E4%BD%A0%E5%9C%A8%E5%B9%B2%E4%BB%80%E4%B9%88/">Serde你在干什么</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/01/12/serde-what-are-you-doing-practice-resp-ser/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">serde你在干什么 - 实践篇 - serialize</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/01/08/serde-what-are-you-doing-de-part2/">
+                        <span class="hidden-mobile">serde你在干什么 - deserialize - II</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

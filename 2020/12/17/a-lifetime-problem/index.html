@@ -1,155 +1,224 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>一个Rust生命周期问题 - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>一个Rust生命周期问题 ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="一个Rust生命周期问题">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-12-17 20:06" pubdate>
+        December 17, 2020 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.8k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">一个Rust生命周期问题</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Thursday, December 17th 2020, 8:06 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>给知乎上一个生命周期问题提供的解决办法</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">一个Rust生命周期问题</h1>
+            
+            <div class="markdown-body">
+              <p>给知乎上一个生命周期问题提供的解决办法</p>
 <a id="more"></a>
-<h2 id="问题来源"><a href="#问题来源" class="headerlink" title="问题来源"></a>问题来源</h2><p><a href="https://zhuanlan.zhihu.com/p/104742696" target="_blank" rel="noopener">一个关于rust生命周期的问题分析 - 知乎 (zhihu.com)</a></p>
-<p>相关的 <a href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=6f1ffcb16c412679feeaa5fe594052ed" target="_blank" rel="noopener">Rust Playground (rust-lang.org)</a></p>
+<h2 id="问题来源"><a href="#问题来源" class="headerlink" title="问题来源"></a>问题来源</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/104742696">一个关于rust生命周期的问题分析 - 知乎 (zhihu.com)</a></p>
+<p>相关的 <a target="_blank" rel="noopener" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=6f1ffcb16c412679feeaa5fe594052ed">Rust Playground (rust-lang.org)</a></p>
 <p>场景目标是，有一个已经存在的 <code>&amp;[u8]</code> buffer，一个<code>Parser</code>结构的<code>parse</code>方法希望查阅这个buffer，同时修改自身的状态，以自身状态为基础产生一个新的<code>&amp;[u8]</code> buffer，返回这个新引用。 <code>parse</code> 方法可以多次调用，所以希望在<code>Parser</code>结构的基础上制作一个迭代器，每次迭代执行<code>parse</code>，返回构建的 <code>u8</code> buffer</p>
-<p>由此有以下代码：</p>
-<pre><code class="rust">struct Parser {
-// ...
-}
-
-impl Parser {
-       pub fn parse&lt;&#39;a&gt;(&amp;&#39;a mut self, buf: &amp;&#39;a [u8]) -&gt; Option&lt;&amp;&#39;a u8&gt; {
-           todo!()
-       }
-
-       pub fn iter&lt;&#39;a&gt;(&amp;&#39;a mut self, buf: &amp;&#39;a [u8]) -&gt; ParseIter&lt;&#39;a&gt; {
-           ParseIter { parser: self, buf }
-       }
-}
-
-pub struct ParseIter&lt;&#39;a&gt; {
-    parser: &amp;&#39;a mut Parser,
-    buf: &amp;&#39;a [u8],
-}
-
-impl&lt;&#39;a&gt; Iterator for ParseIter&lt;&#39;a&gt; {
-    type Item = &amp;&#39;a u8;
-    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
-        self.parser.parse(self.buf)
-    }
-}
-</code></pre>
-<p>但是甚至不待使用<code>ParseIter&lt;&#39;a&gt;</code>，就会因为生命周期问题产生编译错误。<br>个人感觉错误本身对修改的指导意义不大，就不贴在这里了，有需要可以看原文。</p>
+<p>由此有以下代码：<br><figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Parser</span></span> &#123;<br><span class="hljs-comment">// ...</span><br>&#125;<br><br><span class="hljs-keyword">impl</span> Parser &#123;<br>       <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">parse</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, buf: &amp;<span class="hljs-symbol">&#x27;a</span> [<span class="hljs-built_in">u8</span>]) -&gt; <span class="hljs-built_in">Option</span>&lt;&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">u8</span>&gt; &#123;<br>           todo!()<br>       &#125;<br>    <br>       <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">iter</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, buf: &amp;<span class="hljs-symbol">&#x27;a</span> [<span class="hljs-built_in">u8</span>]) -&gt; ParseIter&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>           ParseIter &#123; parser: <span class="hljs-keyword">self</span>, buf &#125;<br>       &#125;<br>&#125;<br><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ParseIter</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    parser: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> Parser,<br>    buf: &amp;<span class="hljs-symbol">&#x27;a</span> [<span class="hljs-built_in">u8</span>],<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; <span class="hljs-built_in">Iterator</span> <span class="hljs-keyword">for</span> ParseIter&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Item</span></span> = &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">u8</span>;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Self::Item&gt; &#123;<br>        <span class="hljs-keyword">self</span>.parser.parse(<span class="hljs-keyword">self</span>.buf)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure><br>但是甚至不待使用<code>ParseIter&lt;&#39;a&gt;</code>，就会因为生命周期问题产生编译错误。<br>个人感觉错误本身对修改的指导意义不大，就不贴在这里了，有需要可以看原文。</p>
 <blockquote>
 <p>评论中提出，去掉<code>parser</code>中<code>self</code>的生命周期标记，变成<br><code>fn parse&lt;&#39;a&gt;(&amp;mut self, buf: &amp;&#39;a [u8]) -&gt; Option&lt;&amp;&#39;a u8&gt;</code><br>这的确可以通过编译，但是这表明的是作为返回值的引用和<code>Parser</code>本身无关，并没有基于它的任何字段。显然这和设计的目标不一致。</p>
 </blockquote>
 <h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>在不实现<code>ParseIter&lt;&#39;a&gt;</code>的<code>next</code>时，程序可以编译，所以从<code>next</code>的实现着手分析，看他破坏了什么东西。将实现做如下展开：</p>
-<pre><code class="rust">fn next&lt;&#39;iter&gt;(&amp;&#39;iter mut self) -&gt; Option&lt;&amp;&#39;a u8&gt; {
-    let parser: &amp;&#39;a mut Parser = &amp;mut *self.parser;
-    let buf: &amp;&#39;a [u8] = self.buf;
-    return Parser::parse(parser, buf);
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>&lt;<span class="hljs-symbol">&#x27;iter</span>&gt;(&amp;<span class="hljs-symbol">&#x27;iter</span> <span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">u8</span>&gt; &#123;<br>    <span class="hljs-keyword">let</span> parser: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> Parser = &amp;<span class="hljs-keyword">mut</span> *<span class="hljs-keyword">self</span>.parser;<br>    <span class="hljs-keyword">let</span> buf: &amp;<span class="hljs-symbol">&#x27;a</span> [<span class="hljs-built_in">u8</span>] = <span class="hljs-keyword">self</span>.buf;<br>    <span class="hljs-keyword">return</span> Parser::parse(parser, buf);<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>buf的引用可以直接通过Copy复制，所以可以得到<code>&amp;&#39;a [u8]</code>。</p>
 <p>但是<code>parser</code>属于可变引用，不能Copy，只能通过<code>Deref</code>再重新取引用，如原文作者所说，实际发生的是</p>
-<pre><code class="rust">fn deref_mut&lt;&#39;iter&gt;(&amp;&#39;iter mut &amp;&#39;a mut Parser) -&gt; &amp;&#39;iter mut Self::Target;
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deref_mut</span></span>&lt;<span class="hljs-symbol">&#x27;iter</span>&gt;(&amp;<span class="hljs-symbol">&#x27;iter</span> <span class="hljs-keyword">mut</span> &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> Parser) -&gt; &amp;<span class="hljs-symbol">&#x27;iter</span> <span class="hljs-keyword">mut</span> Self::Target;<br></code></pre></div></td></tr></table></figure>
 <p>返回的引用需要受限于<code>&#39;iter</code>生命周期，但是这里并没有<code>&#39;iter: &#39;a</code>关系，所以不能保证parser的存活范围，换言之，万一<code>&#39;iter</code>更小，从中借出一个生命周期更长的引用显然不可能。</p>
-<h2 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h2><p>原文作者并没有给出解决方法。这里给出一个大佬 <a href="https://github.com/BurntSushi" target="_blank" rel="noopener">BurntSushi</a> 在 fst 库中给出的方案：<a href="https://docs.rs/fst/0.4.5/fst/trait.Streamer.html" target="_blank" rel="noopener">Streamer</a>。</p>
+<h2 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h2><p>原文作者并没有给出解决方法。这里给出一个大佬 <a target="_blank" rel="noopener" href="https://github.com/BurntSushi">BurntSushi</a> 在 fst 库中给出的方案：<a target="_blank" rel="noopener" href="https://docs.rs/fst/0.4.5/fst/trait.Streamer.html">Streamer</a>。</p>
 <p>在上节分析的最后，我们发现缺少<code>&#39;iter: &#39;a</code>的保证，如果想加上，就会发想<code>Iterator</code>这个trait阻止你这么做了。Iterator的本意，是希望迭代出的元素的生命周期和自身无关，可以被外界同时持有多个，甚至迭代器被drop也没有关系。但是上述场景不是这样的，每次迭代返回的引用，不可能被同时持有，因为受限制于<code>Parser</code>本身的状态，自然也就和持有<code>&amp;mut Parser</code>引用的<code>ParserIter</code>有关了。因此我们可以说，针对这个场景，<code>Iterator</code>这个trait选错了。</p>
 <p>fst中的迭代也是类似的场景，所以制作了一个<code>Streamer</code>的trait。</p>
-<pre><code class="rust">pub trait Streamer&lt;&#39;a&gt; {
-    type Item: &#39;a;
-    fn next(&amp;&#39;a mut self) -&gt; Option&lt;Self::Item&gt;;
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Streamer</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Item</span></span>: <span class="hljs-symbol">&#x27;a</span>;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Self::Item&gt;;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>形式上和<code>Iterator</code>很像，区别在于对迭代器本身和返回值多了<code>&#39;a</code>生命周期绑定，表明返回值的生命周期不能超过迭代器本身。因此迭代的元素不可以被同时持有，要么阅后即焚，要么及时复制，所以得名<code>Stream-流</code></p>
 <p>如果实现<code>Streamer&lt;&#39;a&gt;</code>，整个的生命周期会按照最短的迭代器的声明周期进行对齐，比如<code>buf</code>的长生命周期在编译时缩短(协变)，以配合<code>Parser::iter</code>方法。成功通过编译，cool</p>
 <h2 id="Bonus"><a href="#Bonus" class="headerlink" title="Bonus"></a>Bonus</h2><p>下面是Streamer文档的后续翻译，作为补充</p>
 <p>“””</p>
 <p>但是本身这个结构非常难用，会涉及到高阶生命周期绑定。在一个函数中使用该trait，<code>Streamer</code>的生命周期和使用函数没有任何关联，必须用一种方法表示<code>Streamer&lt;&#39;a&gt;</code>的<code>&#39;a</code>可以对任意生命周期有效，不必受制于函数的调用作用域。大概长这样</p>
-<pre><code class="rust">fn takes_stream&lt;T, S&gt;(s: S)
-    where S: for&lt;&#39;a&gt; Streamer&lt;&#39;a, Item=T&gt;
-{}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">takes_stream</span></span>&lt;T, S&gt;(s: S)<br>    <span class="hljs-keyword">where</span> S: <span class="hljs-keyword">for</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; Streamer&lt;<span class="hljs-symbol">&#x27;a</span>, Item=T&gt;<br>&#123;&#125;<br></code></pre></div></td></tr></table></figure>
 <p>但是这个声明有 <strong>三个</strong> 问题：</p>
 <ol>
 <li><code>S</code> 没有绑定特定生命周期，实际上大多数 stream 都包含者一个底层状态机的引用，才能迭代访问Fst</li>
@@ -157,11 +226,7 @@ impl&lt;&#39;a&gt; Iterator for ParseIter&lt;&#39;a&gt; {
 <li><code>Item=T</code> 是非法的，因为 <code>Streamer</code> 的关联类型要求绑定一个生命周期参数，但是我们没有办法给任意的类型构建器标记一个生命周期绑定。（当前的情况里，<code>T</code>就是一个类型构建器，因为它始终需要一个生命周期才能成为一个具体的类型）</li>
 </ol>
 <p>因此，我们需要重新写成这样的庞然大物</p>
-<pre><code class="rust">fn takes_stream&lt;&#39;f, I, S&gt;(s: I)
-    where I: for&lt;&#39;a&gt; IntoStreamer&lt;&#39;a, Into=S, Item=(&amp;&#39;a [u8], Output)&gt;,
-          S: &#39;f + for&lt;&#39;a&gt; Streamer&lt;&#39;a, Item=(&amp;&#39;a [u8], Output)&gt;
-{}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">takes_stream</span></span>&lt;<span class="hljs-symbol">&#x27;f</span>, I, S&gt;(s: I)<br>    <span class="hljs-keyword">where</span> I: <span class="hljs-keyword">for</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; IntoStreamer&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-built_in">Into</span>=S, Item=(&amp;<span class="hljs-symbol">&#x27;a</span> [<span class="hljs-built_in">u8</span>], Output)&gt;,<br>          S: <span class="hljs-symbol">&#x27;f</span> + <span class="hljs-keyword">for</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; Streamer&lt;<span class="hljs-symbol">&#x27;a</span>, Item=(&amp;<span class="hljs-symbol">&#x27;a</span> [<span class="hljs-built_in">u8</span>], Output)&gt;<br>&#123;&#125;<br></code></pre></div></td></tr></table></figure>
 <p>我们是这样解决问题的：</p>
 <ol>
 <li><code>S</code>现在绑定<code>&#39;f</code>，表示底层stream的生命周期，可能是<code>&#39;static</code></li>
@@ -177,77 +242,266 @@ impl&lt;&#39;a&gt; Iterator for ParseIter&lt;&#39;a&gt; {
 <li>单是函数的签名就能反应出整个工作流程，很神奇</li>
 </ul>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Rust</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Rust/">Rust</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/12/16/eval-expr/">
+                        <span class="hidden-mobile">使用递归下降和Pratt方法求值算术表达式</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

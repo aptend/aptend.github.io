@@ -1,91 +1,200 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>使用Rabin-Karp算法查找最长回文字符串 - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>使用Rabin-Karp算法查找最长回文字符串 ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="使用Rabin-Karp算法查找最长回文字符串">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-07-07 23:48" pubdate>
+        July 7, 2019 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.2k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">使用Rabin-Karp算法查找最长回文字符串</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Sunday, July 7th 2019, 11:48 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>利用Rabin-Karp，尝试解决LeetCode005_longest-palindromic-substring问题。Python实现，意义大于性能🙃</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">使用Rabin-Karp算法查找最长回文字符串</h1>
+            
+            <div class="markdown-body">
+              <p>利用Rabin-Karp，尝试解决LeetCode005_longest-palindromic-substring问题。Python实现，意义大于性能🙃</p>
 <a id="more"></a>
 <p>Rabin-Karp的基本运用是子字符串查找，因为利用hash值比较，因此也被称作<code>指纹</code>字符串查找算法。比如在文本S找查找长为M的字符串，在已知<code>S[i: i+M]</code>字符串的hash值时，Rabin-Karp可以在常数时间内计算出<code>S[i+1: i+M+1]</code>的hash值，因此可以在线性时间复杂度内，扫描S中所有长为M的子串。</p>
 <p>回到LeetCode005_longest-palindromic-substring问题，一个回文字符串，正反的hash值一定相同，然后利用二分查找，可以找到一个最大的子字符串长度。在实现之前，先说明关于hash计算的数学基础。</p>
@@ -98,23 +207,9 @@
 <h2 id="如何求模反元素"><a href="#如何求模反元素" class="headerlink" title="如何求模反元素"></a>如何求模反元素</h2><p>关系$bI-1=pn$换一种写法就是贝祖等式，$bI+(-p)n=1$</p>
 <p>然后可以通过拓展欧几里得方法求得$I, p$</p>
 <p>这里贴一个wiki上的例子</p>
-<p><img src="https://s2.ax1x.com/2019/07/09/Z6ZnRH.png" alt="Z6ZnRH.png"></p>
-<p>把图中的过程利用递归表达出来，就是所谓的拓展欧几里得算法：在原始的欧几里得算法递归完成后，输出当前贝祖等式的参数。</p>
-<pre><code class="python">def exgcd(a, b):
-    if b == 0:
-        return 1, 0 # 1 = 1*1 + 0*0
-    x, y = exgcd(b, a % b)
-    x, y = y, x - (a//b)*y
-    return x, y
-</code></pre>
-<h1 id="正反扫描的Rabin-Karp"><a href="#正反扫描的Rabin-Karp" class="headerlink" title="正反扫描的Rabin-Karp"></a>正反扫描的Rabin-Karp</h1><pre><code class="python">class RabinKarp:
-    def __init__(self, text, M, R=128, Q=100000037):
-        self.R = R
-        self.M = M
-        self.Q = Q
-        self.text = text
-        self.text_inv = text[::-1]
-</code></pre>
+<p><img src="https://s2.ax1x.com/2019/07/09/Z6ZnRH.png" srcset="/img/loading.gif" alt="Z6ZnRH.png"></p>
+<p>把图中的过程利用递归表达出来，就是所谓的拓展欧几里得算法：在原始的欧几里得算法递归完成后，输出当前贝祖等式的参数。<br><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">exgcd</span>(<span class="hljs-params">a, b</span>):</span><br>    <span class="hljs-keyword">if</span> b == <span class="hljs-number">0</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>, <span class="hljs-number">0</span> <span class="hljs-comment"># 1 = 1*1 + 0*0</span><br>    x, y = exgcd(b, a % b)<br>    x, y = y, x - (a//b)*y<br>    <span class="hljs-keyword">return</span> x, y<br></code></pre></div></td></tr></table></figure></p>
+<h1 id="正反扫描的Rabin-Karp"><a href="#正反扫描的Rabin-Karp" class="headerlink" title="正反扫描的Rabin-Karp"></a>正反扫描的Rabin-Karp</h1><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RabinKarp</span>:</span><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span>(<span class="hljs-params">self, text, M, R=<span class="hljs-number">128</span>, Q=<span class="hljs-number">100000037</span></span>):</span><br>        self.R = R<br>        self.M = M<br>        self.Q = Q<br>        self.text = text<br>        self.text_inv = text[::-<span class="hljs-number">1</span>]<br></code></pre></div></td></tr></table></figure>
 <p>一些符号约定：</p>
 <ul>
 <li><p>R，把字符串看作R进制数。比如对于ASCII字符，不妨R=128，”abc”的hash值为:<br>$$<br>(97\times128^2+98\times128+99) \mod Q<br>$$</p>
@@ -126,12 +221,7 @@
 </ul>
 <p>实现分为正向和逆向两部分，正向就是原始的Rabin-Karp算法，逆向是为了求回文字符串做的增加。</p>
 <h2 id="正向"><a href="#正向" class="headerlink" title="正向"></a>正向</h2><p>首先计算出起始位置上，长为M的子字符串的hash值——计算M位的R进制数对Q取模。利用mod的分配律，在每次计算时，都可以对Q取模，而不影响结果。</p>
-<pre><code class="python">    def dummy_hash(self, s): # 传入text[:M]子字符串，直接计算hash值
-        h = 0
-        for c in s:
-            h = (h * self.R + ord(c)) % self.Q
-        return h
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">dummy_hash</span>(<span class="hljs-params">self, s</span>):</span> <span class="hljs-comment"># 传入text[:M]子字符串，直接计算hash值</span><br>       h = <span class="hljs-number">0</span><br>       <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> s:<br>           h = (h * self.R + <span class="hljs-built_in">ord</span>(c)) % self.Q<br>       <span class="hljs-keyword">return</span> h<br></code></pre></div></td></tr></table></figure>
 <p>记第一个子字符串<code>text[:M]</code>的hash值为：<br>$$<br>hash(text[:M])=t_0R^{M-1}+t_1R^{M-2}+…+t_{M-1} \mod Q<br>$$</p>
 <p>第二个子字符串<code>text[1:M+1]</code>同样利用mod分配率，可以在常数时间内得到，因为由前一个R进制数，可以在常数时间内计算当前的R进制数——</p>
 <ol>
@@ -143,23 +233,9 @@
 <p>考虑mod，上式等于：</p>
 <p>$$<br>(((t_0R^{M-1}+t_1R^{M-2}+…+t_{M-1}) \mod Q-(R^{M-1} \mod Q)\times t_0)\times R+t_M) \mod Q<br>$$</p>
 <p>第一项就是上一个字符串的hash值，第二项是最高位的取模，因为$(R^{M-1}\mod Q)$每次都会用到，所以事先计算出来保存。第三项就是多出来的末位。</p>
-<pre><code class="python">    def __init__(self, text, M, R=128, Q=100000037):
-        # ...
-        pow = 1
-        for _ in range(1, M):
-            pow = (R * pow) % Q
-        self.pow = pow  # R^(M-1) % Q
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span>(<span class="hljs-params">self, text, M, R=<span class="hljs-number">128</span>, Q=<span class="hljs-number">100000037</span></span>):</span><br>       <span class="hljs-comment"># ...</span><br>       <span class="hljs-built_in">pow</span> = <span class="hljs-number">1</span><br>       <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, M):<br>           <span class="hljs-built_in">pow</span> = (R * <span class="hljs-built_in">pow</span>) % Q<br>       self.<span class="hljs-built_in">pow</span> = <span class="hljs-built_in">pow</span>  <span class="hljs-comment"># R^(M-1) % Q</span><br></code></pre></div></td></tr></table></figure>
 <p>然后使用生成器来返回从左往右的长为M的字符串hash值。在实际的实现中，减去最高项时使用又加上了Q，保证始终是正数，让%运算符有正确的结果。</p>
-<pre><code class="python">    def gen_hash(self):
-        txt, pow, R, M, Q = self.text, self.pow, self.R, self.M, self.Q
-        txt_hash = self.dummy_hash(txt[:M])
-        yield txt_hash
-        for i in range(M, len(txt)):
-            txt_hash = (txt_hash + Q - pow * ord(txt[i-M]) % Q) % Q
-            txt_hash = (txt_hash * R + ord(txt[i])) % Q
-            yield txt_hash
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">gen_hash</span>(<span class="hljs-params">self</span>):</span><br>       txt, <span class="hljs-built_in">pow</span>, R, M, Q = self.text, self.<span class="hljs-built_in">pow</span>, self.R, self.M, self.Q<br>       txt_hash = self.dummy_hash(txt[:M])<br>       <span class="hljs-keyword">yield</span> txt_hash<br>       <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(M, <span class="hljs-built_in">len</span>(txt)):<br>           txt_hash = (txt_hash + Q - <span class="hljs-built_in">pow</span> * <span class="hljs-built_in">ord</span>(txt[i-M]) % Q) % Q<br>           txt_hash = (txt_hash * R + <span class="hljs-built_in">ord</span>(txt[i])) % Q<br>           <span class="hljs-keyword">yield</span> txt_hash<br></code></pre></div></td></tr></table></figure>
 <h2 id="逆向"><a href="#逆向" class="headerlink" title="逆向"></a>逆向</h2><p>在常数时间内计算出逆序字符串的hash值，和正向的思路相似，也分三步：</p>
 <ol>
 <li>减去最低位</li>
@@ -167,45 +243,13 @@
 <li>加上最高位</li>
 </ol>
 <p>最关键的第二步，除以R并且取模，就需要使用模反元素，把除法变为乘法，继续按照分配率的保证来分解运算。模拟元素这里使用拓展欧几里得算法获得，并在初始化中保存。</p>
-<pre><code class="python">    def __init__(self, text, M, R=128, Q=100000037):
-        # ...    
-        self.invR, _ = self._exgcd(R, Q)
-        if self.invR &lt; 0:
-            self.invR = self.invR % Q + Q
-
-    def _exgcd(self, a, b):
-        &quot;&quot;&quot;omit remainder here
-        &quot;&quot;&quot;
-        if b == 0:
-            return 1, 0  # 1 = 1*1 + 0*0
-        x, y = self._exgcd(b, a % b)
-        return y, x - (a//b)*y
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span>(<span class="hljs-params">self, text, M, R=<span class="hljs-number">128</span>, Q=<span class="hljs-number">100000037</span></span>):</span><br>       <span class="hljs-comment"># ...    </span><br>       self.invR, _ = self._exgcd(R, Q)<br>       <span class="hljs-keyword">if</span> self.invR &lt; <span class="hljs-number">0</span>:<br>           self.invR = self.invR % Q + Q<br><br>   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_exgcd</span>(<span class="hljs-params">self, a, b</span>):</span><br>       <span class="hljs-string">&quot;&quot;&quot;omit remainder here</span><br><span class="hljs-string">       &quot;&quot;&quot;</span><br>       <span class="hljs-keyword">if</span> b == <span class="hljs-number">0</span>:<br>           <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>, <span class="hljs-number">0</span>  <span class="hljs-comment"># 1 = 1*1 + 0*0</span><br>       x, y = self._exgcd(b, a % b)<br>       <span class="hljs-keyword">return</span> y, x - (a//b)*y<br></code></pre></div></td></tr></table></figure>
 <p>随后再利用生成器，对等地生成逆序子字符串的hash值</p>
-<pre><code class="python">
-    def gen_hash_inv(self):
-        txt, pow, invR, M, Q = self.text_inv, self.pow, self.invR, self.M, self.Q
-        txt_hash = self.dummy_hash(txt[-M:])
-        yield txt_hash
-        for i in range(len(txt)-M-1, -1, -1):
-            txt_hash -= ord(txt[i+M])
-            txt_hash = (txt_hash * invR) % Q
-            txt_hash += ord(txt[i])*pow
-            txt_hash = txt_hash % Q
-            yield txt_hash
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">   <br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">gen_hash_inv</span>(<span class="hljs-params">self</span>):</span><br>    txt, <span class="hljs-built_in">pow</span>, invR, M, Q = self.text_inv, self.<span class="hljs-built_in">pow</span>, self.invR, self.M, self.Q<br>    txt_hash = self.dummy_hash(txt[-M:])<br>    <span class="hljs-keyword">yield</span> txt_hash<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(txt)-M-<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>):<br>        txt_hash -= <span class="hljs-built_in">ord</span>(txt[i+M])<br>        txt_hash = (txt_hash * invR) % Q<br>        txt_hash += <span class="hljs-built_in">ord</span>(txt[i])*<span class="hljs-built_in">pow</span><br>        txt_hash = txt_hash % Q<br>        <span class="hljs-keyword">yield</span> txt_hash<br></code></pre></div></td></tr></table></figure>
 <h1 id="二分查找"><a href="#二分查找" class="headerlink" title="二分查找"></a>二分查找</h1><p>关键思想是根据回文的性质，分为奇数和偶数的情况，分开查找。</p>
 <p>如果对于一个回文字符串长为M，只能断言，除去首尾两个字符，剩下的M-2的字符串也是回文字符串。也就是存在一个函数g(x)，返回值是True or False，表示在给定文本中，是否存在长为x的回文字符串，一个M使得g(M)为True，那么g(M-2)也为True，而g(M-1)无法确定。因此想要利用二分查找的方法，寻找使g(x)返回值切换的边界$M’$，需要分为奇数和偶数来查找。</p>
 <p>首先定义出g(x)，用函数<code>can_solve_at(s, L)</code>来表示在文本s中，是否存在长为L的回文字符串，如果存在，返回字串起始位置，否则返回-1。当遇到hash值相同时，再用字符串比较来确定，防止$\frac 1Q$概率的hash值相同的误判。也就是拉斯维加斯算法。</p>
-<pre><code class="python">def can_solve_at(s, L):
-    rk = RabinKarp(s, L)
-    i = 0
-    for h, h_inv in zip(rk.gen_hash(), rk.gen_hash()):
-        if h == h_inv and s[i:i+L] == &#39;&#39;.join(reversed(s[i:i+L])):
-            return i
-        i += 1
-    return -1
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">can_solve_at</span>(<span class="hljs-params">s, L</span>):</span><br>    rk = RabinKarp(s, L)<br>    i = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">for</span> h, h_inv <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(rk.gen_hash(), rk.gen_hash()):<br>        <span class="hljs-keyword">if</span> h == h_inv <span class="hljs-keyword">and</span> s[i:i+L] == <span class="hljs-string">&#x27;&#x27;</span>.join(<span class="hljs-built_in">reversed</span>(s[i:i+L])):<br>            <span class="hljs-keyword">return</span> i<br>        i += <span class="hljs-number">1</span><br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span><br></code></pre></div></td></tr></table></figure>
 <p>然后利用<code>can_solve_at</code>实现二分查找。这里的的L分为两半，左边为True，右边为False。当猜测的L=mid时为True,说明还可能存在更大的L使<code>can_solve_at</code>也为True，所以<code>lo = mid + 1</code>向右半区收缩。虽然最后并不关心搜索位置，lo的物理意义也不重要，但是也不妨分析一下，和常规的二分g(x)做比较。结果就是lo表示使得can_solve_at为False的最小值。</p>
 <p>此外，实现中还有两点可注意：</p>
 <ol>
@@ -214,27 +258,7 @@
 <li><p>因为求最长回文字符串，所以优先判断<code>2mid + 1</code>的结果</p>
 </li>
 </ol>
-<pre><code class="python">def longest_RK(s):
-    if not s:
-        return &#39;&#39;
-    res = s[0]
-    lo, hi = 1, len(s) // 2
-    while lo &lt;= hi:
-        mid = (lo + hi) // 2
-        idx_even = can_solve_at(s, 2*mid)
-        idx_odd = can_solve_at(s, 2*mid+1)
-        if idx_odd &gt;= 0:
-            idx, L = idx_odd, 2*mid+1
-        else:
-            idx, L = idx_even, 2*mid
-        if idx &gt;= 0:
-            if L &gt; len(res):
-                res = s[idx:idx+L]
-            lo = mid + 1
-        else:
-            hi = mid - 1
-    return res
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">longest_RK</span>(<span class="hljs-params">s</span>):</span><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> s:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;&#x27;</span><br>    res = s[<span class="hljs-number">0</span>]<br>    lo, hi = <span class="hljs-number">1</span>, <span class="hljs-built_in">len</span>(s) // <span class="hljs-number">2</span><br>    <span class="hljs-keyword">while</span> lo &lt;= hi:<br>        mid = (lo + hi) // <span class="hljs-number">2</span><br>        idx_even = can_solve_at(s, <span class="hljs-number">2</span>*mid)<br>        idx_odd = can_solve_at(s, <span class="hljs-number">2</span>*mid+<span class="hljs-number">1</span>)<br>        <span class="hljs-keyword">if</span> idx_odd &gt;= <span class="hljs-number">0</span>:<br>            idx, L = idx_odd, <span class="hljs-number">2</span>*mid+<span class="hljs-number">1</span><br>        <span class="hljs-keyword">else</span>:<br>            idx, L = idx_even, <span class="hljs-number">2</span>*mid<br>        <span class="hljs-keyword">if</span> idx &gt;= <span class="hljs-number">0</span>:<br>            <span class="hljs-keyword">if</span> L &gt; <span class="hljs-built_in">len</span>(res):<br>                res = s[idx:idx+L]<br>            lo = mid + <span class="hljs-number">1</span><br>        <span class="hljs-keyword">else</span>:<br>            hi = mid - <span class="hljs-number">1</span><br>    <span class="hljs-keyword">return</span> res<br></code></pre></div></td></tr></table></figure>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
 <li><p>Rabin-Karp的性能，应用</p>
 <p>理论上Rabin-Karp的性能是稳定的线性级别，算上二分查找，应该也是$O(nlogn)$的解法，比常规的$O(n^2)$解法要好，但是当前实现在LeetCode仅beats 42%。当然和Python本身运行速度有关，排名意义不大。</p>
@@ -245,83 +269,276 @@
 </li>
 </ol>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Algo</span>
-                        &nbsp;
-                         
-                        <span class="badge badge-light">#&nbsp;LeetCode</span>
-                        &nbsp;
-                         
-                        <span class="badge badge-light">#&nbsp;BinarySearch</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Algo/">Algo</a>
+                    
+                      <a class="hover-with-bg" href="/tags/LeetCode/">LeetCode</a>
+                    
+                      <a class="hover-with-bg" href="/tags/BinarySearch/">BinarySearch</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/07/14/binary-search/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一种可操作性很强的二分查找思路</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/06/26/elementry-sorting/">
+                        <span class="hidden-mobile">基础排序算法总结：从逆序对的角度</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

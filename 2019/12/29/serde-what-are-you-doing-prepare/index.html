@@ -1,91 +1,200 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>serde你在干什么 - 环境准备 - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>serde你在干什么 - 环境准备 ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="serde你在干什么 - 环境准备">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-12-29 11:53" pubdate>
+        December 29, 2019 am
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.2k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">serde你在干什么 - 环境准备</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Sunday, December 29th 2019, 11:53 am</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>serde 源码解析 | 准备篇</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">serde你在干什么 - 环境准备</h1>
+            
+            <div class="markdown-body">
+              <p>serde 源码解析 | 准备篇</p>
 <a id="more"></a>
 <p>最近做一个练习项目，要求利用serde，为Redis Simple Protocol写一个序列化、反序列化工具。</p>
 <p>理解Redis Simple Protocol倒是不难，可是这个serde，人都给我看蒙了。尤其在看反序列化过程的时候，心态一度爆炸，写下了这样的感想：</p>
@@ -98,248 +207,292 @@
 <p>轰他娘的山本联队</p>
 </blockquote>
 <p>最后总算硬着头皮写出了一版。记录下这个过程。</p>
-<p>要了解serde，光看文档难度还是太高了，像是读词典小说，文学上想想《哈扎尔辞典》，游戏上想想宫崎英高养起来的大批”魂学家”，就是那种支离破碎的感觉。所以还原为时间顺序，一步步理解起来更容易。官网给出了一个简化的json样例，叫<a href="https://github.com/serde-rs/example-format" target="_blank" rel="noopener">serde-example</a>，我的学习就是基于这份代码。按照下面的步骤，不妨先把环境搭建起来。</p>
+<p>要了解serde，光看文档难度还是太高了，像是读词典小说，文学上想想《哈扎尔辞典》，游戏上想想宫崎英高养起来的大批”魂学家”，就是那种支离破碎的感觉。所以还原为时间顺序，一步步理解起来更容易。官网给出了一个简化的json样例，叫<a target="_blank" rel="noopener" href="https://github.com/serde-rs/example-format">serde-example</a>，我的学习就是基于这份代码。按照下面的步骤，不妨先把环境搭建起来。</p>
 <h2 id="build"><a href="#build" class="headerlink" title="build"></a>build</h2><p>将仓库克隆到本地，修改<code>cargo.toml、ser.rs、de.rs</code>三个文件，支持edition-2018，也随意升级一下serde版本，没什么关系。这个时候<code>cargo check</code>应该可以通过了。</p>
-<pre><code class="rust">// cargo.toml
-[package]
-name = &quot;serde-example&quot;
-edition = &quot;2018&quot;  // 新增edition，使用2018的标准
-version = &quot;0.1.0&quot;
-authors = [&quot;David Tolnay &lt;dtolnay@gmail.com&gt;&quot;]
-license = &quot;MIT OR Apache-2.0&quot;
-description = &quot;An example Serializer and Deserializer data format for Serde&quot;
-repository = &quot;https://github.com/serde-rs/example-format&quot;
-documentation = &quot;https://serde.rs/data-format.html&quot;
-keywords = [&quot;serde&quot;]
-categories = [&quot;encoding&quot;]
-publish = false
-
-[dependencies]
-serde = { version = &quot;1.0.103&quot;, features = [&quot;derive&quot;] }  // 修改
-
-</code></pre>
-<pre><code class="rust">// ser.rs &amp; de.rs
-use crate::error::{Error, Result}; // 增加crate
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// cargo.toml</span><br>[package]<br>name = <span class="hljs-string">&quot;serde-example&quot;</span><br>edition = <span class="hljs-string">&quot;2018&quot;</span>  <span class="hljs-comment">// 新增edition，使用2018的标准</span><br>version = <span class="hljs-string">&quot;0.1.0&quot;</span><br>authors = [<span class="hljs-string">&quot;David Tolnay &lt;dtolnay@gmail.com&gt;&quot;</span>]<br>license = <span class="hljs-string">&quot;MIT OR Apache-2.0&quot;</span><br>description = <span class="hljs-string">&quot;An example Serializer and Deserializer data format for Serde&quot;</span><br>repository = <span class="hljs-string">&quot;https://github.com/serde-rs/example-format&quot;</span><br>documentation = <span class="hljs-string">&quot;https://serde.rs/data-format.html&quot;</span><br>keywords = [<span class="hljs-string">&quot;serde&quot;</span>]<br>categories = [<span class="hljs-string">&quot;encoding&quot;</span>]<br>publish = <span class="hljs-literal">false</span><br><br>[dependencies]<br>serde = &#123; version = <span class="hljs-string">&quot;1.0.103&quot;</span>, features = [<span class="hljs-string">&quot;derive&quot;</span>] &#125;  <span class="hljs-comment">// 修改</span><br><br></code></pre></div></td></tr></table></figure>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// ser.rs &amp; de.rs</span><br><span class="hljs-keyword">use</span> crate::error::&#123;Error, <span class="hljs-built_in">Result</span>&#125;; <span class="hljs-comment">// 增加crate</span><br></code></pre></div></td></tr></table></figure>
 <h2 id="run"><a href="#run" class="headerlink" title="run"></a>run</h2><p>添加<code>src/bin/inspect.rs</code></p>
-<pre><code class="rust">// src/bin/inspect.rs
-use serde::{Deserialize, Serialize};
-use serde_example::{from_str, to_string};
-
-#[derive(Debug, Serialize, Deserialize)]
-enum Command {
-    Set { key: String, value: String },
-    Get { key: String },
-    Rm(String),
-    Quit,
-}
-
-fn main() {
-    let cmd = Command::Set {
-        key: &quot;A&quot;.to_owned(),
-        value: &quot;42&quot;.to_owned(),
-    };
-    let ser_cmd = to_string(&amp;cmd).unwrap();
-    let de_cmd: Command = from_str(&amp;ser_cmd).unwrap();
-    println!(
-        &quot;origin: {:?}\nserialized: {}\ndeserialized: {:?}&quot;,
-        cmd, ser_cmd, de_cmd
-    );
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// src/bin/inspect.rs</span><br><span class="hljs-keyword">use</span> serde::&#123;Deserialize, Serialize&#125;;<br><span class="hljs-keyword">use</span> serde_example::&#123;from_str, to_string&#125;;<br><br><span class="hljs-meta">#[derive(Debug, Serialize, Deserialize)]</span><br><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Command</span></span> &#123;<br>    Set &#123; key: <span class="hljs-built_in">String</span>, value: <span class="hljs-built_in">String</span> &#125;,<br>    Get &#123; key: <span class="hljs-built_in">String</span> &#125;,<br>    Rm(<span class="hljs-built_in">String</span>),<br>    Quit,<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> cmd = Command::Set &#123;<br>        key: <span class="hljs-string">&quot;A&quot;</span>.to_owned(),<br>        value: <span class="hljs-string">&quot;42&quot;</span>.to_owned(),<br>    &#125;;<br>    <span class="hljs-keyword">let</span> ser_cmd = to_string(&amp;cmd).unwrap();<br>    <span class="hljs-keyword">let</span> de_cmd: Command = from_str(&amp;ser_cmd).unwrap();<br>    <span class="hljs-built_in">println!</span>(<br>        <span class="hljs-string">&quot;origin: &#123;:?&#125;\nserialized: &#123;&#125;\ndeserialized: &#123;:?&#125;&quot;</span>,<br>        cmd, ser_cmd, de_cmd<br>    );<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>运行<code>cargo run --bin inspect</code>就会输出</p>
-<pre><code class="shell">origin: Set { key: &quot;A&quot;, value: &quot;42&quot; }
-serialized: {&quot;Set&quot;:{&quot;key&quot;:&quot;A&quot;,&quot;value&quot;:&quot;42&quot;}}
-deserialized: Set { key: &quot;A&quot;, value: &quot;42&quot; }
-</code></pre>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">origin: Set &#123; key: &quot;A&quot;, value: &quot;42&quot; &#125;<br>serialized: &#123;&quot;Set&quot;:&#123;&quot;key&quot;:&quot;A&quot;,&quot;value&quot;:&quot;42&quot;&#125;&#125;<br>deserialized: Set &#123; key: &quot;A&quot;, value: &quot;42&quot; &#125;<br></code></pre></div></td></tr></table></figure>
 <h2 id="expand-derive"><a href="#expand-derive" class="headerlink" title="expand derive"></a>expand derive</h2><p>还有一份关键的代码，藏在<code>#[derive(Debug, Serialize, Deserialize)]</code>里，这条语句自动生成一些(很多!)代码，为<code>Command</code>实现关键的两个序列化trait。</p>
-<p>这要借助<a href="https://github.com/dtolnay/cargo-expand" target="_blank" rel="noopener">cargo-expand</a>工具，如果没有先装一下，一般下面两个命令搞定</p>
-<pre><code class="shell">$ rustup toolchain install nightly  # 如果只使用过stable版本，需要先装nightly
-$ cargo install cargo-expand
-</code></pre>
+<p>这要借助<a target="_blank" rel="noopener" href="https://github.com/dtolnay/cargo-expand">cargo-expand</a>工具，如果没有先装一下，一般下面两个命令搞定</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> rustup toolchain install nightly  <span class="hljs-comment"># 如果只使用过stable版本，需要先装nightly</span></span><br><span class="hljs-meta">$</span><span class="bash"> cargo install cargo-expand</span><br></code></pre></div></td></tr></table></figure>
 <p>运行<code>cargo expand --bin inspect</code>，终端输出生成代码。</p>
 <p>其中一段类似下面这样，实现的是<code>Serialize</code>，把它复制到<code>derive_ser.rs</code></p>
-<pre><code class="rust">const _IMPL_SERIALIZE_FOR_Command: () = {
-    #[allow(unknown_lints)]
-    #[allow(rust_2018_idioms)]
-    extern crate serde as _serde;
-    #[automatically_derived]
-    impl _serde::Serialize for Command {
-        fn serialize&lt;__S&gt;(&amp;self, __serializer: __S) -&gt; _serde::export::Result&lt;__S::Ok, __S::Error&gt;
-        where
-            __S: _serde::Serializer,
-        {
-            match *self {
-                Command::Set { ref key, ref value } =&gt; {
-                    ...
-                    _serde::ser::SerializeStructVariant::end(__serde_state)
-                }
-                Command::Get { ref key } =&gt; {
-                    ...
-                    _serde::ser::SerializeStructVariant::end(__serde_state)
-                }
-                Command::Rm(ref __field0) =&gt; _serde::Serializer::serialize_newtype_variant(
-                    __serializer,
-                    &quot;Command&quot;,
-                    2u32,
-                    &quot;Rm&quot;,
-                    __field0,
-                ),
-                Command::Quit =&gt; _serde::Serializer::serialize_unit_variant(
-                    __serializer,
-                    &quot;Command&quot;,
-                    3u32,
-                    &quot;Quit&quot;,
-                ),
-            }
-        }
-    }
-};
-
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">const</span> _IMPL_SERIALIZE_FOR_Command: () = &#123;<br>    <span class="hljs-meta">#[allow(unknown_lints)]</span><br>    <span class="hljs-meta">#[allow(rust_2018_idioms)]</span><br>    <span class="hljs-keyword">extern</span> <span class="hljs-keyword">crate</span> serde <span class="hljs-keyword">as</span> _serde;<br>    <span class="hljs-meta">#[automatically_derived]</span><br>    <span class="hljs-keyword">impl</span> _serde::Serialize <span class="hljs-keyword">for</span> Command &#123;<br>        <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize</span></span>&lt;__S&gt;(&amp;<span class="hljs-keyword">self</span>, __serializer: __S) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;__S::<span class="hljs-literal">Ok</span>, __S::Error&gt;<br>        <span class="hljs-keyword">where</span><br>            __S: _serde::Serializer,<br>        &#123;<br>            <span class="hljs-keyword">match</span> *<span class="hljs-keyword">self</span> &#123;<br>                Command::Set &#123; <span class="hljs-keyword">ref</span> key, <span class="hljs-keyword">ref</span> value &#125; =&gt; &#123;<br>                    ...<br>                    _serde::ser::SerializeStructVariant::end(__serde_state)<br>                &#125;<br>                Command::Get &#123; <span class="hljs-keyword">ref</span> key &#125; =&gt; &#123;<br>                    ...<br>                    _serde::ser::SerializeStructVariant::end(__serde_state)<br>                &#125;<br>                Command::Rm(<span class="hljs-keyword">ref</span> __field0) =&gt; _serde::Serializer::serialize_newtype_variant(<br>                    __serializer,<br>                    <span class="hljs-string">&quot;Command&quot;</span>,<br>                    <span class="hljs-number">2u32</span>,<br>                    <span class="hljs-string">&quot;Rm&quot;</span>,<br>                    __field0,<br>                ),<br>                Command::Quit =&gt; _serde::Serializer::serialize_unit_variant(<br>                    __serializer,<br>                    <span class="hljs-string">&quot;Command&quot;</span>,<br>                    <span class="hljs-number">3u32</span>,<br>                    <span class="hljs-string">&quot;Quit&quot;</span>,<br>                ),<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;;<br><br></code></pre></div></td></tr></table></figure>
 <p>另一段结构像这样，实现的是<code>Deserialize</code>，把它复制到<code>derive_de.rs</code></p>
-<pre><code class="rust">const _IMPL_DESERIALIZE_FOR_Command: () = {
-    #[allow(unknown_lints)]
-    #[allow(rust_2018_idioms)]
-    extern crate serde as _serde;
-    #[automatically_derived]
-    impl&lt;&#39;de&gt; _serde::Deserialize&lt;&#39;de&gt; for Command {
-        fn deserialize&lt;__D&gt;(__deserializer: __D) -&gt; _serde::export::Result&lt;Self, __D::Error&gt;
-        where
-            __D: _serde::Deserializer&lt;&#39;de&gt;,
-        {
-            #[allow(non_camel_case_types)]
-            enum __Field { __field0, __field1, __field2,  __field3, }
-            struct __FieldVisitor;
-            impl&lt;&#39;de&gt; _serde::de::Visitor&lt;&#39;de&gt; for __FieldVisitor {
-                type Value = __Field;
-                fn expecting(&amp;self, __formatter: &amp;mut _serde::export::Formatter) ... {} 
-                fn visit_u64&lt;__E&gt;(self, __value: u64) ... {}        
-                fn visit_str&lt;__E&gt;(self, __value: &amp;str) ... {}
-                fn visit_bytes&lt;__E&gt;(self, __value: &amp;[u8]) ... {}
-                }
-            }
-            impl&lt;&#39;de&gt; _serde::Deserialize&lt;&#39;de&gt; for __Field {
-                #[inline]
-                fn deserialize&lt;__D&gt;(__deserializer: __D) ... {}
-            }
-
-            struct __Visitor&lt;&#39;de&gt; { 
-                marker: _serde::export::PhantomData&lt;Command&gt;,
-                lifetime: _serde::export::PhantomData&lt;&amp;&#39;de ()&gt;,
-            }
-            impl&lt;&#39;de&gt; _serde::de::Visitor&lt;&#39;de&gt; for __Visitor&lt;&#39;de&gt; {
-                type Value = Command;
-                fn expecting(&amp;self, __formatter: &amp;mut _serde::export::Formatter)
-                fn visit_enum&lt;__A&gt;(self, __data: __A) -&gt; _serde::export::Result&lt;Self::Value, __A::Error&gt;
-                where
-                    __A: _serde::de::EnumAccess&lt;&#39;de&gt;,
-                {
-                    match match _serde::de::EnumAccess::variant(__data) {
-                        _serde::export::Ok(__val) =&gt; __val,
-                        _serde::export::Err(__err) =&gt; {
-                            return _serde::export::Err(__err);
-                        }
-                    } {
-                        (__Field::__field0, __variant) =&gt; {...}                       
-                        (__Field::__field1, __variant) =&gt; {...} 
-                        (__Field::__field2, __variant) =&gt; {...} 
-                        (__Field::__field3, __variant) =&gt; {...} 
-                    }
-                }
-            }
-
-            const VARIANTS: &amp;&#39;static [&amp;&#39;static str] = &amp;[&quot;Set&quot;, &quot;Get&quot;, &quot;Rm&quot;, &quot;Quit&quot;];
-            _serde::Deserializer::deserialize_enum(
-                __deserializer,
-                &quot;Command&quot;,
-                VARIANTS,
-                __Visitor {
-                    marker: _serde::export::PhantomData::&lt;Command&gt;,
-                    lifetime: _serde::export::PhantomData,
-                },
-            )
-        }
-    }
-};
-
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">const</span> _IMPL_DESERIALIZE_FOR_Command: () = &#123;<br>    <span class="hljs-meta">#[allow(unknown_lints)]</span><br>    <span class="hljs-meta">#[allow(rust_2018_idioms)]</span><br>    <span class="hljs-keyword">extern</span> <span class="hljs-keyword">crate</span> serde <span class="hljs-keyword">as</span> _serde;<br>    <span class="hljs-meta">#[automatically_derived]</span><br>    <span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::Deserialize&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> Command &#123;<br>        <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize</span></span>&lt;__D&gt;(__deserializer: __D) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;<span class="hljs-keyword">Self</span>, __D::Error&gt;<br>        <span class="hljs-keyword">where</span><br>            __D: _serde::Deserializer&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>        &#123;<br>            <span class="hljs-meta">#[allow(non_camel_case_types)]</span><br>            <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">__Field</span></span> &#123; __field0, __field1, __field2,  __field3, &#125;<br>            <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__FieldVisitor</span></span>;<br>            <span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::de::Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> __FieldVisitor &#123;<br>                <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Value</span></span> = __Field;<br>                <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">expecting</span></span>(&amp;<span class="hljs-keyword">self</span>, __formatter: &amp;<span class="hljs-keyword">mut</span> _serde::export::Formatter) ... &#123;&#125; <br>                <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_u64</span></span>&lt;__E&gt;(<span class="hljs-keyword">self</span>, __value: <span class="hljs-built_in">u64</span>) ... &#123;&#125;        <br>                <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_str</span></span>&lt;__E&gt;(<span class="hljs-keyword">self</span>, __value: &amp;<span class="hljs-built_in">str</span>) ... &#123;&#125;<br>                <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_bytes</span></span>&lt;__E&gt;(<span class="hljs-keyword">self</span>, __value: &amp;[<span class="hljs-built_in">u8</span>]) ... &#123;&#125;<br>                &#125;<br>            &#125;<br>            <span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::Deserialize&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> __Field &#123;<br>                <span class="hljs-meta">#[inline]</span><br>                <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize</span></span>&lt;__D&gt;(__deserializer: __D) ... &#123;&#125;<br>            &#125;<br><br>            <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__Visitor</span></span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; &#123; <br>                marker: _serde::export::PhantomData&lt;Command&gt;,<br>                lifetime: _serde::export::PhantomData&lt;&amp;<span class="hljs-symbol">&#x27;de</span> ()&gt;,<br>            &#125;<br>            <span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::de::Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> __Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt; &#123;<br>                <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Value</span></span> = Command;<br>                <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">expecting</span></span>(&amp;<span class="hljs-keyword">self</span>, __formatter: &amp;<span class="hljs-keyword">mut</span> _serde::export::Formatter)<br>                <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_enum</span></span>&lt;__A&gt;(<span class="hljs-keyword">self</span>, __data: __A) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;Self::Value, __A::Error&gt;<br>                <span class="hljs-keyword">where</span><br>                    __A: _serde::de::EnumAccess&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>                &#123;<br>                    <span class="hljs-keyword">match</span> <span class="hljs-keyword">match</span> _serde::de::EnumAccess::variant(__data) &#123;<br>                        _serde::export::<span class="hljs-literal">Ok</span>(__val) =&gt; __val,<br>                        _serde::export::<span class="hljs-literal">Err</span>(__err) =&gt; &#123;<br>                            <span class="hljs-keyword">return</span> _serde::export::<span class="hljs-literal">Err</span>(__err);<br>                        &#125;<br>                    &#125; &#123;<br>                        (__Field::__field0, __variant) =&gt; &#123;...&#125;                       <br>                        (__Field::__field1, __variant) =&gt; &#123;...&#125; <br>                        (__Field::__field2, __variant) =&gt; &#123;...&#125; <br>                        (__Field::__field3, __variant) =&gt; &#123;...&#125; <br>                    &#125;<br>                &#125;<br>            &#125;<br><br>            <span class="hljs-keyword">const</span> VARIANTS: &amp;<span class="hljs-symbol">&#x27;static</span> [&amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>] = &amp;[<span class="hljs-string">&quot;Set&quot;</span>, <span class="hljs-string">&quot;Get&quot;</span>, <span class="hljs-string">&quot;Rm&quot;</span>, <span class="hljs-string">&quot;Quit&quot;</span>];<br>            _serde::Deserializer::deserialize_enum(<br>                __deserializer,<br>                <span class="hljs-string">&quot;Command&quot;</span>,<br>                VARIANTS,<br>                __Visitor &#123;<br>                    marker: _serde::export::PhantomData::&lt;Command&gt;,<br>                    lifetime: _serde::export::PhantomData,<br>                &#125;,<br>            )<br>        &#125;<br>    &#125;<br>&#125;;<br><br></code></pre></div></td></tr></table></figure>
 <p>好了，准备工作就这么多。开始受苦吧。</p>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Rust</span>
-                        &nbsp;
-                         
-                        <span class="badge badge-light">#&nbsp;Serde你在干什么</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Rust/">Rust</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Serde%E4%BD%A0%E5%9C%A8%E5%B9%B2%E4%BB%80%E4%B9%88/">Serde你在干什么</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/01/01/serde-what-are-you-doing-ser/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">serde你在干什么 - serialize</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/11/07/reflection-43/">
+                        <span class="hidden-mobile">LeetCode刷题阶段性回顾-II</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

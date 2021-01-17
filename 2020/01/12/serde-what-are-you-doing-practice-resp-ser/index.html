@@ -1,408 +1,508 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>serde你在干什么 - 实践篇 - serialize - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>serde你在干什么 - 实践篇 - serialize ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="serde你在干什么 - 实践篇 - serialize">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-01-12 22:42" pubdate>
+        January 12, 2020 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.4k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">serde你在干什么 - 实践篇 - serialize</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Sunday, January 12th 2020, 10:42 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>serde 源码解析 | 用Redis Simple Protocol做练习 Serialize篇</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">serde你在干什么 - 实践篇 - serialize</h1>
+            
+            <div class="markdown-body">
+              <p>serde 源码解析 | 用Redis Simple Protocol做练习 Serialize篇</p>
 <a id="more"></a>
 <h2 id="基础结构和接口"><a href="#基础结构和接口" class="headerlink" title="基础结构和接口"></a>基础结构和接口</h2><p>根据之前假定的<code>to_bytes</code>接口，现在来填充基本内容。首先需要一个结构体来实现<code>Serializer</code> trait，干脆名字也叫<code>Serializer</code>，拥有一个<code>output</code>字段，这就是写作文的作文本。<code>to_bytes</code>内部，初始化一个<code>serializer</code>，交给目标类型的<code>serialize</code>带领，参观目标类型，参观回来，直接把写好的作文返回。</p>
 <p>在简化版的实现中，序列化结果中只有array和bulk string两种类型，所以为<code>serializer</code>提供一个添加bulk string的快捷方式，<code>append_elemet</code>，接受<code>u8</code>序列，统计长度后统一添加length和分隔符。</p>
-<pre><code class="rust">pub struct Serializer {
-    output: Vec&lt;u8&gt;,
-}
-
-// Redis Simple Protocol规定，发往服务端的信息，是bulk string，这里用bytes来表示
-pub fn to_bytes&lt;T&gt;(value: &amp;T) -&gt; Result&lt;Vec&lt;u8&gt;&gt;
-where
-    T: Serialize,
-{
-    let mut serializer = Serializer { output: vec![] };
-    value.serialize(&amp;mut serializer)?;
-    Ok(serializer.output)
-}
-
-impl Serializer {
-    // Serializer添加bulk String的函数
-    fn append_element(&amp;mut self, element: &amp;[u8]) {
-        self.output
-            .extend_from_slice(&amp;format!(&quot;${}\r\n&quot;, element.len()).as_bytes());
-        self.output.extend_from_slice(element);
-        self.output.push(b&#39;\r&#39;);
-        self.output.push(b&#39;\n&#39;);
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Serializer</span></span> &#123;<br>    output: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u8</span>&gt;,<br>&#125;<br><br><span class="hljs-comment">// Redis Simple Protocol规定，发往服务端的信息，是bulk string，这里用bytes来表示</span><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">to_bytes</span></span>&lt;T&gt;(value: &amp;T) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u8</span>&gt;&gt;<br><span class="hljs-keyword">where</span><br>    T: Serialize,<br>&#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> serializer = Serializer &#123; output: <span class="hljs-built_in">vec!</span>[] &#125;;<br>    value.serialize(&amp;<span class="hljs-keyword">mut</span> serializer)?;<br>    <span class="hljs-literal">Ok</span>(serializer.output)<br>&#125;<br><br><span class="hljs-keyword">impl</span> Serializer &#123;<br>    <span class="hljs-comment">// Serializer添加bulk String的函数</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">append_element</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, element: &amp;[<span class="hljs-built_in">u8</span>]) &#123;<br>        <span class="hljs-keyword">self</span>.output<br>            .extend_from_slice(&amp;<span class="hljs-built_in">format!</span>(<span class="hljs-string">&quot;$&#123;&#125;\r\n&quot;</span>, element.len()).as_bytes());<br>        <span class="hljs-keyword">self</span>.output.extend_from_slice(element);<br>        <span class="hljs-keyword">self</span>.output.push(<span class="hljs-string">b&#x27;\r&#x27;</span>);<br>        <span class="hljs-keyword">self</span>.output.push(<span class="hljs-string">b&#x27;\n&#x27;</span>);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>具体实现<code>Serializer</code> trait时，是为<code>&amp;mut Serializer</code>实现，因为<code>serializer</code>被以可变借用的形式交给Serialize接口。</p>
 <p>一些associated type设置如下</p>
-<pre><code class="rust">impl&lt;&#39;a&gt; ser::Serializer for &amp;&#39;a mut Serializer {
-    // 直接往output里塞东西，一般设置为()就可以
-    type Ok = ();
-    // 序列化过程中发生的错误，因为我们是写入Vec&lt;u8&gt;，出错可能性很小，这里暂时不做过多考虑，
-    // 放到反序列过程是再提
-    type Error = Error;
-
-    // 支持有状态序列化的一些结构，但是当前实现不需要额外维护一些信息，所以直接沿用Serializer结构
-    type SerializeSeq = Self;
-    type SerializeTuple = Self;
-    type SerializeTupleStruct = Self;
-    type SerializeTupleVariant = Self;
-    type SerializeMap = Self;
-    type SerializeStruct = Self;
-    type SerializeStructVariant = Self;
-
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; ser::Serializer <span class="hljs-keyword">for</span> &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> Serializer &#123;<br>    <span class="hljs-comment">// 直接往output里塞东西，一般设置为()就可以</span><br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Ok</span></span> = ();<br>    <span class="hljs-comment">// 序列化过程中发生的错误，因为我们是写入Vec&lt;u8&gt;，出错可能性很小，这里暂时不做过多考虑，</span><br>    <span class="hljs-comment">// 放到反序列过程是再提</span><br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Error</span></span> = Error;<br>    <br>    <span class="hljs-comment">// 支持有状态序列化的一些结构，但是当前实现不需要额外维护一些信息，所以直接沿用Serializer结构</span><br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">SerializeSeq</span></span> = <span class="hljs-keyword">Self</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">SerializeTuple</span></span> = <span class="hljs-keyword">Self</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">SerializeTupleStruct</span></span> = <span class="hljs-keyword">Self</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">SerializeTupleVariant</span></span> = <span class="hljs-keyword">Self</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">SerializeMap</span></span> = <span class="hljs-keyword">Self</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">SerializeStruct</span></span> = <span class="hljs-keyword">Self</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">SerializeStructVariant</span></span> = <span class="hljs-keyword">Self</span>;<br>    <br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h2 id="实现Serializer-trait"><a href="#实现Serializer-trait" class="headerlink" title="实现Serializer trait"></a>实现<code>Serializer</code> trait</h2><h3 id="primitive-type"><a href="#primitive-type" class="headerlink" title="primitive type"></a>primitive type</h3><p>先从简单的入手，对于数值基本类型，全部格式化为String后<code>as_bytes</code>，然后作为以项bulk string插入结果。低精度把实现委托给高精度的实现。这种模式适用于<code>i8, i16, i32, i64, u8, u16, u32, u64</code></p>
-<pre><code class="rust">fn serialize_i8(self, v: i8) -&gt; Result&lt;()&gt; {
-    self.serialize_i64(i64::from(v))
-}
-
-fn serialize_i64(self, v: i64) -&gt; Result&lt;()&gt; {
-    self.append_element(&amp;v.to_string().as_bytes());
-    Ok(())
-}    
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_i8</span></span>(<span class="hljs-keyword">self</span>, v: <span class="hljs-built_in">i8</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_i64(<span class="hljs-built_in">i64</span>::from(v))<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_i64</span></span>(<span class="hljs-keyword">self</span>, v: <span class="hljs-built_in">i64</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.append_element(&amp;v.to_string().as_bytes());<br>    <span class="hljs-literal">Ok</span>(())<br>&#125;    <br></code></pre></div></td></tr></table></figure>
 <p><code>f32, f64</code>暂时不支持，因为浮点数的反序列化比较麻烦，没计划做，所以序列化时就直接拒绝。</p>
-<pre><code class="rust">fn serialize_f32(self, _v: f32) -&gt; Result&lt;()&gt; {
-    Err(Error::Message(&quot;float is not supported&quot;.to_owned()))
-}
-
-fn serialize_f64(self, _v: f64) -&gt; Result&lt;()&gt; {
-    Err(Error::Message(&quot;float is not supported&quot;.to_owned()))
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_f32</span></span>(<span class="hljs-keyword">self</span>, _v: <span class="hljs-built_in">f32</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-literal">Err</span>(Error::Message(<span class="hljs-string">&quot;float is not supported&quot;</span>.to_owned()))<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_f64</span></span>(<span class="hljs-keyword">self</span>, _v: <span class="hljs-built_in">f64</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-literal">Err</span>(Error::Message(<span class="hljs-string">&quot;float is not supported&quot;</span>.to_owned()))<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>bool类型本来应该用整形来表示，但是依然已经简化为全员bulk string，就用<code>true/false</code>增加一下可读性。</p>
-<pre><code class="rust">fn serialize_bool(self, v: bool) -&gt; Result&lt;()&gt; {
-    self.append_element(if v { b&quot;true&quot; } else { b&quot;false&quot; });
-    Ok(())
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_bool</span></span>(<span class="hljs-keyword">self</span>, v: <span class="hljs-built_in">bool</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.append_element(<span class="hljs-keyword">if</span> v &#123; <span class="hljs-string">b&quot;true&quot;</span> &#125; <span class="hljs-keyword">else</span> &#123; <span class="hljs-string">b&quot;false&quot;</span> &#125;);<br>    <span class="hljs-literal">Ok</span>(())<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>下面一些其他基本类型的实现，说明都很短，就直接在注释中写了</p>
-<pre><code class="rust">// 单个字符也被当做字符串
-fn serialize_char(self, v: char) -&gt; Result&lt;()&gt; {
-    self.serialize_str(&amp;v.to_string())
-}
-
-// 直接把字符串转为bytes，没有转义
-fn serialize_str(self, v: &amp;str) -&gt; Result&lt;()&gt; {
-    self.serialize_bytes(v.as_bytes())
-}
-
-// bytes当作列表元素
-fn serialize_bytes(self, v: &amp;[u8]) -&gt; Result&lt;()&gt; {
-    self.append_element(v);
-    Ok(())
-}
-
-// 空值(), bulk string $-1\r\n表示
-fn serialize_unit(self) -&gt; Result&lt;()&gt; {
-    self.output.extend_from_slice(b&quot;$-1\r\n&quot;);
-    Ok(())
-}
-
-// None 等效于 ()
-fn serialize_none(self) -&gt; Result&lt;()&gt; {
-    self.serialize_unit()
-}
-
-// Some(value) 在Serialize实现中会直接告诉serializer value，
-// 所以Some(())在resp中会和None一样，被序列化为$-1\r\n，无法准确表达信息。
-// 但是如果客户端、服务端都用同一套数据结构，就可以这一公认的额外信息进行准确推断了。
-fn serialize_some&lt;T&gt;(self, value: &amp;T) -&gt; Result&lt;()&gt;
-where
-T: ?Sized + Serialize,
-{
-    value.serialize(self)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// 单个字符也被当做字符串</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_char</span></span>(<span class="hljs-keyword">self</span>, v: <span class="hljs-built_in">char</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_str(&amp;v.to_string())<br>&#125;<br><br><span class="hljs-comment">// 直接把字符串转为bytes，没有转义</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_str</span></span>(<span class="hljs-keyword">self</span>, v: &amp;<span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_bytes(v.as_bytes())<br>&#125;<br><br><span class="hljs-comment">// bytes当作列表元素</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_bytes</span></span>(<span class="hljs-keyword">self</span>, v: &amp;[<span class="hljs-built_in">u8</span>]) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.append_element(v);<br>    <span class="hljs-literal">Ok</span>(())<br>&#125;<br><br><span class="hljs-comment">// 空值(), bulk string $-1\r\n表示</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_unit</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.output.extend_from_slice(<span class="hljs-string">b&quot;$-1\r\n&quot;</span>);<br>    <span class="hljs-literal">Ok</span>(())<br>&#125;<br><br><span class="hljs-comment">// None 等效于 ()</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_none</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_unit()<br>&#125;<br><br><span class="hljs-comment">// Some(value) 在Serialize实现中会直接告诉serializer value，</span><br><span class="hljs-comment">// 所以Some(())在resp中会和None一样，被序列化为$-1\r\n，无法准确表达信息。</span><br><span class="hljs-comment">// 但是如果客户端、服务端都用同一套数据结构，就可以这一公认的额外信息进行准确推断了。</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_some</span></span>&lt;T&gt;(<span class="hljs-keyword">self</span>, value: &amp;T) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt;<br><span class="hljs-keyword">where</span><br>T: ?<span class="hljs-built_in">Sized</span> + Serialize,<br>&#123;<br>    value.serialize(<span class="hljs-keyword">self</span>)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h3 id="集合类型-seq"><a href="#集合类型-seq" class="headerlink" title="集合类型 - seq"></a>集合类型 - seq</h3><p>一个列表型的数据，默认第一个元素为“命令”，剩下的元素为“参数”</p>
 <p>因此，<code>serialize_seq</code>会用 传入的长度参数，构建array的开头，<code>*</code>号引导</p>
-<pre><code class="rust">fn serialize_seq(self, _len: Option&lt;usize&gt;) -&gt; Result&lt;Self::SerializeSeq&gt; {
-    match _len {
-        None =&gt; Err(Error::Message(
-            &quot;length of sequence can&#39;t be determined&quot;.to_owned(),
-        )),
-        Some(l) =&gt; {
-            self.output
-            .extend_from_slice(format!(&quot;*{}\r\n&quot;, l).as_bytes());
-            Ok(self)
-        }
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_seq</span></span>(<span class="hljs-keyword">self</span>, _len: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt;) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::SerializeSeq&gt; &#123;<br>    <span class="hljs-keyword">match</span> _len &#123;<br>        <span class="hljs-literal">None</span> =&gt; <span class="hljs-literal">Err</span>(Error::Message(<br>            <span class="hljs-string">&quot;length of sequence can&#x27;t be determined&quot;</span>.to_owned(),<br>        )),<br>        <span class="hljs-literal">Some</span>(l) =&gt; &#123;<br>            <span class="hljs-keyword">self</span>.output<br>            .extend_from_slice(<span class="hljs-built_in">format!</span>(<span class="hljs-string">&quot;*&#123;&#125;\r\n&quot;</span>, l).as_bytes());<br>            <span class="hljs-literal">Ok</span>(<span class="hljs-keyword">self</span>)<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>构建完成后，把<code>Self</code>返回，因为在associated type一节，确定了会为<code>Serializer</code>实现<code>SerializeSeq</code> trait。实现非常简单，每次<code>serialize_element</code>就是直接把元素序列化，自然会追加到array中。</p>
-<pre><code class="rust">impl&lt;&#39;a&gt; ser::SerializeSeq for &amp;&#39;a mut Serializer {
-    // 和 the serializer 的Ok类型一致.
-    type Ok = ();
-    // 和 the serializer 的Error类型一致.
-    type Error = Error;
-
-    fn serialize_element&lt;T&gt;(&amp;mut self, value: &amp;T) -&gt; Result&lt;()&gt;
-    where
-        T: ?Sized + Serialize,
-    {
-        // resp 格式，直接往后添加就可以了
-        value.serialize(&amp;mut **self)
-    }
-
-    // 长度前置，关闭时什么都不用做
-    fn end(self) -&gt; Result&lt;()&gt; {
-        Ok(())
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; ser::SerializeSeq <span class="hljs-keyword">for</span> &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> Serializer &#123;<br>    <span class="hljs-comment">// 和 the serializer 的Ok类型一致.</span><br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Ok</span></span> = ();<br>    <span class="hljs-comment">// 和 the serializer 的Error类型一致.</span><br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Error</span></span> = Error;<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_element</span></span>&lt;T&gt;(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, value: &amp;T) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt;<br>    <span class="hljs-keyword">where</span><br>        T: ?<span class="hljs-built_in">Sized</span> + Serialize,<br>    &#123;<br>        <span class="hljs-comment">// resp 格式，直接往后添加就可以了</span><br>        value.serialize(&amp;<span class="hljs-keyword">mut</span> **<span class="hljs-keyword">self</span>)<br>    &#125;<br><br>    <span class="hljs-comment">// 长度前置，关闭时什么都不用做</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">end</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>        <span class="hljs-literal">Ok</span>(())<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>相同的逻辑对tuple适用，序列化方法沿用<code>serialize_seq</code>，<code>SerializeTuple</code>的实现和<code>SerializeSeq</code> 相同</p>
-<pre><code class="rust">// tuples和列表基本相同，但是它的长度是确定的
-fn serialize_tuple(self, len: usize) -&gt; Result&lt;Self::SerializeTuple&gt; {
-    self.serialize_seq(Some(len))
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// tuples和列表基本相同，但是它的长度是确定的</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_tuple</span></span>(<span class="hljs-keyword">self</span>, len: <span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::SerializeTuple&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_seq(<span class="hljs-literal">Some</span>(len))<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h3 id="集合类型-struct"><a href="#集合类型-struct" class="headerlink" title="集合类型 - struct"></a>集合类型 - struct</h3><p>对于结构体struct，其名称就是”命令”，字段就是“参数”。总共有四种struct，依次说。</p>
 <p>最简单的struct类型，<code>unit_struct</code>，形如<code>struct Foo;</code>，可以看成无参数命令，所以先写入array开头，长度为1，然后写入命令名称。</p>
-<pre><code class="rust">fn serialize_unit_struct(self, name: &amp;&#39;static str) -&gt; Result&lt;()&gt; {
-    self.output.extend_from_slice(b&quot;*1\r\n&quot;);
-    self.serialize_str(name)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_unit_struct</span></span>(<span class="hljs-keyword">self</span>, name: &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.output.extend_from_slice(<span class="hljs-string">b&quot;*1\r\n&quot;</span>);<br>    <span class="hljs-keyword">self</span>.serialize_str(name)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p><code>newtype_struct</code>，形如<code>struct Foo(i32);</code>，单一参数命令，类似地，写入长度为2的array开头，写入命令名称，再把唯一的参数序列化。</p>
-<pre><code class="rust">fn serialize_newtype_struct&lt;T&gt;(self, name: &amp;&#39;static str, value: &amp;T) -&gt; Result&lt;()&gt;
-where
-T: ?Sized + Serialize,
-{
-    self.output.extend_from_slice(b&quot;*2\r\n&quot;);
-    self.serialize_str(name)?;
-    value.serialize(self)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_newtype_struct</span></span>&lt;T&gt;(<span class="hljs-keyword">self</span>, name: &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>, value: &amp;T) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt;<br><span class="hljs-keyword">where</span><br>T: ?<span class="hljs-built_in">Sized</span> + Serialize,<br>&#123;<br>    <span class="hljs-keyword">self</span>.output.extend_from_slice(<span class="hljs-string">b&quot;*2\r\n&quot;</span>);<br>    <span class="hljs-keyword">self</span>.serialize_str(name)?;<br>    value.serialize(<span class="hljs-keyword">self</span>)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p><code>tuple_struct</code>，形如<code>struct Foo(i32, i32, i32);</code>，多参数命令，总长度为参数长度+1，这里先调用<code>serialize_seq</code>，启动array的构造，写入array头部，返回的<code>Serialzier</code>，也就是变量<code>tuple</code>，也实现了<code>SerializeTupleStruct</code>，交给<code>Serialize</code>调用，一项项地把参数序列化，但是在交出去之前呢，需要先写入命令名称，所以调用<code>serialize_str</code>直接写。</p>
-<pre><code class="rust">// tuple_struct，多参数命令，array长度是tuple长度+1，比如 struct Foo(i32, i32, i32);
-fn serialize_tuple_struct(
-    self,
-    name: &amp;&#39;static str,
-    len: usize,
-) -&gt; Result&lt;Self::SerializeTupleStruct&gt; {
-    let tuple = self.serialize_seq(Some(len + 1))?;
-    tuple.serialize_str(name)?;
-    Ok(tuple)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// tuple_struct，多参数命令，array长度是tuple长度+1，比如 struct Foo(i32, i32, i32);</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_tuple_struct</span></span>(<br>    <span class="hljs-keyword">self</span>,<br>    name: &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>,<br>    len: <span class="hljs-built_in">usize</span>,<br>) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::SerializeTupleStruct&gt; &#123;<br>    <span class="hljs-keyword">let</span> tuple = <span class="hljs-keyword">self</span>.serialize_seq(<span class="hljs-literal">Some</span>(len + <span class="hljs-number">1</span>))?;<br>    tuple.serialize_str(name)?;<br>    <span class="hljs-literal">Ok</span>(tuple)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>实现<code>SerializeTupleStruct</code> trait 和Seq一样，每一项field，直接调用<code>Serialize</code>trait就完事儿了。</p>
-<pre><code class="rust">impl&lt;&#39;a&gt; ser::SerializeTupleStruct for &amp;&#39;a mut Serializer {
-    type Ok = ();
-    type Error = Error;
-    fn serialize_field&lt;T&gt;(&amp;mut self, value: &amp;T) -&gt; Result&lt;()&gt;
-    where
-        T: ?Sized + Serialize,
-    {
-        value.serialize(&amp;mut **self)
-    }
-    fn end(self) -&gt; Result&lt;()&gt; {
-        Ok(())
-    }
-}
-</code></pre>
-<p>最后还有一种常规struct，形如<code>struct Foo {key: i32, val:i32}</code>，因为我们不关心字段名，比如<code>key</code>、<code>val</code>，只在意<code>i32</code>具体是哪个数，所以抛弃字段名后(<code>serialize_field</code>时忽略了<code>_key</code>参数)，和<code>tuple_struct</code>没什么两样，所以直接利用已有实现就好了。返回的<code>SerializeStruct</code>也是<code>Serializer</code>，无缝衔接。</p>
-<pre><code class="rust">fn serialize_struct(self, _name: &amp;&#39;static str, len: usize) -&gt; Result&lt;Self::SerializeStruct&gt; {
-    self.serialize_tuple_struct(_name, len)
-}
-
-impl&lt;&#39;a&gt; ser::SerializeStruct for &amp;&#39;a mut Serializer {
-    type Ok = ();
-    type Error = Error;
-
-    fn serialize_field&lt;T&gt;(&amp;mut self, _key: &amp;&#39;static str, value: &amp;T) -&gt; Result&lt;()&gt;
-    where
-        T: ?Sized + Serialize,
-    {
-        value.serialize(&amp;mut **self)
-    }
-
-    fn end(self) -&gt; Result&lt;()&gt; {
-        Ok(())
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; ser::SerializeTupleStruct <span class="hljs-keyword">for</span> &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> Serializer &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Ok</span></span> = ();<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Error</span></span> = Error;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_field</span></span>&lt;T&gt;(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, value: &amp;T) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt;<br>    <span class="hljs-keyword">where</span><br>        T: ?<span class="hljs-built_in">Sized</span> + Serialize,<br>    &#123;<br>        value.serialize(&amp;<span class="hljs-keyword">mut</span> **<span class="hljs-keyword">self</span>)<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">end</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>        <span class="hljs-literal">Ok</span>(())<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>最后还有一种常规struct，形如<code>struct Foo &#123;key: i32, val:i32&#125;</code>，因为我们不关心字段名，比如<code>key</code>、<code>val</code>，只在意<code>i32</code>具体是哪个数，所以抛弃字段名后(<code>serialize_field</code>时忽略了<code>_key</code>参数)，和<code>tuple_struct</code>没什么两样，所以直接利用已有实现就好了。返回的<code>SerializeStruct</code>也是<code>Serializer</code>，无缝衔接。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_struct</span></span>(<span class="hljs-keyword">self</span>, _name: &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>, len: <span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::SerializeStruct&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_tuple_struct(_name, len)<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; ser::SerializeStruct <span class="hljs-keyword">for</span> &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> Serializer &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Ok</span></span> = ();<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Error</span></span> = Error;<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_field</span></span>&lt;T&gt;(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _key: &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>, value: &amp;T) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt;<br>    <span class="hljs-keyword">where</span><br>        T: ?<span class="hljs-built_in">Sized</span> + Serialize,<br>    &#123;<br>        value.serialize(&amp;<span class="hljs-keyword">mut</span> **<span class="hljs-keyword">self</span>)<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">end</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>        <span class="hljs-literal">Ok</span>(())<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h3 id="集合类型-enum"><a href="#集合类型-enum" class="headerlink" title="集合类型 - enum"></a>集合类型 - enum</h3><p>然后处理enum类型，实际上也有四种variant，和struct对等，都可以沿用struct的处理。并且使用到的<code>SerializeTupleVariant</code>、<code>SerializeStructVariant</code> trait 实现也没有区别</p>
-<pre><code class="rust">fn serialize_unit_variant(...) -&gt; Result&lt;()&gt; {
-    self.serialize_unit_struct(variant)
-}
-
-fn serialize_newtype_variant&lt;T: ?Sized + Serialize&gt;(...) -&gt; Result&lt;()&gt; {
-    self.serialize_newtype_struct(variant, value)
-}
-
-fn serialize_tuple_variant(...) -&gt; Result&lt;Self::SerializeTupleVariant&gt; {
-    self.serialize_tuple_struct(variant, len)
-}
-
-fn serialize_struct_variant(...) -&gt; Result&lt;Self::SerializeStructVariant&gt; {
-    self.serialize_tuple_struct(variant, len)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_unit_variant</span></span>(...) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_unit_struct(variant)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_newtype_variant</span></span>&lt;T: ?<span class="hljs-built_in">Sized</span> + Serialize&gt;(...) -&gt; <span class="hljs-built_in">Result</span>&lt;()&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_newtype_struct(variant, value)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_tuple_variant</span></span>(...) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::SerializeTupleVariant&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_tuple_struct(variant, len)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_struct_variant</span></span>(...) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::SerializeStructVariant&gt; &#123;<br>    <span class="hljs-keyword">self</span>.serialize_tuple_struct(variant, len)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h3 id="集合类型-map"><a href="#集合类型-map" class="headerlink" title="集合类型 - map"></a>集合类型 - map</h3><p>整个过程中，都没有实现<code>serialize_map</code>，因为我们向服务器端传递的是命令，存在执行的先后顺序，但是map类型的无序性，无法保证序列化顺序，因此并不支持这样的结构</p>
-<pre><code class="rust">fn serialize_map(self, _len: Option&lt;usize&gt;) -&gt; Result&lt;Self::SerializeMap&gt; {
-    unimplemented!(&quot;map type is not supported&quot;)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">serialize_map</span></span>(<span class="hljs-keyword">self</span>, _len: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt;) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::SerializeMap&gt; &#123;<br>    <span class="hljs-built_in">unimplemented!</span>(<span class="hljs-string">&quot;map type is not supported&quot;</span>)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这里序列化的前提，是站在客户端的角度，全部序列化为bulk of string。</p>
 <p>如果一定要支持自描述的序列化，也就是站在服务端的角度，除了<code>* $</code>的提示符，还要增加<code>- + :</code>的提示，有什么思路呢？基本的struct、enum转变为array的大方向不变，基础类型序列化时，<code>bytes</code>对应<code>$</code>，<code>str</code>对应<code>+</code>，整形对应<code>:</code>，都好办，但是这个<code>-</code>怎么添加？rust中的Error就是普通的struct或者enum，<code>data model</code>中没有专门的接口，直接套用<code>bytes</code>，<code>str</code>的方案不太行。最开始的想法是自定义<code>Serialize</code>接口，用一些怪手段来添加<code>-</code>，比如调用<code>serialize_struct</code>时，传入的<code>name</code>，就是添加<code>-</code>之后的identifier。但是又注意到，这其实这和struct、enum的序列化为array的基本方向冲突。重新看resp中对错误类型的描述，定位好像就是<code>String</code>，没有什么结构信息，所以更粗暴的做法，可能将错误类型display之后，用<code>serialize_str</code>去序列化。那更粗暴的，display的工作都可以不交给serde，在构建给客户端的Response时，match一下，如果是error，display，添加<code>-</code>，然后直接序列化这个字符串。这个流程还可以用宏来简化，比自定义<code>Serialize</code>就简单多了。</p>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Rust</span>
-                        &nbsp;
-                         
-                        <span class="badge badge-light">#&nbsp;Serde你在干什么</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Rust/">Rust</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Serde%E4%BD%A0%E5%9C%A8%E5%B9%B2%E4%BB%80%E4%B9%88/">Serde你在干什么</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/02/01/threadpool-impl/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Rust线程池源码拆解及实现</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/01/10/serde-what-are-you-doing-practice-resp/">
+                        <span class="hidden-mobile">serde你在干什么 - 实践篇</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

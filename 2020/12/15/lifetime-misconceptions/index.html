@@ -1,96 +1,205 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>Rust生命周期误解翻译 - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>Rust生命周期误解翻译 ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Rust生命周期误解翻译">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-12-15 21:08" pubdate>
+        December 15, 2020 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      11.1k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">Rust生命周期误解翻译</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Tuesday, December 15th 2020, 9:08 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>生命周期误解的意译版 + 个人批注</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Rust生命周期误解翻译</h1>
+            
+            <div class="markdown-body">
+              <p>生命周期误解的意译版 + 个人批注</p>
 <a id="more"></a>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li><a href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/common-rust-lifetime-misconceptions.md" target="_blank" rel="noopener">原文链接</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/common-rust-lifetime-misconceptions.md">原文链接</a></li>
 <li>为什么要翻译：强制放慢阅读速度，加深对内容的理解；分享自己的一些理解和总结</li>
-<li>如何翻译的：主要是意译，有意将长句子拆开，便于阅读，同时加入了一些承上启下的句子，补充更容易理解的行文逻辑。另外还添加了一些结论性的注释，论据主要来自于<a href="https://doc.rust-lang.org/nomicon/ownership.html" target="_blank" rel="noopener">Ownership - The Rustonomicon</a>，作为不同视角的参考。</li>
+<li>如何翻译的：主要是意译，有意将长句子拆开，便于阅读，同时加入了一些承上启下的句子，补充更容易理解的行文逻辑。另外还添加了一些结论性的注释，论据主要来自于<a target="_blank" rel="noopener" href="https://doc.rust-lang.org/nomicon/ownership.html">Ownership - The Rustonomicon</a>，作为不同视角的参考。</li>
 <li>应该如何阅读：<strong>时刻参照原文</strong>。根据我读译文的经验，不能过分相信翻译者！当读起来不顺畅，有异样感觉时，就看原文吧，可能找到导向更好理解的线索。</li>
 </ul>
 <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>本文所列出的对生命周期的误解，我过去都经历过，而如今，我发现很多初学者依然身陷其中。</p>
@@ -170,16 +279,9 @@
 </table>
 <p> <code>T</code>, <code>&amp;T</code>, <code>&amp;mut T</code> 都是无限集合，因为你可以对一个类型一直借用，无限套娃。<code>T</code>是<code>&amp;T</code>和<code>&amp;mut</code>的超集，而<code>&amp;T</code>和<code>&amp;mut T</code>确实是不相交的。</p>
 <p>下面是几个解释相关概念的样例：</p>
-<pre><code class="rust">trait Trait {}
-impl&lt;T&gt; Trait for T {}
-impl&lt;T&gt; Trait for &amp;T {} // 编译错误
-impl&lt;T&gt; Trait for &amp;mut T {} // 编译错误
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Trait</span></span> &#123;&#125;<br><span class="hljs-keyword">impl</span>&lt;T&gt; Trait <span class="hljs-keyword">for</span> T &#123;&#125;<br><span class="hljs-keyword">impl</span>&lt;T&gt; Trait <span class="hljs-keyword">for</span> &amp;T &#123;&#125; <span class="hljs-comment">// 编译错误</span><br><span class="hljs-keyword">impl</span>&lt;T&gt; Trait <span class="hljs-keyword">for</span> &amp;<span class="hljs-keyword">mut</span> T &#123;&#125; <span class="hljs-comment">// 编译错误</span><br></code></pre></div></td></tr></table></figure>
 <p>编译器并不会允许我们为<code>&amp;T</code>和<code>&amp;mut T</code>实现<code>Trait</code>，因为和为<code>T</code>实现的<code>Trait</code>冲突了，正如之前所说，<code>T</code>包含所有的<code>&amp;T</code>和<code>&amp;mut T</code>。而如下的程序则可以编译，因为<code>&amp;T</code>和<code>&amp;mut T</code>不相交。</p>
-<pre><code class="rust">trait Trait {}
-impl&lt;T&gt; Trait for &amp;T {} 
-impl&lt;T&gt; Trait for &amp;mut T {}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Trait</span></span> &#123;&#125;<br><span class="hljs-keyword">impl</span>&lt;T&gt; Trait <span class="hljs-keyword">for</span> &amp;T &#123;&#125; <br><span class="hljs-keyword">impl</span>&lt;T&gt; Trait <span class="hljs-keyword">for</span> &amp;<span class="hljs-keyword">mut</span> T &#123;&#125;<br></code></pre></div></td></tr></table></figure>
 <h4 id="关键点"><a href="#关键点" class="headerlink" title="关键点"></a>关键点</h4><ul>
 <li><code>T</code>是<code>&amp;T</code>和<code>&amp;mut</code>的超集</li>
 <li><code>&amp;T</code>和<code>&amp;mut T</code>不相交</li>
@@ -192,23 +294,9 @@ impl&lt;T&gt; Trait for &amp;mut T {}
 <li><code>T: &#39;static</code> 表示 <code>T</code> 只能在编译期被创建</li>
 </ul>
 <p>大部分的Rust初学者，第一次看到<code>&#39;static</code>恐怕是在这样的代码中：</p>
-<pre><code class="rust">fn main() {
-    let str_literal: &amp;&#39;static str = &quot;str literal&quot;;
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> str_literal: &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;str literal&quot;</span>;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>他们感觉到，<code>&quot;str literal&quot;</code>被硬编码到编译后的二进制文件中，在运行时被载入内存，所以它不可变，并且在整个程序范围内有效，因此被标记为<code>&#39;static</code>。当他们发现还可以使用<code>static</code>关键字声明静态变量时，这种理解被进一步地加强了。</p>
-<pre><code class="rust">static BYTES: [u8; 3] = [1, 2, 3];
-static mut MUT_BYTES: [u8; 3] = [1, 2, 3];
-
-fn main() {
-    MUT_BYTES[0] = 99; // 编译错误，修改static变量需要unsafe
-
-    unsafe {
-        MUT_BYTES[0] = 99;
-        assert_eq!(99, MUT_BYTES[0]);
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">static</span> BYTES: [<span class="hljs-built_in">u8</span>; <span class="hljs-number">3</span>] = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>];<br><span class="hljs-keyword">static</span> <span class="hljs-keyword">mut</span> MUT_BYTES: [<span class="hljs-built_in">u8</span>; <span class="hljs-number">3</span>] = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>];<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    MUT_BYTES[<span class="hljs-number">0</span>] = <span class="hljs-number">99</span>; <span class="hljs-comment">// 编译错误，修改static变量需要unsafe</span><br><br>    <span class="hljs-keyword">unsafe</span> &#123;<br>        MUT_BYTES[<span class="hljs-number">0</span>] = <span class="hljs-number">99</span>;<br>        <span class="hljs-built_in">assert_eq!</span>(<span class="hljs-number">99</span>, MUT_BYTES[<span class="hljs-number">0</span>]);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>静态变量有如下性质：</p>
 <ul>
 <li>只在编译期被创建</li>
@@ -239,47 +327,13 @@ fn main() {
 </blockquote>
 <p>由此我们再区分一个重要的点： <code>&amp;&#39;static T</code> 和 <code>T: &#39;static</code></p>
 <p><code>&amp;&#39;static</code>是一个对<code>T</code>的不可变引用，可以在任意长的范围内被持有，甚至到程序终止。这当然要求<code>T</code>本身是不可变的(创建共享引用后，原则上不再被修改)，并且在创建引用后不会移动。<code>T</code>不必在编译时创建，因为我们完全可以在运行时动态分配内存，返回一个<code>&#39;static</code>引用，代价是(可能的)内存泄漏，比如：</p>
-<pre><code class="rust">use rand;
-
-// 运行时动态生成随机 &#39;static str 引用
-fn rand_str_generator() -&gt; &amp;&#39;static str {
-    let rand_string = rand::random::&lt;u64&gt;().to_string();
-    Box::leak(rand_string.into_boxed_str())
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> rand;<br><br><span class="hljs-comment">// 运行时动态生成随机 &#x27;static str 引用</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">rand_str_generator</span></span>() -&gt; &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span> &#123;<br>    <span class="hljs-keyword">let</span> rand_string = rand::random::&lt;<span class="hljs-built_in">u64</span>&gt;().to_string();<br>    <span class="hljs-built_in">Box</span>::leak(rand_string.into_boxed_str())<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p><code>T: &#39;static</code> 不仅包含 <code>&amp;&#39;static T</code>，还包含所有权类型，比如<code>String</code>，<code>Vec</code>等等，范围更广。所有权类型保证数据的有效性，只要所有权类型被持有，就保证数据在之后任意长的范围内被持有，甚至到程序终止，自然符合<code>&#39;static</code>的意思。<code>T: &#39;static</code>不应该被读作 “<code>T</code> 拥有 <code>&#39;static</code> 生命周期”，应该是“<code>T</code>被<code>&#39;static</code>生命周期<strong>绑定</strong>”。</p>
 <blockquote>
 <p>所有权类型本身就是随时创建，允许被持有到程序结束，也可以随时drop。它可以被<code>&#39;static</code>绑定，就很好地反驳了 <code>T: &#39;static</code> 表示T必须在整个程序范围内有效这一误解</p>
 </blockquote>
 <p>下面这个程序帮我们阐释了这些概念。</p>
-<pre><code class="rust">use rand;
-
-fn drop_static&lt;T: &#39;static&gt;(t: T) {
-    std::mem::drop(t);
-}
-
-fn main() {
-    let mut strings: Vec&lt;String&gt; = Vec::new();
-    for _ in 0..10 {
-        if rand::random() {
-            // 所有的字符串都是动态随机生成的a
-            let string = rand::random::&lt;u64&gt;().to_string();
-            strings.push(string);
-        }
-    }
-
-    // String属于所有权类型，所以自然被 &#39;static 绑定
-    for mut string in strings {
-        // 所有字符串可变，并不需要unsafe code
-        string.push_str(&quot;a mutation&quot;);
-        // 因为满足 &#39;static 绑定，可以传入`drop_static`销毁
-        drop_static(string); // compiles
-    }
-
-    // 在程序结尾，所有字符串已经被销毁了
-    println!(&quot;i am the end of the program&quot;);
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> rand;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">drop_static</span></span>&lt;T: <span class="hljs-symbol">&#x27;static</span>&gt;(t: T) &#123;<br>    std::mem::<span class="hljs-built_in">drop</span>(t);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> strings: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">String</span>&gt; = <span class="hljs-built_in">Vec</span>::new();<br>    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..<span class="hljs-number">10</span> &#123;<br>        <span class="hljs-keyword">if</span> rand::random() &#123;<br>            <span class="hljs-comment">// 所有的字符串都是动态随机生成的a</span><br>            <span class="hljs-keyword">let</span> string = rand::random::&lt;<span class="hljs-built_in">u64</span>&gt;().to_string();<br>            strings.push(string);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// String属于所有权类型，所以自然被 &#x27;static 绑定</span><br>    <span class="hljs-keyword">for</span> <span class="hljs-keyword">mut</span> string <span class="hljs-keyword">in</span> strings &#123;<br>        <span class="hljs-comment">// 所有字符串可变，并不需要unsafe code</span><br>        string.push_str(<span class="hljs-string">&quot;a mutation&quot;</span>);<br>        <span class="hljs-comment">// 因为满足 &#x27;static 绑定，可以传入`drop_static`销毁</span><br>        drop_static(string); <span class="hljs-comment">// compiles</span><br>    &#125;<br><br>    <span class="hljs-comment">// 在程序结尾，所有字符串已经被销毁了</span><br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;i am the end of the program&quot;</span>);<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h4 id="关键点-1"><a href="#关键点-1" class="headerlink" title="关键点"></a>关键点</h4><ul>
 <li><p><code>T: &#39;static</code>应该被读作“<code>T</code>被<code>&#39;static</code>生命周期<strong>绑定</strong>”。</p>
 </li>
@@ -301,30 +355,7 @@ fn main() {
 <h3 id="3-amp-39-a和T-39-a含义相同"><a href="#3-amp-39-a和T-39-a含义相同" class="headerlink" title="3) &amp;&#39;a和T:&#39;a含义相同"></a>3) <code>&amp;&#39;a</code>和<code>T:&#39;a</code>含义相同</h3><p>这个误解是2）的泛化版本</p>
 <p><code>&amp;&#39;a T</code> 的出现，实际上也暗示着 <code>T: &#39;a</code>。因为如果<code>T</code>本身不能在范围 <code>&#39;a</code> 中有效，那么对 <code>T</code>的引用自然不会在范围 <code>&#39;a</code> 中有效. 比如，Rust 编译期不会允许创建类型 <code>&amp;&#39;static Ref&lt;&#39;a, T&gt;</code> ，因为 <code>Ref</code> 类型本身只在 <code>&#39;a</code> 范围内有效，我们不可能制作一个 <code>&#39;static</code> 引用指向它。</p>
 <p>另外一点已经提过，<code>T:&#39;a</code> 包含  <code>&amp;&#39;a T</code>，反之不成立</p>
-<pre><code class="rust">// 只接受被&#39;a 绑定的引用类型
-fn t_ref&lt;&#39;a, T: &#39;a&gt;(t: &amp;&#39;a T) {}
-
-// 只接受被&#39;a 绑定的任意类型
-fn t_bound&lt;&#39;a, T: &#39;a&gt;(t: T) {}
-
-// 所有权类型，包含一个引用，只对 &#39;a 范围有效
-struct Ref&lt;&#39;a, T: &#39;a&gt;(&amp;&#39;a T);
-
-fn main() {
-    let string = String::from(&quot;string&quot;);
-
-    t_bound(&amp;string); // compiles
-    t_bound(Ref(&amp;string)); // compiles
-    t_bound(&amp;Ref(&amp;string)); // compiles
-
-    t_ref(&amp;string); // compiles
-    t_ref(Ref(&amp;string)); // 编译失败，期望引用类型，
-    t_ref(&amp;Ref(&amp;string)); // compiles
-
-    // string 被 &#39;static 绑定，自然可以由范围更小的&#39;a处理
-    t_bound(string); // compiles
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// 只接受被&#x27;a 绑定的引用类型</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">t_ref</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, T: <span class="hljs-symbol">&#x27;a</span>&gt;(t: &amp;<span class="hljs-symbol">&#x27;a</span> T) &#123;&#125;<br><br><span class="hljs-comment">// 只接受被&#x27;a 绑定的任意类型</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">t_bound</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, T: <span class="hljs-symbol">&#x27;a</span>&gt;(t: T) &#123;&#125;<br><br><span class="hljs-comment">// 所有权类型，包含一个引用，只对 &#x27;a 范围有效</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Ref</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, T: <span class="hljs-symbol">&#x27;a</span>&gt;(&amp;<span class="hljs-symbol">&#x27;a</span> T);<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> string = <span class="hljs-built_in">String</span>::from(<span class="hljs-string">&quot;string&quot;</span>);<br><br>    t_bound(&amp;string); <span class="hljs-comment">// compiles</span><br>    t_bound(Ref(&amp;string)); <span class="hljs-comment">// compiles</span><br>    t_bound(&amp;Ref(&amp;string)); <span class="hljs-comment">// compiles</span><br><br>    t_ref(&amp;string); <span class="hljs-comment">// compiles</span><br>    t_ref(Ref(&amp;string)); <span class="hljs-comment">// 编译失败，期望引用类型，</span><br>    t_ref(&amp;Ref(&amp;string)); <span class="hljs-comment">// compiles</span><br><br>    <span class="hljs-comment">// string 被 &#x27;static 绑定，自然可以由范围更小的&#x27;a处理</span><br>    t_bound(string); <span class="hljs-comment">// compiles</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h4 id="关键点："><a href="#关键点：" class="headerlink" title="关键点："></a>关键点：</h4><ul>
 <li><code>T:&#39;a</code> 比  <code>&amp;&#39;a T</code> 更广泛，更灵活</li>
 <li>如果 <code>T: &#39;static</code> 那么 <code>T: &#39;a</code> 也成立，因为对任意 <code>&#39;a</code>都有 <code>&#39;static</code> &gt;= <code>&#39;a</code> (<code>&#39;static</code> 是所有生命周期类型的子类型)</li>
@@ -341,48 +372,7 @@ fn main() {
 <li>其他情况下，生命周期参数都必须显示指定</li>
 </ul>
 <p>一次性也消化不了这么多规则，我们还是看例子吧：</p>
-<pre><code class="rust">// 省略
-fn print(s: &amp;str);
-
-// 展开
-fn print&lt;&#39;a&gt;(s: &amp;&#39;a str);
-
-// 省略
-fn trim(s: &amp;str) -&gt; &amp;str;
-
-// 展开
-fn trim&lt;&#39;a&gt;(s: &amp;&#39;a str) -&gt; &amp;&#39;a str;
-
-// 非法，没有输入引用，不能推断输出生命周期
-fn get_str() -&gt; &amp;str;
-
-// 显式地修复包括：
-fn get_str&lt;&#39;a&gt;() -&gt; &amp;&#39;a str; // 泛型
-fn get_str() -&gt; &amp;&#39;static str; // &#39;static
-
-// 非法，有多个输入引用，不能推断输出生命周期
-fn overlap(s: &amp;str, t: &amp;str) -&gt; &amp;str;
-
-// 显式地修复(部分仍然应用了省略规则)包括：
-fn overlap&lt;&#39;a&gt;(s: &amp;&#39;a str, t: &amp;str) -&gt; &amp;&#39;a str; // 输出引用的有效范围不能大于 s 的有效范围
-fn overlap&lt;&#39;a&gt;(s: &amp;str, t: &amp;&#39;a str) -&gt; &amp;&#39;a str; // 输出引用的有效范围不能大于 t 的有效范围
-fn overlap&lt;&#39;a&gt;(s: &amp;&#39;a str, t: &amp;&#39;a str) -&gt; &amp;&#39;a str; // 输出引用的有效范围不能大于 t或s 的有效范围
-fn overlap(s: &amp;str, t: &amp;str) -&gt; &amp;&#39;static str; // 输出引用的有效范围 **可以** 大于输入的s或者t
-fn overlap&lt;&#39;a&gt;(s: &amp;str, t: &amp;str) -&gt; &amp;&#39;a str; // 输出引用的生命周期和输入引用没有关系
-
-// 展开
-fn overlap&lt;&#39;a, &#39;b&gt;(s: &amp;&#39;a str, t: &amp;&#39;b str) -&gt; &amp;&#39;a str;
-fn overlap&lt;&#39;a, &#39;b&gt;(s: &amp;&#39;a str, t: &amp;&#39;b str) -&gt; &amp;&#39;b str;
-fn overlap&lt;&#39;a&gt;(s: &amp;&#39;a str, t: &amp;&#39;a str) -&gt; &amp;&#39;a str;
-fn overlap&lt;&#39;a, &#39;b&gt;(s: &amp;&#39;a str, t: &amp;&#39;b str) -&gt; &amp;&#39;static str;
-fn overlap&lt;&#39;a, &#39;b, &#39;c&gt;(s: &amp;&#39;a str, t: &amp;&#39;b str) -&gt; &amp;&#39;c str;
-
-// 省略
-fn compare(&amp;self, s: &amp;str) -&gt; &amp;str;
-
-// 展开
-fn compare&lt;&#39;a, &#39;b&gt;(&amp;&#39;a self, &amp;&#39;b str) -&gt; &amp;&#39;a str;
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// 省略</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">print</span></span>(s: &amp;<span class="hljs-built_in">str</span>);<br><br><span class="hljs-comment">// 展开</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">print</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>);<br><br><span class="hljs-comment">// 省略</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">trim</span></span>(s: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-built_in">str</span>;<br><br><span class="hljs-comment">// 展开</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">trim</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>;<br><br><span class="hljs-comment">// 非法，没有输入引用，不能推断输出生命周期</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">get_str</span></span>() -&gt; &amp;<span class="hljs-built_in">str</span>;<br><br><span class="hljs-comment">// 显式地修复包括：</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">get_str</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;() -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>; <span class="hljs-comment">// 泛型</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">get_str</span></span>() -&gt; &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>; <span class="hljs-comment">// &#x27;static</span><br><br><span class="hljs-comment">// 非法，有多个输入引用，不能推断输出生命周期</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>(s: &amp;<span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-built_in">str</span>;<br><br><span class="hljs-comment">// 显式地修复(部分仍然应用了省略规则)包括：</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>; <span class="hljs-comment">// 输出引用的有效范围不能大于 s 的有效范围</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(s: &amp;<span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>; <span class="hljs-comment">// 输出引用的有效范围不能大于 t 的有效范围</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>; <span class="hljs-comment">// 输出引用的有效范围不能大于 t或s 的有效范围</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>(s: &amp;<span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>; <span class="hljs-comment">// 输出引用的有效范围 **可以** 大于输入的s或者t</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(s: &amp;<span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>; <span class="hljs-comment">// 输出引用的生命周期和输入引用没有关系</span><br><br><span class="hljs-comment">// 展开</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;b</span>&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>;<br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;b</span>&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-built_in">str</span>;<br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>;<br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;b</span>&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>;<br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">overlap</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;b</span>, <span class="hljs-symbol">&#x27;c</span>&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>, t: &amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;c</span> <span class="hljs-built_in">str</span>;<br><br><span class="hljs-comment">// 省略</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">compare</span></span>(&amp;<span class="hljs-keyword">self</span>, s: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-built_in">str</span>;<br><br><span class="hljs-comment">// 展开</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">compare</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;b</span>&gt;(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">self</span>, &amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>;<br></code></pre></div></td></tr></table></figure>
 <p>当你写出：</p>
 <ul>
 <li>为结构体实现的方法</li>
@@ -403,149 +393,27 @@ fn compare&lt;&#39;a, &#39;b&gt;(&amp;&#39;a self, &amp;&#39;b str) -&gt; &amp;&
 <li>Rust比我更了解我程序的语义</li>
 </ul>
 <p>Rust 可能编译出一个语义上错误的代码。比如</p>
-<pre><code class="rust">struct ByteIter&lt;&#39;a&gt; {
-    remainder: &amp;&#39;a [u8]
-}
-
-impl&lt;&#39;a&gt; ByteIter&lt;&#39;a&gt; {
-    fn next(&amp;mut self) -&gt; Option&lt;&amp;u8&gt; {
-        if self.remainder.is_empty() {
-            None
-        } else {
-            let byte = &amp;self.remainder[0];
-            self.remainder = &amp;self.remainder[1..];
-            Some(byte)
-        }
-    }
-}
-
-fn main() {
-    let mut bytes = ByteIter { remainder: b&quot;1&quot; };
-    assert_eq!(Some(&amp;b&#39;1&#39;), bytes.next());
-    assert_eq!(None, bytes.next());
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ByteIter</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    remainder: &amp;<span class="hljs-symbol">&#x27;a</span> [<span class="hljs-built_in">u8</span>]<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; ByteIter&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;&amp;<span class="hljs-built_in">u8</span>&gt; &#123;<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.remainder.is_empty() &#123;<br>            <span class="hljs-literal">None</span><br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">let</span> byte = &amp;<span class="hljs-keyword">self</span>.remainder[<span class="hljs-number">0</span>];<br>            <span class="hljs-keyword">self</span>.remainder = &amp;<span class="hljs-keyword">self</span>.remainder[<span class="hljs-number">1</span>..];<br>            <span class="hljs-literal">Some</span>(byte)<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> bytes = ByteIter &#123; remainder: <span class="hljs-string">b&quot;1&quot;</span> &#125;;<br>    <span class="hljs-built_in">assert_eq!</span>(<span class="hljs-literal">Some</span>(&amp;<span class="hljs-string">b&#x27;1&#x27;</span>), bytes.next());<br>    <span class="hljs-built_in">assert_eq!</span>(<span class="hljs-literal">None</span>, bytes.next());<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>我们实现了一个bytes切片的迭代器，并且成功调用next，看上去一切正常。但是当我们同时持有多个元素，会发生什么呢?</p>
-<pre><code>fn main() {
-    let mut bytes = ByteIter { remainder: b&quot;1123&quot; };
-    let byte_1 = bytes.next();
-    let byte_2 = bytes.next();
-    if byte_1 == byte_2 {
-        // do something
-    }
-}
-</code></pre><p>报错了</p>
-<pre><code class="rust">error[E0499]: cannot borrow `bytes` as mutable more than once at a time
-  --&gt; src/main.rs:20:18
-   |
-19 |     let byte_1 = bytes.next();
-   |                  ----- first mutable borrow occurs here
-20 |     let byte_2 = bytes.next();
-   |                  ^^^^^ second mutable borrow occurs here
-21 |     if byte_1 == byte_2 {
-   |        ------ first borrow later used here
-</code></pre>
+<figure class="highlight zephir"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs zephir"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">let</span> mut bytes = ByteIter &#123; remainder: b<span class="hljs-string">&quot;1123&quot;</span> &#125;;<br>    <span class="hljs-keyword">let</span> byte_1 = bytes.next();<br>    <span class="hljs-keyword">let</span> byte_2 = bytes.next();<br>    <span class="hljs-keyword">if</span> byte_1 == byte_2 &#123;<br>        <span class="hljs-comment">// do something</span><br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>报错了</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust">error[E0499]: cannot borrow `bytes` <span class="hljs-keyword">as</span> mutable more than once at a time<br>  --&gt; src/main.rs:<span class="hljs-number">20</span>:<span class="hljs-number">18</span><br>   |<br><span class="hljs-number">19</span> |     <span class="hljs-keyword">let</span> byte_1 = bytes.next();<br>   |                  ----- first mutable borrow occurs here<br><span class="hljs-number">20</span> |     <span class="hljs-keyword">let</span> byte_2 = bytes.next();<br>   |                  ^^^^^ second mutable borrow occurs here<br><span class="hljs-number">21</span> |     <span class="hljs-keyword">if</span> byte_1 == byte_2 &#123;<br>   |        ------ first borrow later used here<br></code></pre></div></td></tr></table></figure>
 <p>要修复这个错误，我们猜测可以使用Copy，每次迭代都复制u8。这当然可以，但是如果我们扩展<code>ByteIter</code>，变为一个泛型的迭代器，工作在<code>&amp;[T]</code>序列上，数据<code>T</code>的复制可能是一个复杂甚至不可实现的操作，那怎么办呢？好吧，那好像没有什么可以做的了，毕竟代码已经正确编译了，生命周期也没有改进的余地了，对吧？</p>
 <p>并不是，其实当前的生命周期标注正是bug的罪魁祸首。而标记的省略，又让这个bug很难被发现。我们先将被省略的标记补充回来，更清楚地观察这个问题：</p>
-<pre><code class="rust">struct ByteIter&lt;&#39;a&gt; {
-    remainder: &amp;&#39;a [u8]
-}
-
-impl&lt;&#39;a&gt; ByteIter&lt;&#39;a&gt; {
-    fn next&lt;&#39;b&gt;(&amp;&#39;b mut self) -&gt; Option&lt;&amp;&#39;b u8&gt; {
-        if self.remainder.is_empty() {
-            None
-        } else {
-            let byte = &amp;self.remainder[0];
-            self.remainder = &amp;self.remainder[1..];
-            Some(byte)
-        }
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ByteIter</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    remainder: &amp;<span class="hljs-symbol">&#x27;a</span> [<span class="hljs-built_in">u8</span>]<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; ByteIter&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>&lt;<span class="hljs-symbol">&#x27;b</span>&gt;(&amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;&amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-built_in">u8</span>&gt; &#123;<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.remainder.is_empty() &#123;<br>            <span class="hljs-literal">None</span><br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">let</span> byte = &amp;<span class="hljs-keyword">self</span>.remainder[<span class="hljs-number">0</span>];<br>            <span class="hljs-keyword">self</span>.remainder = &amp;<span class="hljs-keyword">self</span>.remainder[<span class="hljs-number">1</span>..];<br>            <span class="hljs-literal">Some</span>(byte)<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>好像没什么帮助，仍然让人困惑。Rust专家们有一个建议：给生命周期参数取描述性的名字。我们试试看：</p>
-<pre><code class="rust">struct ByteIter&lt;&#39;remainder&gt; {
-    remainder: &amp;&#39;remainder [u8]
-}
-
-impl&lt;&#39;remainder&gt; ByteIter&lt;&#39;remainder&gt; {
-    fn next&lt;&#39;mut_self&gt;(&amp;&#39;mut_self mut self) -&gt; Option&lt;&amp;&#39;mut_self u8&gt; {
-        if self.remainder.is_empty() {
-            None
-        } else {
-            let byte = &amp;self.remainder[0];
-            self.remainder = &amp;self.remainder[1..];
-            Some(byte)
-        }
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ByteIter</span></span>&lt;<span class="hljs-symbol">&#x27;remainder</span>&gt; &#123;<br>    remainder: &amp;<span class="hljs-symbol">&#x27;remainder</span> [<span class="hljs-built_in">u8</span>]<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;remainder</span>&gt; ByteIter&lt;<span class="hljs-symbol">&#x27;remainder</span>&gt; &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>&lt;<span class="hljs-symbol">&#x27;mut_self</span>&gt;(&amp;<span class="hljs-symbol">&#x27;mut_self</span> <span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;&amp;<span class="hljs-symbol">&#x27;mut_self</span> <span class="hljs-built_in">u8</span>&gt; &#123;<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.remainder.is_empty() &#123;<br>            <span class="hljs-literal">None</span><br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">let</span> byte = &amp;<span class="hljs-keyword">self</span>.remainder[<span class="hljs-number">0</span>];<br>            <span class="hljs-keyword">self</span>.remainder = &amp;<span class="hljs-keyword">self</span>.remainder[<span class="hljs-number">1</span>..];<br>            <span class="hljs-literal">Some</span>(byte)<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>这样我们能理解了，每个返回的byte引用都是<code>&#39;mut_self</code>标记，但是显然它应该来自于<code>&#39;remainder</code>！让我们修复这一点：</p>
-<pre><code class="rust">struct ByteIter&lt;&#39;remainder&gt; {
-    remainder: &amp;&#39;remainder [u8]
-}
-
-impl&lt;&#39;remainder&gt; ByteIter&lt;&#39;remainder&gt; {
-    fn next(&amp;mut self) -&gt; Option&lt;&amp;&#39;remainder u8&gt; {
-        if self.remainder.is_empty() {
-            None
-        } else {
-            let byte = &amp;self.remainder[0];
-            self.remainder = &amp;self.remainder[1..];
-            Some(byte)
-        }
-    }
-}
-
-fn main() {
-    let mut bytes = ByteIter { remainder: b&quot;1123&quot; };
-    let byte_1 = bytes.next();
-    let byte_2 = bytes.next();
-    std::mem::drop(bytes); // 我们甚至可以迭代器释放掉
-    if byte_1 == byte_2 { // 编译通过，我们可以同时持有多个迭代元素
-        // do something
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ByteIter</span></span>&lt;<span class="hljs-symbol">&#x27;remainder</span>&gt; &#123;<br>    remainder: &amp;<span class="hljs-symbol">&#x27;remainder</span> [<span class="hljs-built_in">u8</span>]<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;remainder</span>&gt; ByteIter&lt;<span class="hljs-symbol">&#x27;remainder</span>&gt; &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;&amp;<span class="hljs-symbol">&#x27;remainder</span> <span class="hljs-built_in">u8</span>&gt; &#123;<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.remainder.is_empty() &#123;<br>            <span class="hljs-literal">None</span><br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">let</span> byte = &amp;<span class="hljs-keyword">self</span>.remainder[<span class="hljs-number">0</span>];<br>            <span class="hljs-keyword">self</span>.remainder = &amp;<span class="hljs-keyword">self</span>.remainder[<span class="hljs-number">1</span>..];<br>            <span class="hljs-literal">Some</span>(byte)<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> bytes = ByteIter &#123; remainder: <span class="hljs-string">b&quot;1123&quot;</span> &#125;;<br>    <span class="hljs-keyword">let</span> byte_1 = bytes.next();<br>    <span class="hljs-keyword">let</span> byte_2 = bytes.next();<br>    std::mem::<span class="hljs-built_in">drop</span>(bytes); <span class="hljs-comment">// 我们甚至可以迭代器释放掉</span><br>    <span class="hljs-keyword">if</span> byte_1 == byte_2 &#123; <span class="hljs-comment">// 编译通过，我们可以同时持有多个迭代元素</span><br>        <span class="hljs-comment">// do something</span><br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>现在让我们回看有错误的版本，为什么编译通过了？答案很简单：它内存安全。</p>
 <p>Rust借用检查器对生命周期标记的使用，仅停留在静态验证内存安全性，语义层面不关心，即使有错误，只要内存安全就可以编译。比如上面例子中，语义上迭代器需要支持多个迭代引用同时存活，但是只支持一个存活也是内存安全的，所以编译通过，代价是程序变得过分严格，没必要。</p>
 <blockquote>
 <p>修改后可以满足语义，借助的是编译器可以从结构体的字段中自动split出引用 —— rustonomicon。</p>
 </blockquote>
 <p>这里还有一个反面的例子：生命周期的省略正好在语义上正确，我们显示标注的生命周期反而产生了一个“过分严格”的方法。</p>
-<pre><code class="rust">#[derive(Debug)]
-struct NumRef&lt;&#39;a&gt;(&amp;&#39;a i32);
-
-impl&lt;&#39;a&gt; NumRef&lt;&#39;a&gt; {
-    // NumRef是建立在&#39;a上的泛型，所以需要把self标记为’a，对吗？
-    // (答案: 不, 这样不对)
-    fn some_method(&amp;&#39;a mut self) {}
-}
-
-fn main() {
-    let mut num_ref = NumRef(&amp;5);
-    num_ref.some_method();     // 可变借用num_ref，直到结构体的生命周期结束
-    num_ref.some_method();     // 编译错误
-    println!(&quot;{:?}&quot;, num_ref); // 编译错误
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-meta">#[derive(Debug)]</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">NumRef</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span>);<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; NumRef&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    <span class="hljs-comment">// NumRef是建立在&#x27;a上的泛型，所以需要把self标记为’a，对吗？</span><br>    <span class="hljs-comment">// (答案: 不, 这样不对)</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">some_method</span></span>(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> num_ref = NumRef(&amp;<span class="hljs-number">5</span>);<br>    num_ref.some_method();     <span class="hljs-comment">// 可变借用num_ref，直到结构体的生命周期结束</span><br>    num_ref.some_method();     <span class="hljs-comment">// 编译错误</span><br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;:?&#125;&quot;</span>, num_ref); <span class="hljs-comment">// 编译错误</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>如果我们有一个建立在<code>&#39;a</code>上的泛型结构体，我们几乎不会为<code>&amp;&#39;a mut self</code>这个<code>方法接收者</code>编写方法。这样表示告诉Rust，”这个方法需要可变借用该结构体，并且保持有效，直到结构体销毁“。在上面的实际情况中，Rust的借用检查器只会允许对<code>some_method</code>进行一次调用，之后结构体就被永久可变借用，几乎陷入不可使用的状态。当然这个情况非常罕见，但是迷糊的初学者还是容易写出。修复方法就是不要加额外的标记，让省略规则处理它。</p>
-<pre><code class="rust">#[derive(Debug)]
-struct NumRef&lt;&#39;a&gt;(&amp;&#39;a i32);
-
-impl&lt;&#39;a&gt; NumRef&lt;&#39;a&gt; {
-    // 不再添加&#39;a
-    // 拓展为 fn some_method_desugared&lt;&#39;b&gt;(&amp;&#39;b mut self){}
-    fn some_method(&amp;mut self) {}
-}
-
-fn main() {
-    let mut num_ref = NumRef(&amp;5);
-    num_ref.some_method();
-    num_ref.some_method();     // compiles
-    println!(&quot;{:?}&quot;, num_ref); // compiles
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-meta">#[derive(Debug)]</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">NumRef</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span>);<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; NumRef&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    <span class="hljs-comment">// 不再添加&#x27;a</span><br>    <span class="hljs-comment">// 拓展为 fn some_method_desugared&lt;&#x27;b&gt;(&amp;&#x27;b mut self)&#123;&#125;</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">some_method</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> num_ref = NumRef(&amp;<span class="hljs-number">5</span>);<br>    num_ref.some_method();<br>    num_ref.some_method();     <span class="hljs-comment">// compiles</span><br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;:?&#125;&quot;</span>, num_ref); <span class="hljs-comment">// compiles</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <blockquote>
 <p>因为使用了省略规则，some_method使用全新的生命周期参数，调用前新建一个作用域，泛型’b单态化到这个新建的作用域，调用结束后退出作用域，归还可变借用。</p>
 </blockquote>
@@ -557,9 +425,9 @@ fn main() {
 </ul>
 <h3 id="6-Box托管的trait-object没有生命周期"><a href="#6-Box托管的trait-object没有生命周期" class="headerlink" title="6) Box托管的trait object没有生命周期"></a>6) <code>Box</code>托管的<code>trait object</code>没有生命周期</h3><blockquote>
 <p>额外参考</p>
-<p><a href="https://doc.rust-lang.org/reference/types/trait-object.html" target="_blank" rel="noopener">Trait object types - The Rust Reference (rust-lang.org)</a></p>
-<p><a href="https://doc.rust-lang.org/reference/lifetime-elision.html#default-trait-object-lifetimes" target="_blank" rel="noopener">Lifetime elision - The Rust Reference (rust-lang.org)</a></p>
-<p><a href="https://doc.rust-lang.org/std/raw/struct.TraitObject.html" target="_blank" rel="noopener">std::raw::TraitObject</a> 本身是两个裸指针，其中有指向数据的引用，该引用的有效范围自然也就确定着 trait object 的生命周期。其他包含引用的结构体都会显式声明生命周期，比如<code>ByteIter&lt;&#39;a&gt;</code>，但是<code>dyn SomeTrait</code>不方便采用类似的声明格式，于是加了另一种语法<code>dyn SomeTrait + &#39;a</code>来表示 <code>struct TraitObject</code> 所绑定的生命周期。而大部分情况下，这种语法的生命周期都是自动推断的，这也是本节讨论的内容。</p>
+<p><a target="_blank" rel="noopener" href="https://doc.rust-lang.org/reference/types/trait-object.html">Trait object types - The Rust Reference (rust-lang.org)</a></p>
+<p><a target="_blank" rel="noopener" href="https://doc.rust-lang.org/reference/lifetime-elision.html#default-trait-object-lifetimes">Lifetime elision - The Rust Reference (rust-lang.org)</a></p>
+<p><a target="_blank" rel="noopener" href="https://doc.rust-lang.org/std/raw/struct.TraitObject.html">std::raw::TraitObject</a> 本身是两个裸指针，其中有指向数据的引用，该引用的有效范围自然也就确定着 trait object 的生命周期。其他包含引用的结构体都会显式声明生命周期，比如<code>ByteIter&lt;&#39;a&gt;</code>，但是<code>dyn SomeTrait</code>不方便采用类似的声明格式，于是加了另一种语法<code>dyn SomeTrait + &#39;a</code>来表示 <code>struct TraitObject</code> 所绑定的生命周期。而大部分情况下，这种语法的生命周期都是自动推断的，这也是本节讨论的内容。</p>
 </blockquote>
 <p>早前我们讨论了<strong>对函数</strong>的生命周期省略规则。Rust 对 <strong>trait object</strong> 也有相应的生命周期省略规则：</p>
 <ul>
@@ -576,112 +444,18 @@ fn main() {
 </li>
 </ul>
 <p>这些规则听起来超级复杂，但是可以简单地总结为：<strong>一个 trait object 的生命周期绑定可由从上下文推断</strong>。通过一些例子，我们可以看到这种推断非常符合直觉，所以不必记忆上述规则。</p>
-<pre><code class="rust">use std::cell::Ref;
-
-trait Trait {}
-
-// 省略
-type T1 = Box&lt;dyn Trait&gt;;
-// 展开， Box&lt;T&gt; 中的 T 没有任何生命周期绑定，所以推断为 &#39;static
-type T2 = Box&lt;dyn Trait + &#39;static&gt;;
-
-// 省略
-impl dyn Trait {}
-// 展开
-impl dyn Trait + &#39;static {}
-
-// 省略
-type T3&lt;&#39;a&gt; = &amp;&#39;a dyn Trait;
-// 展开, &amp;&#39;a T 要求 T: &#39;a, 所以推断为 &#39;a
-type T4&lt;&#39;a&gt; = &amp;&#39;a (dyn Trait + &#39;a);
-
-// 省略
-type T5&lt;&#39;a&gt; = Ref&lt;&#39;a, dyn Trait&gt;;
-// 展开, Ref&lt;&#39;a, T&gt; 要求 T: &#39;a (Ref内部字段为&amp;&#39;a dyn Trait), 所以推断为 &#39;a
-type T6&lt;&#39;a&gt; = Ref&lt;&#39;a, dyn Trait + &#39;a&gt;;
-
-// 补充来自官方文档的例子
-struct TwoBounds&lt;&#39;a, &#39;b, T: ?Sized + &#39;a + &#39;b&gt; {
-    f1: &amp;&#39;a i32,
-    f2: &amp;&#39;b i32,
-    f3: T,
-}
-type T7&lt;&#39;a, &#39;b&gt; = TwoBounds&lt;&#39;a, &#39;b, dyn Foo&gt;;
-//                                  ^^^^^^^
-// 错误: 这个trait object的生命周期绑定无法从上下文推断
-
-trait GenericTrait&lt;&#39;a&gt;: &#39;a {}
-
-// 省略
-type T8&lt;&#39;a&gt; = Box&lt;dyn GenericTrait&lt;&#39;a&gt;&gt;;
-// 展开
-type &lt;&#39;a&gt; = Box&lt;dyn GenericTrait&lt;&#39;a&gt; + &#39;a&gt;;
-
-// 省略
-impl&lt;&#39;a&gt; dyn GenericTrait&lt;&#39;a&gt; {}
-// 展开
-impl&lt;&#39;a&gt; dyn GenericTrait&lt;&#39;a&gt; + &#39;a {}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::cell::Ref;<br><br><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Trait</span></span> &#123;&#125;<br><br><span class="hljs-comment">// 省略</span><br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">T1</span></span> = <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Trait&gt;;<br><span class="hljs-comment">// 展开， Box&lt;T&gt; 中的 T 没有任何生命周期绑定，所以推断为 &#x27;static</span><br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">T2</span></span> = <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Trait + <span class="hljs-symbol">&#x27;static</span>&gt;;<br><br><span class="hljs-comment">// 省略</span><br><span class="hljs-keyword">impl</span> <span class="hljs-keyword">dyn</span> Trait &#123;&#125;<br><span class="hljs-comment">// 展开</span><br><span class="hljs-keyword">impl</span> <span class="hljs-keyword">dyn</span> Trait + <span class="hljs-symbol">&#x27;static</span> &#123;&#125;<br><br><span class="hljs-comment">// 省略</span><br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">T3</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; = &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">dyn</span> Trait;<br><span class="hljs-comment">// 展开, &amp;&#x27;a T 要求 T: &#x27;a, 所以推断为 &#x27;a</span><br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">T4</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; = &amp;<span class="hljs-symbol">&#x27;a</span> (<span class="hljs-keyword">dyn</span> Trait + <span class="hljs-symbol">&#x27;a</span>);<br><br><span class="hljs-comment">// 省略</span><br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">T5</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; = Ref&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-keyword">dyn</span> Trait&gt;;<br><span class="hljs-comment">// 展开, Ref&lt;&#x27;a, T&gt; 要求 T: &#x27;a (Ref内部字段为&amp;&#x27;a dyn Trait), 所以推断为 &#x27;a</span><br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">T6</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; = Ref&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-keyword">dyn</span> Trait + <span class="hljs-symbol">&#x27;a</span>&gt;;<br><br><span class="hljs-comment">// 补充来自官方文档的例子</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">TwoBounds</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;b</span>, T: ?<span class="hljs-built_in">Sized</span> + <span class="hljs-symbol">&#x27;a</span> + <span class="hljs-symbol">&#x27;b</span>&gt; &#123;<br>    f1: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span>,<br>    f2: &amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-built_in">i32</span>,<br>    f3: T,<br>&#125;<br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">T7</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;b</span>&gt; = TwoBounds&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;b</span>, <span class="hljs-keyword">dyn</span> Foo&gt;;<br><span class="hljs-comment">//                                  ^^^^^^^</span><br><span class="hljs-comment">// 错误: 这个trait object的生命周期绑定无法从上下文推断</span><br><br><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">GenericTrait</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;: <span class="hljs-symbol">&#x27;a</span> &#123;&#125;<br><br><span class="hljs-comment">// 省略</span><br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">T8</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; = <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> GenericTrait&lt;<span class="hljs-symbol">&#x27;a</span>&gt;&gt;;<br><span class="hljs-comment">// 展开</span><br>type &lt;&#x27;a&gt; = Box&lt;dyn GenericTrait&lt;&#x27;a&gt; + &#x27;a&gt;;<br><br><span class="hljs-comment">// 省略</span><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; <span class="hljs-keyword">dyn</span> GenericTrait&lt;<span class="hljs-symbol">&#x27;a</span>&gt; &#123;&#125;<br><span class="hljs-comment">// 展开</span><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; <span class="hljs-keyword">dyn</span> GenericTrait&lt;<span class="hljs-symbol">&#x27;a</span>&gt; + <span class="hljs-symbol">&#x27;a</span> &#123;&#125;<br></code></pre></div></td></tr></table></figure>
 <p>实现 traits 的具体类型能够持有引用，因此类型本身拥有生命周期绑定，自然它的 trait object 也有对应的生命周期绑定。(即使实现 trait 的类型没有引用)，还可以专门为引用类型实现 trait，这样 trait object 拥有生命周期绑定就显而易见了。</p>
 <blockquote>
 <p>这里显然在解释为什么Box托管的trait object也有生命周期绑定，为什么不放在开头呢？然后再解释如何推断这些生命周期不是更自然，更容易理解吗？后面一段又说了spawn的例子，又是建立在默认推断 <code>’static</code> 的知识上。啊这……这一段的行文我觉得有问题。</p>
 </blockquote>
-<pre><code class="rust">trait Trait {}
-
-struct Struct {}
-struct Ref&lt;&#39;a, T&gt;(&amp;&#39;a T);
-
-impl Trait for Struct {}
-impl Trait for &amp;Struct {} // 直接对引用类型实现 Trait
-// 显然，使用&amp;Struct来制作Box托管的trait object，比如`Box::new(&amp;&#39;a Struct{}) as Box&lt;dyn Trait&gt;`
-// 其类型实际是`Box&lt;dyn Trait + &#39;a&gt;`，不能用到期待Box&lt;dyn Trait + &#39;static&gt;的地方
-impl&lt;&#39;a, T&gt; Trait for Ref&lt;&#39;a, T&gt; {} // 对包含引用类型的结构实现 Trait
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Trait</span></span> &#123;&#125;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Struct</span></span> &#123;&#125;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Ref</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, T&gt;(&amp;<span class="hljs-symbol">&#x27;a</span> T);<br><br><span class="hljs-keyword">impl</span> Trait <span class="hljs-keyword">for</span> Struct &#123;&#125;<br><span class="hljs-keyword">impl</span> Trait <span class="hljs-keyword">for</span> &amp;Struct &#123;&#125; <span class="hljs-comment">// 直接对引用类型实现 Trait</span><br><span class="hljs-comment">// 显然，使用&amp;Struct来制作Box托管的trait object，比如`Box::new(&amp;&#x27;a Struct&#123;&#125;) as Box&lt;dyn Trait&gt;`</span><br><span class="hljs-comment">// 其类型实际是`Box&lt;dyn Trait + &#x27;a&gt;`，不能用到期待Box&lt;dyn Trait + &#x27;static&gt;的地方</span><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>, T&gt; Trait <span class="hljs-keyword">for</span> Ref&lt;<span class="hljs-symbol">&#x27;a</span>, T&gt; &#123;&#125; <span class="hljs-comment">// 对包含引用类型的结构实现 Trait</span><br></code></pre></div></td></tr></table></figure>
 <p>(虽然这些规则很繁复、多数时候省略都OK，但是)，无论怎样，审视这些规则是值得的，因为在某些场合，新手会被这个问题导致的奇怪错误搞迷糊，比如当他们把函数中的 trait object 重构为 泛型，后者反过来，将 泛型 重构为 trait object，比如下面这个例子</p>
-<pre><code class="rust">use std::fmt::Display;
-
-fn dynamic_thread_print(t: Box&lt;dyn Display + Send&gt;) {
-    std::thread::spawn(move || {
-        println!(&quot;{}&quot;, t);
-    }).join();
-}
-
-fn static_thread_print&lt;T: Display + Send&gt;(t: T) {
-    std::thread::spawn(move || {
-        println!(&quot;{}&quot;, t);
-    }).join();
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::fmt::Display;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">dynamic_thread_print</span></span>(t: <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Display + <span class="hljs-built_in">Send</span>&gt;) &#123;<br>    std::thread::spawn(<span class="hljs-keyword">move</span> || &#123;<br>        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;&#125;&quot;</span>, t);<br>    &#125;).join();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">static_thread_print</span></span>&lt;T: Display + <span class="hljs-built_in">Send</span>&gt;(t: T) &#123;<br>    std::thread::spawn(<span class="hljs-keyword">move</span> || &#123;<br>        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;&#125;&quot;</span>, t);<br>    &#125;).join();<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>报错为：</p>
-<pre><code class="rust">error[E0310]: the parameter type `T` may not live long enough
-  --&gt; src/lib.rs:10:5
-   |
-9  | fn static_thread_print&lt;T: Display + Send&gt;(t: T) {
-   |                        -- help: consider adding an explicit lifetime bound...: `T: &#39;static +`
-10 |     std::thread::spawn(move || {
-   |     ^^^^^^^^^^^^^^^^^^
-   |
-note: ...so that the type `[closure@src/lib.rs:10:24: 12:6 t:T]` will meet its required lifetime bounds
-  --&gt; src/lib.rs:10:5
-   |
-10 |     std::thread::spawn(move || {
-   |     ^^^^^^^^^^^^^^^^^^
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust">error[E0310]: the parameter type `T` may not live long enough<br>  --&gt; src/lib.rs:<span class="hljs-number">10</span>:<span class="hljs-number">5</span><br>   |<br><span class="hljs-number">9</span>  | <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">static_thread_print</span></span>&lt;T: Display + <span class="hljs-built_in">Send</span>&gt;(t: T) &#123;<br>   |                        -- help: consider adding an explicit lifetime bound...: `T: <span class="hljs-symbol">&#x27;static</span> +`<br><span class="hljs-number">10</span> |     std::thread::spawn(<span class="hljs-keyword">move</span> || &#123;<br>   |     ^^^^^^^^^^^^^^^^^^<br>   |<br>note: ...so that the type `[closure@src/lib.rs:10:24: 12:6 t:T]` will meet its required lifetime bounds<br>  --&gt; src/lib.rs:<span class="hljs-number">10</span>:<span class="hljs-number">5</span><br>   |<br><span class="hljs-number">10</span> |     std::thread::spawn(<span class="hljs-keyword">move</span> || &#123;<br>   |     ^^^^^^^^^^^^^^^^^^<br></code></pre></div></td></tr></table></figure>
 <p>编译器已经告诉我们如修改，那就：</p>
-<pre><code class="rust">use std::fmt::Display;
-
-fn dynamic_thread_print(t: Box&lt;dyn Display + Send&gt;) {
-    std::thread::spawn(move || {
-        println!(&quot;{}&quot;, t);
-    }).join();
-}
-
-fn static_thread_print&lt;T: Display + Send + &#39;static&gt;(t: T) {
-    std::thread::spawn(move || {
-        println!(&quot;{}&quot;, t);
-    }).join();
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::fmt::Display;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">dynamic_thread_print</span></span>(t: <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Display + <span class="hljs-built_in">Send</span>&gt;) &#123;<br>    std::thread::spawn(<span class="hljs-keyword">move</span> || &#123;<br>        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;&#125;&quot;</span>, t);<br>    &#125;).join();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">static_thread_print</span></span>&lt;T: Display + <span class="hljs-built_in">Send</span> + <span class="hljs-symbol">&#x27;static</span>&gt;(t: T) &#123;<br>    std::thread::spawn(<span class="hljs-keyword">move</span> || &#123;<br>        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;&#125;&quot;</span>, t);<br>    &#125;).join();<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>编译成功，但是这两个函数有些奇怪，为什么第二个需要<code>&#39;static</code>绑定，而第一个不需要？这就是因为 trait object 的生命周期默认推断，编译器实际上看到的第一个函数有<code>’static</code>绑定。</p>
 <h4 id="关键点：-3"><a href="#关键点：-3" class="headerlink" title="关键点："></a>关键点：</h4><ul>
 <li>所有的 trait objects 都有一些默认推断的生命周期绑定</li>
@@ -692,63 +466,19 @@ fn static_thread_print&lt;T: Display + Send + &#39;static&gt;(t: T) {
 <li>Rust比我更了解我程序的语义</li>
 </ul>
 <p>该误解是前两个误解的结合，这是例子：</p>
-<pre><code class="rust">use std::fmt::Display;
-
-fn box_displayable&lt;T: Display&gt;(t: T) -&gt; Box&lt;dyn Display&gt; {
-    Box::new(t)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::fmt::Display;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">box_displayable</span></span>&lt;T: Display&gt;(t: T) -&gt; <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Display&gt; &#123;<br>    <span class="hljs-built_in">Box</span>::new(t)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>抛出如下错误：</p>
-<pre><code class="rust">error[E0310]: the parameter type `T` may not live long enough
- --&gt; src/lib.rs:4:5
-  |
-3 | fn box_displayable&lt;T: Display&gt;(t: T) -&gt; Box&lt;dyn Display&gt; {
-  |                    -- help: consider adding an explicit lifetime bound...: `T: &#39;static +`
-4 |     Box::new(t)
-  |     ^^^^^^^^^^^
-  |
-note: ...so that the type `T` will meet its required lifetime bounds
- --&gt; src/lib.rs:4:5
-  |
-4 |     Box::new(t)
-  |     ^^^^^^^^^^^
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust">error[E0310]: the parameter type `T` may not live long enough<br> --&gt; src/lib.rs:<span class="hljs-number">4</span>:<span class="hljs-number">5</span><br>  |<br><span class="hljs-number">3</span> | <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">box_displayable</span></span>&lt;T: Display&gt;(t: T) -&gt; <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Display&gt; &#123;<br>  |                    -- help: consider adding an explicit lifetime bound...: `T: <span class="hljs-symbol">&#x27;static</span> +`<br><span class="hljs-number">4</span> |     <span class="hljs-built_in">Box</span>::new(t)<br>  |     ^^^^^^^^^^^<br>  |<br>note: ...so that the type `T` will meet its required lifetime bounds<br> --&gt; src/lib.rs:<span class="hljs-number">4</span>:<span class="hljs-number">5</span><br>  |<br><span class="hljs-number">4</span> |     <span class="hljs-built_in">Box</span>::new(t)<br>  |     ^^^^^^^^^^^<br></code></pre></div></td></tr></table></figure>
 <p>这个推荐的修复信息，依据的是Box为 trait object 自动推断出的<code>&#39;static</code>生命周期绑定，但不管怎样，我们先试着按照它的说的修改。</p>
-<pre><code class="rust">use std::fmt::Display;
-
-fn box_displayable&lt;T: Display + &#39;static&gt;(t: T) -&gt; Box&lt;dyn Display&gt; {
-    Box::new(t)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::fmt::Display;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">box_displayable</span></span>&lt;T: Display + <span class="hljs-symbol">&#x27;static</span>&gt;(t: T) -&gt; <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Display&gt; &#123;<br>    <span class="hljs-built_in">Box</span>::new(t)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>因此程序通过了编译……但这是我们希望的吗？大概是，也可能有问题。虽然编译期没有提及，但是这样修改可能更合适：</p>
-<pre><code class="rust">use std::fmt::Display;
-
-fn box_displayable&lt;&#39;a, T: Display + &#39;a&gt;(t: T) -&gt; Box&lt;dyn Display + &#39;a&gt; {
-    Box::new(t)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::fmt::Display;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">box_displayable</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, T: Display + <span class="hljs-symbol">&#x27;a</span>&gt;(t: T) -&gt; <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Display + <span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    <span class="hljs-built_in">Box</span>::new(t)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>这个函数可以接受的参数兼容上一个版本，并且还支持更多。情况更好了吗？也不一定，取决于我们程序本身的要求和约束。这个例子可能有点抽象，所以我们再看一个更简单的、更明显的例子：</p>
-<pre><code class="rust">fn return_first(a: &amp;str, b: &amp;str) -&gt; &amp;str {
-    a
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">return_first</span></span>(a: &amp;<span class="hljs-built_in">str</span>, b: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-built_in">str</span> &#123;<br>    a<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>报错</p>
-<pre><code class="rust">error[E0106]: missing lifetime specifier
- --&gt; src/lib.rs:1:38
-  |
-1 | fn return_first(a: &amp;str, b: &amp;str) -&gt; &amp;str {
-  |                    ----     ----     ^ expected named lifetime parameter
-  |
-  = help: this function&#39;s return type contains a borrowed value, but the signature does not say whether it is borrowed from `a` or `b`
-help: consider introducing a named lifetime parameter
-  |
-1 | fn return_first&lt;&#39;a&gt;(a: &amp;&#39;a str, b: &amp;&#39;a str) -&gt; &amp;&#39;a str {
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust">error[E0106]: missing lifetime specifier<br> --&gt; src/lib.rs:<span class="hljs-number">1</span>:<span class="hljs-number">38</span><br>  |<br><span class="hljs-number">1</span> | <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">return_first</span></span>(a: &amp;<span class="hljs-built_in">str</span>, b: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-built_in">str</span> &#123;<br>  |                    ----     ----     ^ expected named lifetime parameter<br>  |<br>  = help: this function<span class="hljs-symbol">&#x27;s</span> <span class="hljs-keyword">return</span> <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">contains</span></span> a borrowed value, but the signature does not say whether it is borrowed from `a` or `b`<br>help: consider introducing a named lifetime parameter<br>  |<br><span class="hljs-number">1</span> | <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">return_first</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(a: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>, b: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span> &#123;<br></code></pre></div></td></tr></table></figure>
 <p>错误信息推荐为输入引用和输出引用使用相同的标记。虽然能编译了，但是我们我们的返回值的限制可能过强，也许我们需要的是</p>
-<pre><code class="rust">fn return_first&lt;&#39;a&gt;(a: &amp;&#39;a str, b: &amp;str) -&gt; &amp;&#39;a str {
-    a
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">return_first</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(a: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>, b: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span> &#123;<br>    a<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h4 id="关键点：-4"><a href="#关键点：-4" class="headerlink" title="关键点："></a>关键点：</h4><ul>
 <li>Rust关于 trait objects 的生命周期省略规则并不是对任何情况都适用</li>
 <li>在你程序的语义层面，Rust了解得有限，并不及你</li>
@@ -760,72 +490,15 @@ help: consider introducing a named lifetime parameter
 <li>Rust的借用检查器执行了高级的控制流分析</li>
 </ul>
 <p>这段代码不能编译：</p>
-<pre><code class="rust">struct Has&lt;&#39;lifetime&gt; {
-    lifetime: &amp;&#39;lifetime str,
-}
-
-fn main() {
-    let long = String::from(&quot;long&quot;);
-    let mut has = Has { lifetime: &amp;long };
-    assert_eq!(has.lifetime, &quot;long&quot;);
-
-    {
-        let short = String::from(&quot;short&quot;);
-        // &quot;切换&quot; 到更短的生命周期
-        has.lifetime = &amp;short;
-        assert_eq!(has.lifetime, &quot;short&quot;);
-
-        // &quot;切换回&quot; 长生命周期
-        has.lifetime = &amp;long;
-        assert_eq!(has.lifetime, &quot;long&quot;);
-        // `short` 在这里 dropped
-    }
-
-    // 编译错误，显示 `short` 被drop后仍然被借用
-    assert_eq!(has.lifetime, &quot;long&quot;);
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Has</span></span>&lt;<span class="hljs-symbol">&#x27;lifetime</span>&gt; &#123;<br>    lifetime: &amp;<span class="hljs-symbol">&#x27;lifetime</span> <span class="hljs-built_in">str</span>,<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> long = <span class="hljs-built_in">String</span>::from(<span class="hljs-string">&quot;long&quot;</span>);<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> has = Has &#123; lifetime: &amp;long &#125;;<br>    <span class="hljs-built_in">assert_eq!</span>(has.lifetime, <span class="hljs-string">&quot;long&quot;</span>);<br><br>    &#123;<br>        <span class="hljs-keyword">let</span> short = <span class="hljs-built_in">String</span>::from(<span class="hljs-string">&quot;short&quot;</span>);<br>        <span class="hljs-comment">// &quot;切换&quot; 到更短的生命周期</span><br>        has.lifetime = &amp;short;<br>        <span class="hljs-built_in">assert_eq!</span>(has.lifetime, <span class="hljs-string">&quot;short&quot;</span>);<br><br>        <span class="hljs-comment">// &quot;切换回&quot; 长生命周期</span><br>        has.lifetime = &amp;long;<br>        <span class="hljs-built_in">assert_eq!</span>(has.lifetime, <span class="hljs-string">&quot;long&quot;</span>);<br>        <span class="hljs-comment">// `short` 在这里 dropped</span><br>    &#125;<br><br>    <span class="hljs-comment">// 编译错误，显示 `short` 被drop后仍然被借用</span><br>    <span class="hljs-built_in">assert_eq!</span>(has.lifetime, <span class="hljs-string">&quot;long&quot;</span>);<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>抛出错误</p>
-<pre><code class="rust">error[E0597]: `short` does not live long enough
-  --&gt; src/main.rs:11:24
-   |
-11 |         has.lifetime = &amp;short;
-   |                        ^^^^^^ borrowed value does not live long enough
-...
-15 |     }
-   |     - `short` dropped here while still borrowed
-16 |     assert_eq!(has.lifetime, &quot;long&quot;);
-   |     --------------------------------- borrow later used here
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust">error[E0597]: `short` does not live long enough<br>  --&gt; src/main.rs:<span class="hljs-number">11</span>:<span class="hljs-number">24</span><br>   |<br><span class="hljs-number">11</span> |         has.lifetime = &amp;short;<br>   |                        ^^^^^^ borrowed value does not live long enough<br>...<br><span class="hljs-number">15</span> |     &#125;<br>   |     - `short` dropped here <span class="hljs-keyword">while</span> still borrowed<br><span class="hljs-number">16</span> |     <span class="hljs-built_in">assert_eq!</span>(has.lifetime, <span class="hljs-string">&quot;long&quot;</span>);<br>   |     --------------------------------- borrow later used here<br></code></pre></div></td></tr></table></figure>
 <blockquote>
 <p>这个错误是因为Rust发现了替换动作，并选择了最短的生命周期进行绑定，然后静态分析到最后一句<code>println</code>时，发现引用应该在更大的范围内有效，于是报错。如果删除最后一句话，这段代码可以编译：确定的周期是short，long被缩短后使用。</p>
 </blockquote>
 <p>(尝试使用false，让替换分支在运行时不执行，看Rust编译器是否提前知道，从而避免对生命周期的错误判断）</p>
 <p>下面这段代码也不能通过编译，报告相同的错误</p>
-<pre><code class="rust">struct Has&lt;&#39;lifetime&gt; {
-    lifetime: &amp;&#39;lifetime str,
-}
-
-fn main() {
-    let long = String::from(&quot;long&quot;);
-    let mut has = Has { lifetime: &amp;long };
-    assert_eq!(has.lifetime, &quot;long&quot;);
-
-    // 使用false，指明不执行以下block
-    if false {
-        let short = String::from(&quot;short&quot;);
-        has.lifetime = &amp;short;
-        assert_eq!(has.lifetime, &quot;short&quot;);
-
-        has.lifetime = &amp;long;
-        assert_eq!(has.lifetime, &quot;long&quot;);
-        // `short` 在这里 dropped
-    }
-
-    // 还是编译错误，显示 `short` 被drop后仍然被借用
-    assert_eq!(has.lifetime, &quot;long&quot;);
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Has</span></span>&lt;<span class="hljs-symbol">&#x27;lifetime</span>&gt; &#123;<br>    lifetime: &amp;<span class="hljs-symbol">&#x27;lifetime</span> <span class="hljs-built_in">str</span>,<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> long = <span class="hljs-built_in">String</span>::from(<span class="hljs-string">&quot;long&quot;</span>);<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> has = Has &#123; lifetime: &amp;long &#125;;<br>    <span class="hljs-built_in">assert_eq!</span>(has.lifetime, <span class="hljs-string">&quot;long&quot;</span>);<br><br>    <span class="hljs-comment">// 使用false，指明不执行以下block</span><br>    <span class="hljs-keyword">if</span> <span class="hljs-literal">false</span> &#123;<br>        <span class="hljs-keyword">let</span> short = <span class="hljs-built_in">String</span>::from(<span class="hljs-string">&quot;short&quot;</span>);<br>        has.lifetime = &amp;short;<br>        <span class="hljs-built_in">assert_eq!</span>(has.lifetime, <span class="hljs-string">&quot;short&quot;</span>);<br><br>        has.lifetime = &amp;long;<br>        <span class="hljs-built_in">assert_eq!</span>(has.lifetime, <span class="hljs-string">&quot;long&quot;</span>);<br>        <span class="hljs-comment">// `short` 在这里 dropped</span><br>    &#125;<br><br>    <span class="hljs-comment">// 还是编译错误，显示 `short` 被drop后仍然被借用</span><br>    <span class="hljs-built_in">assert_eq!</span>(has.lifetime, <span class="hljs-string">&quot;long&quot;</span>);<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>由此我们知道，生命周期参数是在编译期就被静态验证的，并且借用检查器的控制流分析很初级，它假定每个<code>if-else</code>的 block 都可能会执行，每个 match 的 arm 都可能会被选中，从而为(未限制执行生命周期的)变量选择一个最短的生命周期绑定。一旦生命周期被绑定，就永远被绑定了。变量的生命周期只有可能缩短(子类型当作父类型使用)，但这种缩短，也是在编译期就被确定的。</p>
 <h4 id="关键点：-5"><a href="#关键点：-5" class="headerlink" title="关键点："></a>关键点：</h4><ul>
 <li>生命周期在编译时被静态验证</li>
@@ -837,119 +510,23 @@ fn main() {
 <li>重新借用一个引用，会结束被借引用的生命周期并产生一个新的引用</li>
 </ul>
 <p>如果函数的一个参数是共享引用，那么你其实可以传递一个可变引用，因为Rust会将可变引用重新借用出一个不可变引用：</p>
-<pre><code class="rust">fn takes_shared_ref(n: &amp;i32) {}
-
-fn main() {
-    let mut a = 10;
-    takes_shared_ref(&amp;mut a); // 通过编译
-    takes_shared_ref(&amp;*(&amp;mut a)); // 将上一行的语法糖去掉后，使用deref重新借出不可变引用
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">takes_shared_ref</span></span>(n: &amp;<span class="hljs-built_in">i32</span>) &#123;&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> a = <span class="hljs-number">10</span>;<br>    takes_shared_ref(&amp;<span class="hljs-keyword">mut</span> a); <span class="hljs-comment">// 通过编译</span><br>    takes_shared_ref(&amp;*(&amp;<span class="hljs-keyword">mut</span> a)); <span class="hljs-comment">// 将上一行的语法糖去掉后，使用deref重新借出不可变引用</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>直觉上这容易理解，因为把一个可变应用重借出一个不可变引用，不会造成什么危害，对吧？答案是否定的，下面这段程序不能编译</p>
-<pre><code class="rust">fn main() {
-    let mut a = 10;
-    let b: &amp;i32 = &amp;*(&amp;mut a); // re-borrowed as immutable
-    let c: &amp;i32 = &amp;a;
-    dbg!(b, c); // compile error
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> a = <span class="hljs-number">10</span>;<br>    <span class="hljs-keyword">let</span> b: &amp;<span class="hljs-built_in">i32</span> = &amp;*(&amp;<span class="hljs-keyword">mut</span> a); <span class="hljs-comment">// re-borrowed as immutable</span><br>    <span class="hljs-keyword">let</span> c: &amp;<span class="hljs-built_in">i32</span> = &amp;a;<br>    dbg!(b, c); <span class="hljs-comment">// compile error</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>抛出错误</p>
-<pre><code class="rust">error[E0502]: cannot borrow `a` as immutable because it is also borrowed as mutable
- --&gt; src/main.rs:4:19
-  |
-3 |     let b: &amp;i32 = &amp;*(&amp;mut a);
-  |                     -------- mutable borrow occurs here
-4 |     let c: &amp;i32 = &amp;a;
-  |                   ^^ immutable borrow occurs here
-5 |     dbg!(b, c);
-  |          - mutable borrow later used here
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust">error[E0502]: cannot borrow `a` <span class="hljs-keyword">as</span> immutable because it is also borrowed <span class="hljs-keyword">as</span> mutable<br> --&gt; src/main.rs:<span class="hljs-number">4</span>:<span class="hljs-number">19</span><br>  |<br><span class="hljs-number">3</span> |     <span class="hljs-keyword">let</span> b: &amp;<span class="hljs-built_in">i32</span> = &amp;*(&amp;<span class="hljs-keyword">mut</span> a);<br>  |                     -------- mutable borrow occurs here<br><span class="hljs-number">4</span> |     <span class="hljs-keyword">let</span> c: &amp;<span class="hljs-built_in">i32</span> = &amp;a;<br>  |                   ^^ immutable borrow occurs here<br><span class="hljs-number">5</span> |     dbg!(b, c);<br>  |          - mutable borrow later used here<br></code></pre></div></td></tr></table></figure>
 <p>这段代码中，(第三行) 我们的确执行了可变借用，但是立马重借出不可变借用(b)，(期望)可变借用自动销毁。但Rust对待重借出的不可变引用(b)时，感觉和原有的可变借用如出一辙(b，c不能同时存活，变相等于可变引用并未销毁)。尽管上例中(即使放开限制，drop掉可变引用)不会出现问题，但是允许将可变引用直接降级为不可变引用（并且销毁(归还)原有的可变引用），确实会造成潜在的内存不安全：</p>
-<pre><code class="rust">use std::sync::Mutex;
-
-struct Struct {
-    mutex: Mutex&lt;String&gt;
-}
-
-impl Struct {
-    // 把 mut self 降级为 shared str
-    fn get_string(&amp;mut self) -&gt; &amp;str {
-        self.mutex.get_mut().unwrap()
-    }
-    fn mutate_string(&amp;self) {
-        // 如果 Rust 允许将 可变引用 直接降级为 不可变引用
-        // 那么下一行代码会使通过`get_string` 方法得到的共享引用失效
-        *self.mutex.lock().unwrap() = &quot;surprise!&quot;.to_owned();
-    }
-}
-
-fn main() {
-    let mut s = Struct {
-        mutex: Mutex::new(&quot;string&quot;.to_owned())
-    };
-    let str_ref = s.get_string(); // 可变引用 直接降级为 不可变引用
-    s.mutate_string(); // str_ref 失效, 成为悬空指针
-    dbg!(str_ref); // 编译失败
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::sync::Mutex;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Struct</span></span> &#123;<br>    mutex: Mutex&lt;<span class="hljs-built_in">String</span>&gt;<br>&#125;<br><br><span class="hljs-keyword">impl</span> Struct &#123;<br>    <span class="hljs-comment">// 把 mut self 降级为 shared str</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">get_string</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; &amp;<span class="hljs-built_in">str</span> &#123;<br>        <span class="hljs-keyword">self</span>.mutex.get_mut().unwrap()<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">mutate_string</span></span>(&amp;<span class="hljs-keyword">self</span>) &#123;<br>        <span class="hljs-comment">// 如果 Rust 允许将 可变引用 直接降级为 不可变引用</span><br>        <span class="hljs-comment">// 那么下一行代码会使通过`get_string` 方法得到的共享引用失效</span><br>        *<span class="hljs-keyword">self</span>.mutex.lock().unwrap() = <span class="hljs-string">&quot;surprise!&quot;</span>.to_owned();<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> s = Struct &#123;<br>        mutex: Mutex::new(<span class="hljs-string">&quot;string&quot;</span>.to_owned())<br>    &#125;;<br>    <span class="hljs-keyword">let</span> str_ref = s.get_string(); <span class="hljs-comment">// 可变引用 直接降级为 不可变引用</span><br>    s.mutate_string(); <span class="hljs-comment">// str_ref 失效, 成为悬空指针</span><br>    dbg!(str_ref); <span class="hljs-comment">// 编译失败</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>这个例子的重点是，当你向可变引用 mut self 重借出共享引用时，你会陷入一个反直觉的陷阱：这个动作实际拓展了 mut self 的生命周期，和被借出的共享应用一样长（编译时确定作用域和生命周期参数），即使 可变借用 本身已经被drop</p>
 <blockquote>
 <p>我一直不是很理解这里的”即使被drop“，既然编译器都已经给可变引用<code>mut self</code>和重借出引用<code>&amp;str</code>附上了相同的生命周期参数，那显然<code>mut self</code>就没有释放啊，作者的思维还是停留在上一个例子里？）</p>
 </blockquote>
 <p>使用重借出引用很麻烦(反直觉)，它本身虽然是不可变的，但是却不能和其他不可变引用同时存活。重借出引用有 可变引用 和 不可变引用 的缺点，却没有他们的优点。我认为“向可变引用重借出不可变引用”这一行为，在Rust中属于反模式的行为。对这种反模式保持警惕很重要，当你看到下面这样的代码时，可以轻松地识别到它。</p>
-<pre><code class="rust">// 降级了，要小心!
-fn some_function&lt;T&gt;(some_arg: &amp;mut T) -&gt; &amp;T;
-
-struct Struct;
-
-impl Struct {
-    // 降级了，要小心!
-    fn some_method(&amp;mut self) -&gt; &amp;self;
-
-    // 降级了，要小心!
-    fn other_method(&amp;mut self) -&gt; &amp;T;
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// 降级了，要小心!</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">some_function</span></span>&lt;T&gt;(some_arg: &amp;<span class="hljs-keyword">mut</span> T) -&gt; &amp;T;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Struct</span></span>;<br><br><span class="hljs-keyword">impl</span> Struct &#123;<br>    <span class="hljs-comment">// 降级了，要小心!</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">some_method</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; &amp;<span class="hljs-keyword">self</span>;<br><br>    <span class="hljs-comment">// 降级了，要小心!</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">other_method</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; &amp;T;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>即使你在函数或者方法签名中避免了使用重借出，Rust还是存在隐式的重借出，让你不经意间又遇到这个问题，像这样：</p>
-<pre><code class="rust">use std::collections::HashMap;
-
-type PlayerID = i32;
-
-#[derive(Debug, Default)]
-struct Player {
-    score: i32,
-}
-
-fn start_game(player_a: PlayerID, player_b: PlayerID, server: &amp;mut HashMap&lt;PlayerID, Player&gt;) {
-    // 从服务器获取选手信息，不存在时创建并更新选手信息
-    let player_a: &amp;Player = server.entry(player_a).or_default();
-    let player_b: &amp;Player = server.entry(player_b).or_default();
-
-    // 同时持有两个选手并操作
-    dbg!(player_a, player_b); // 编译错误
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::collections::HashMap;<br><br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">PlayerID</span></span> = <span class="hljs-built_in">i32</span>;<br><br><span class="hljs-meta">#[derive(Debug, Default)]</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Player</span></span> &#123;<br>    score: <span class="hljs-built_in">i32</span>,<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">start_game</span></span>(player_a: PlayerID, player_b: PlayerID, server: &amp;<span class="hljs-keyword">mut</span> HashMap&lt;PlayerID, Player&gt;) &#123;<br>    <span class="hljs-comment">// 从服务器获取选手信息，不存在时创建并更新选手信息</span><br>    <span class="hljs-keyword">let</span> player_a: &amp;Player = server.entry(player_a).or_default();<br>    <span class="hljs-keyword">let</span> player_b: &amp;Player = server.entry(player_b).or_default();<br><br>    <span class="hljs-comment">// 同时持有两个选手并操作</span><br>    dbg!(player_a, player_b); <span class="hljs-comment">// 编译错误</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>出错原因是<code>entry</code>语法中<code>or_default</code>返回的是<code>&amp;mut Player</code>，由于显式的类型标注，发生了隐式的重借出。完成相同的目的，我们需要</p>
-<pre><code class="rust">use std::collections::HashMap;
-
-type PlayerID = i32;
-
-#[derive(Debug, Default)]
-struct Player {
-    score: i32,
-}
-
-fn start_game(player_a: PlayerID, player_b: PlayerID, server: &amp;mut HashMap&lt;PlayerID, Player&gt;) {
-    // drop 返回的 Player的可变引用，它们不能同时使用
-    server.entry(player_a).or_default();
-    server.entry(player_b).or_default();
-
-    // 再次获取选手信息，以不可变引用的形式，没有重借出
-    let player_a = server.get(&amp;player_a);
-    let player_b = server.get(&amp;player_b);
-
-    dbg!(player_a, player_b); // 成功编译
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::collections::HashMap;<br><br><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">PlayerID</span></span> = <span class="hljs-built_in">i32</span>;<br><br><span class="hljs-meta">#[derive(Debug, Default)]</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Player</span></span> &#123;<br>    score: <span class="hljs-built_in">i32</span>,<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">start_game</span></span>(player_a: PlayerID, player_b: PlayerID, server: &amp;<span class="hljs-keyword">mut</span> HashMap&lt;PlayerID, Player&gt;) &#123;<br>    <span class="hljs-comment">// drop 返回的 Player的可变引用，它们不能同时使用</span><br>    server.entry(player_a).or_default();<br>    server.entry(player_b).or_default();<br><br>    <span class="hljs-comment">// 再次获取选手信息，以不可变引用的形式，没有重借出</span><br>    <span class="hljs-keyword">let</span> player_a = server.get(&amp;player_a);<br>    <span class="hljs-keyword">let</span> player_b = server.get(&amp;player_b);<br><br>    dbg!(player_a, player_b); <span class="hljs-comment">// 成功编译</span><br></code></pre></div></td></tr></table></figure>
 <p>这有点笨拙和繁复，但也算我们为”内存安全祭坛“献上的祭品吧。</p>
 <h4 id="关键点：-6"><a href="#关键点：-6" class="headerlink" title="关键点："></a>关键点：</h4><ul>
 <li>尽量不要向可变引用重借出共享引用，否则你会很难受</li>
@@ -957,143 +534,25 @@ fn start_game(player_a: PlayerID, player_b: PlayerID, server: &amp;mut HashMap&l
 </ul>
 <h3 id="10-闭包和函数有相同的生命周期省略规则"><a href="#10-闭包和函数有相同的生命周期省略规则" class="headerlink" title="10) 闭包和函数有相同的生命周期省略规则"></a>10) 闭包和函数有相同的生命周期省略规则</h3><p>与其说这是一个误解，不如说它是Rust本身的陷阱。</p>
 <p>闭包，尽管(其行为)也是个函数，却不遵守函数的生命周期省略规则。</p>
-<pre><code class="rust">fn function(x: &amp;i32) -&gt; &amp;i32 {
-    x
-}
-
-fn main() {
-    let closure = |x: &amp;i32| x;
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">function</span></span>(x: &amp;<span class="hljs-built_in">i32</span>) -&gt; &amp;<span class="hljs-built_in">i32</span> &#123;<br>    x<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> closure = |x: &amp;<span class="hljs-built_in">i32</span>| x;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>报错：</p>
-<pre><code class="rust">error: lifetime may not live long enough
- --&gt; src/main.rs:6:29
-  |
-6 |     let closure = |x: &amp;i32| x;
-  |                       -   - ^ returning this value requires that `&#39;1` must outlive `&#39;2`
-  |                       |   |
-  |                       |   return type of closure is &amp;&#39;2 i32
-  |                       let&#39;s call the lifetime of this reference `&#39;1`
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust">error: lifetime may not live long enough<br> --&gt; src/main.rs:<span class="hljs-number">6</span>:<span class="hljs-number">29</span><br>  |<br><span class="hljs-number">6</span> |     <span class="hljs-keyword">let</span> closure = |x: &amp;<span class="hljs-built_in">i32</span>| x;<br>  |                       -   - ^ returning this value requires that `&#x27;<span class="hljs-number">1</span>` must outlive `&#x27;<span class="hljs-number">2</span>`<br>  |                       |   |<br>  |                       |   <span class="hljs-keyword">return</span> <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">of</span></span> closure is &amp;&#x27;<span class="hljs-number">2</span> <span class="hljs-built_in">i32</span><br>  |                       <span class="hljs-keyword">let</span><span class="hljs-symbol">&#x27;s</span> call the lifetime of this reference `&#x27;<span class="hljs-number">1</span>`<br></code></pre></div></td></tr></table></figure>
 <p>去掉语法糖后：</p>
-<pre><code class="rust">// 输出引用 沿用 输入引用 的生命周期
-fn function&lt;&#39;a&gt;(x: &amp;&#39;a i32) -&gt; &amp;&#39;a i32 {
-    x
-}
-
-fn main() {
-    // 输入和输出有个各自的生命周期参数
-    let closure = for&lt;&#39;a, &#39;b&gt; |x: &amp;&#39;a i32| -&gt; &amp;&#39;b i32 { x };
-    // 注意: 上面这行有语法错误，但是为了表达意图，姑且任之
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// 输出引用 沿用 输入引用 的生命周期</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">function</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;(x: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span> &#123;<br>    x<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-comment">// 输入和输出有个各自的生命周期参数</span><br>    <span class="hljs-keyword">let</span> closure = <span class="hljs-keyword">for</span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;b</span>&gt; |x: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span>| -&gt; &amp;<span class="hljs-symbol">&#x27;b</span> <span class="hljs-built_in">i32</span> &#123; x &#125;;<br>    <span class="hljs-comment">// 注意: 上面这行有语法错误，但是为了表达意图，姑且任之</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>并没有一个好的理由来解释这种差异的出现。最早闭包实现的时候就用了不同的类型推断语义，现在统一也来不及了，因为这会是一个不向后兼容的修改。所以我们如何显式标注一个闭包的类型？可能的方法有：</p>
-<pre><code class="rust">fn main() {
-    // 转换为trait object, 但这是个DST，不能放到栈上，编译错误
-    let identity: dyn Fn(&amp;i32) -&gt; &amp;i32 = |x: &amp;i32| x;
-
-    // 放到堆上，当然可以，但是这有点笨重
-    let identity: Box&lt;dyn Fn(&amp;i32) -&gt; &amp;i32&gt; = Box::new(|x: &amp;i32| x);
-
-    // 也可以跳过堆分配，直接做静态引用
-    let identity: &amp;dyn Fn(&amp;i32) -&gt; &amp;i32 = &amp;|x: &amp;i32| x;
-
-    // 上一行去掉语法糖后:)
-    let identity: &amp;&#39;static (dyn for&lt;&#39;a&gt; Fn(&amp;&#39;a i32) -&gt; &amp;&#39;a i32 + &#39;static) = &amp;|x: &amp;i32| -&gt; &amp;i32 { x };
-
-    // 要是写法可以换成这样，这把将绝杀，可惜换不得
-    let identity: impl Fn(&amp;i32) -&gt; &amp;i32 = |x: &amp;i32| x;
-
-    // 这样也不错，可还是不行
-    let identity = for&lt;&#39;a&gt; |x: &amp;&#39;a i32| -&gt; &amp;&#39;a i32 { x };
-
-    // impl Trait 的语法可以写在在函数的返回值，所以我们可以引入这样一个工具函数
-    fn return_identity() -&gt; impl Fn(&amp;i32) -&gt; &amp;i32 {
-        |x| x
-    }
-    let identity = return_identity();
-
-    // 工具函数可以写得更泛化一些
-    fn annotate&lt;T, F&gt;(f: F) -&gt; F where F: Fn(&amp;T) -&gt; &amp;T {
-        f
-    }
-    let identity = annotate(|x: &amp;i32| x);
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-comment">// 转换为trait object, 但这是个DST，不能放到栈上，编译错误</span><br>    <span class="hljs-keyword">let</span> identity: <span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Fn</span>(&amp;<span class="hljs-built_in">i32</span>) -&gt; &amp;<span class="hljs-built_in">i32</span> = |x: &amp;<span class="hljs-built_in">i32</span>| x;<br><br>    <span class="hljs-comment">// 放到堆上，当然可以，但是这有点笨重</span><br>    <span class="hljs-keyword">let</span> identity: <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Fn</span>(&amp;<span class="hljs-built_in">i32</span>) -&gt; &amp;<span class="hljs-built_in">i32</span>&gt; = <span class="hljs-built_in">Box</span>::new(|x: &amp;<span class="hljs-built_in">i32</span>| x);<br><br>    <span class="hljs-comment">// 也可以跳过堆分配，直接做静态引用</span><br>    <span class="hljs-keyword">let</span> identity: &amp;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Fn</span>(&amp;<span class="hljs-built_in">i32</span>) -&gt; &amp;<span class="hljs-built_in">i32</span> = &amp;|x: &amp;<span class="hljs-built_in">i32</span>| x;<br><br>    <span class="hljs-comment">// 上一行去掉语法糖后:)</span><br>    <span class="hljs-keyword">let</span> identity: &amp;<span class="hljs-symbol">&#x27;static</span> (<span class="hljs-keyword">dyn</span> <span class="hljs-keyword">for</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; <span class="hljs-built_in">Fn</span>(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span>) -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span> + <span class="hljs-symbol">&#x27;static</span>) = &amp;|x: &amp;<span class="hljs-built_in">i32</span>| -&gt; &amp;<span class="hljs-built_in">i32</span> &#123; x &#125;;<br><br>    <span class="hljs-comment">// 要是写法可以换成这样，这把将绝杀，可惜换不得</span><br>    <span class="hljs-keyword">let</span> identity: <span class="hljs-keyword">impl</span> <span class="hljs-built_in">Fn</span>(&amp;<span class="hljs-built_in">i32</span>) -&gt; &amp;<span class="hljs-built_in">i32</span> = |x: &amp;<span class="hljs-built_in">i32</span>| x;<br><br>    <span class="hljs-comment">// 这样也不错，可还是不行</span><br>    <span class="hljs-keyword">let</span> identity = <span class="hljs-keyword">for</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; |x: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span>| -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">i32</span> &#123; x &#125;;<br><br>    <span class="hljs-comment">// impl Trait 的语法可以写在在函数的返回值，所以我们可以引入这样一个工具函数</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">return_identity</span></span>() -&gt; <span class="hljs-keyword">impl</span> <span class="hljs-built_in">Fn</span>(&amp;<span class="hljs-built_in">i32</span>) -&gt; &amp;<span class="hljs-built_in">i32</span> &#123;<br>        |x| x<br>    &#125;<br>    <span class="hljs-keyword">let</span> identity = return_identity();<br><br>    <span class="hljs-comment">// 工具函数可以写得更泛化一些</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">annotate</span></span>&lt;T, F&gt;(f: F) -&gt; F <span class="hljs-keyword">where</span> F: <span class="hljs-built_in">Fn</span>(&amp;T) -&gt; &amp;T &#123;<br>        f<br>    &#125;<br>    <span class="hljs-keyword">let</span> identity = annotate(|x: &amp;<span class="hljs-built_in">i32</span>| x);<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <h4 id="关键点：-7"><a href="#关键点：-7" class="headerlink" title="关键点："></a>关键点：</h4><ul>
 <li>每门语言都有陷阱🤷</li>
 </ul>
 <h3 id="11-39-static引用总能强制转换为-39-a引用"><a href="#11-39-static引用总能强制转换为-39-a引用" class="headerlink" title="11) &#39;static引用总能强制转换为&#39;a引用"></a>11) <code>&#39;static</code>引用总能强制转换为<code>&#39;a</code>引用</h3><p>之前我已经举过这个例子：</p>
-<pre><code class="rust">fn get_str&lt;&#39;a&gt;() -&gt; &amp;&#39;a str; // generic version
-fn get_str() -&gt; &amp;&#39;static str; // &#39;static version
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">get_str</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;() -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>; <span class="hljs-comment">// generic version</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">get_str</span></span>() -&gt; &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>; <span class="hljs-comment">// &#x27;static version</span><br></code></pre></div></td></tr></table></figure>
 <p>一些读者曾联系我，询问这两种方法是否有现实意义的区别。经过探究，答案是肯定的，他们确实有区别。</p>
 <p>通常对值来说，在使用<code>&#39;a</code>绑定引用的地方，我们总可以使用<code>&#39;static</code>绑定引用进行替换，因为Rust会把<code>&#39;static</code>引用强制转换为<code>&#39;a</code>引用。(比如代码期待<code>&amp;&#39;a i32</code>的地方，我们总可以使用<code>&amp;&#39;static i32</code>)。这是符合直觉的，在期待短生命周期引用的地方使用长生命周期引用，并不会产生内存安全问题（长生命周期的引用必然在更小的作用域内保持有效）。下面的代码可以如期编译：</p>
-<pre><code class="rust">use rand;
-
-fn generic_str_fn&lt;&#39;a&gt;() -&gt; &amp;&#39;a str {
-    &quot;str&quot;
-}
-
-fn static_str_fn() -&gt; &amp;&#39;static str {
-    &quot;str&quot;
-}
-
-fn a_or_b&lt;T&gt;(a: T, b: T) -&gt; T {
-    if rand::random() {
-        a
-    } else {
-        b
-    }
-}
-
-fn main() {
-    let some_string = &quot;string&quot;.to_owned();
-    let some_str = &amp;some_string[..];
-    let str_ref = a_or_b(some_str, generic_str_fn()); // compiles
-    let str_ref = a_or_b(some_str, static_str_fn()); // compiles
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> rand;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">generic_str_fn</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;() -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span> &#123;<br>    <span class="hljs-string">&quot;str&quot;</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">static_str_fn</span></span>() -&gt; &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span> &#123;<br>    <span class="hljs-string">&quot;str&quot;</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">a_or_b</span></span>&lt;T&gt;(a: T, b: T) -&gt; T &#123;<br>    <span class="hljs-keyword">if</span> rand::random() &#123;<br>        a<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        b<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> some_string = <span class="hljs-string">&quot;string&quot;</span>.to_owned();<br>    <span class="hljs-keyword">let</span> some_str = &amp;some_string[..];<br>    <span class="hljs-keyword">let</span> str_ref = a_or_b(some_str, generic_str_fn()); <span class="hljs-comment">// compiles</span><br>    <span class="hljs-keyword">let</span> str_ref = a_or_b(some_str, static_str_fn()); <span class="hljs-comment">// compiles</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>然而，当引用属于函数类型签名的一部分时，这种转换不会生效</p>
-<pre><code class="rust">use rand;
-
-fn generic_str_fn&lt;&#39;a&gt;() -&gt; &amp;&#39;a str {
-    &quot;str&quot;
-}
-
-fn static_str_fn() -&gt; &amp;&#39;static str {
-    &quot;str&quot;
-}
-
-fn a_or_b_fn&lt;T, F&gt;(a: T, b_fn: F) -&gt; T
-    where F: Fn() -&gt; T
-{
-    if rand::random() {
-        a
-    } else {
-        b_fn()
-    }
-}
-
-fn main() {
-    let some_string = &quot;string&quot;.to_owned();
-    let some_str = &amp;some_string[..];
-    let str_ref = a_or_b_fn(some_str, generic_str_fn); // compiles
-    let str_ref = a_or_b_fn(some_str, static_str_fn); // compile error
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> rand;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">generic_str_fn</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt;() -&gt; &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span> &#123;<br>    <span class="hljs-string">&quot;str&quot;</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">static_str_fn</span></span>() -&gt; &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span> &#123;<br>    <span class="hljs-string">&quot;str&quot;</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">a_or_b_fn</span></span>&lt;T, F&gt;(a: T, b_fn: F) -&gt; T<br>    <span class="hljs-keyword">where</span> F: <span class="hljs-built_in">Fn</span>() -&gt; T<br>&#123;<br>    <span class="hljs-keyword">if</span> rand::random() &#123;<br>        a<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        b_fn()<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() &#123;<br>    <span class="hljs-keyword">let</span> some_string = <span class="hljs-string">&quot;string&quot;</span>.to_owned();<br>    <span class="hljs-keyword">let</span> some_str = &amp;some_string[..];<br>    <span class="hljs-keyword">let</span> str_ref = a_or_b_fn(some_str, generic_str_fn); <span class="hljs-comment">// compiles</span><br>    <span class="hljs-keyword">let</span> str_ref = a_or_b_fn(some_str, static_str_fn); <span class="hljs-comment">// compile error</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>抛出这样的错误</p>
-<pre><code class="rust">error[E0597]: `some_string` does not live long enough
-  --&gt; src/main.rs:23:21
-   |
-23 |     let some_str = &amp;some_string[..];
-   |                     ^^^^^^^^^^^ borrowed value does not live long enough
-...
-25 |     let str_ref = a_or_b_fn(some_str, static_str_fn);
-   |                   ---------------------------------- argument requires that `some_string` is borrowed for `&#39;static`
-26 | }
-   | - `some_string` dropped here while still borrowed
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust">error[E0597]: `some_string` does not live long enough<br>  --&gt; src/main.rs:<span class="hljs-number">23</span>:<span class="hljs-number">21</span><br>   |<br><span class="hljs-number">23</span> |     <span class="hljs-keyword">let</span> some_str = &amp;some_string[..];<br>   |                     ^^^^^^^^^^^ borrowed value does not live long enough<br>...<br><span class="hljs-number">25</span> |     <span class="hljs-keyword">let</span> str_ref = a_or_b_fn(some_str, static_str_fn);<br>   |                   ---------------------------------- argument requires that `some_string` is borrowed <span class="hljs-keyword">for</span> `<span class="hljs-symbol">&#x27;static</span>`<br><span class="hljs-number">26</span> | &#125;<br>   | - `some_string` dropped here <span class="hljs-keyword">while</span> still borrowed<br></code></pre></div></td></tr></table></figure>
 <p>这是否属于 Rust 缺陷还存在争议，毕竟前一个例子中，是在值上做直接转换，从 <code>&amp;&#39;static str</code> 到 <code>&amp;&#39;a str</code>。但是当前例子是在转换类型，从 <code>for&lt;T&gt; Fn() -&gt; &amp;&#39;static T</code> 到 <code>for&lt;&#39;a, T&gt; Fn() -&gt; &amp;&#39;a T</code>。</p>
 <h4 id="关键点：-8"><a href="#关键点：-8" class="headerlink" title="关键点："></a>关键点：</h4><ul>
 <li>拥有签名<code>for&lt;&#39;a, T&gt; fn() -&gt; &amp;&#39;a T</code>的函数，比<code>for&lt;T&gt; fn() -&gt; &amp;&#39;static T</code>更加灵活，适应更多的场景</li>
@@ -1135,92 +594,287 @@ fn main() {
 </ul>
 <h2 id="讨论"><a href="#讨论" class="headerlink" title="讨论"></a>讨论</h2><p>在这些地方讨论这篇文章</p>
 <ul>
-<li><a href="https://www.reddit.com/r/learnrust/comments/gmrcrq/common_rust_lifetime_misconceptions/" target="_blank" rel="noopener">learnrust subreddit</a></li>
-<li><a href="https://users.rust-lang.org/t/blog-post-common-rust-lifetime-misconceptions/42950" target="_blank" rel="noopener">official Rust users forum</a></li>
-<li><a href="https://twitter.com/pretzelhammer/status/1263505856903163910" target="_blank" rel="noopener">Twitter</a></li>
-<li><a href="https://www.reddit.com/r/rust/comments/golrsx/common_rust_lifetime_misconceptions/" target="_blank" rel="noopener">rust subreddit</a></li>
-<li><a href="https://news.ycombinator.com/item?id=23279731" target="_blank" rel="noopener">Hackernews</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.reddit.com/r/learnrust/comments/gmrcrq/common_rust_lifetime_misconceptions/">learnrust subreddit</a></li>
+<li><a target="_blank" rel="noopener" href="https://users.rust-lang.org/t/blog-post-common-rust-lifetime-misconceptions/42950">official Rust users forum</a></li>
+<li><a target="_blank" rel="noopener" href="https://twitter.com/pretzelhammer/status/1263505856903163910">Twitter</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.reddit.com/r/rust/comments/golrsx/common_rust_lifetime_misconceptions/">rust subreddit</a></li>
+<li><a target="_blank" rel="noopener" href="https://news.ycombinator.com/item?id=23279731">Hackernews</a></li>
 </ul>
 <h2 id="获取通知"><a href="#获取通知" class="headerlink" title="获取通知"></a>获取通知</h2><ul>
-<li><a href="https://twitter.com/pretzelhammer" target="_blank" rel="noopener">在twitter上关注pretzelhammer</a></li>
-<li><a href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/common-rust-lifetime-misconceptions.md" target="_blank" rel="noopener">watch GitHub 仓库</a></li>
+<li><a target="_blank" rel="noopener" href="https://twitter.com/pretzelhammer">在twitter上关注pretzelhammer</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/common-rust-lifetime-misconceptions.md">watch GitHub 仓库</a></li>
 </ul>
 <h2 id="拓展阅读"><a href="#拓展阅读" class="headerlink" title="拓展阅读"></a>拓展阅读</h2><ul>
-<li><a href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/sizedness-in-rust.md" target="_blank" rel="noopener">Sizedness in Rust</a></li>
-<li><a href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/learning-rust-in-2020.md" target="_blank" rel="noopener">Learning Rust in 2020</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/sizedness-in-rust.md">Sizedness in Rust</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/learning-rust-in-2020.md">Learning Rust in 2020</a></li>
 </ul>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Rust</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Rust/">Rust</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/12/16/eval-expr/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">使用递归下降和Pratt方法求值算术表达式</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/04/18/nand2tetris/">
+                        <span class="hidden-mobile">课程 nand2tetris Part-I 回顾</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

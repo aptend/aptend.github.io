@@ -1,131 +1,209 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>serde你在干什么 - deserialize - II - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>serde你在干什么 - deserialize - II ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="serde你在干什么 - deserialize - II">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-01-08 19:10" pubdate>
+        January 8, 2020 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.5k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">serde你在干什么 - deserialize - II</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Wednesday, January 8th 2020, 7:10 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>serde 源码解析 | Deserialization篇 第二部分</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">serde你在干什么 - deserialize - II</h1>
+            
+            <div class="markdown-body">
+              <p>serde 源码解析 | Deserialization篇 第二部分</p>
 <a id="more"></a>
 <p>上篇，已经把反序列化的总体过程描述了一遍，也留下了几个问题，<code>DeserializeSeed</code>和<code>PhantomData</code>是什么，<code>EnumAccess</code>中的<code>variant</code>方法被<code>visit_enum</code>调用后，为什么能产生一个<code>__Field</code>实例呢？</p>
-<h2 id="DeserializeSeed"><a href="#DeserializeSeed" class="headerlink" title="DeserializeSeed"></a><a href="https://docs.serde.rs/serde/de/trait.DeserializeSeed.html" target="_blank" rel="noopener">DeserializeSeed</a></h2><pre><code class="rust">pub trait DeserializeSeed&lt;&#39;de&gt;: Sized {
-    type Value;
-    fn deserialize&lt;D&gt;(self, deserializer: D) -&gt; Result&lt;Self::Value, D::Error&gt;
-    where
-        D: Deserializer&lt;&#39;de&gt;;
-}
-
-pub trait Deserialize&lt;&#39;de&gt;: Sized {
-    fn deserialize&lt;D&gt;(deserializer: D) -&gt; Result&lt;Self, D::Error&gt;
-    where
-        D: Deserializer&lt;&#39;de&gt;;
-}
-</code></pre>
+<h2 id="DeserializeSeed"><a href="#DeserializeSeed" class="headerlink" title="DeserializeSeed"></a><a target="_blank" rel="noopener" href="https://docs.serde.rs/serde/de/trait.DeserializeSeed.html">DeserializeSeed</a></h2><figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">DeserializeSeed</span></span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt;: <span class="hljs-built_in">Sized</span> &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Value</span></span>;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize</span></span>&lt;D&gt;(<span class="hljs-keyword">self</span>, deserializer: D) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::Value, D::Error&gt;<br>    <span class="hljs-keyword">where</span><br>        D: Deserializer&lt;<span class="hljs-symbol">&#x27;de</span>&gt;;<br>&#125;<br><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Deserialize</span></span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt;: <span class="hljs-built_in">Sized</span> &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize</span></span>&lt;D&gt;(deserializer: D) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-keyword">Self</span>, D::Error&gt;<br>    <span class="hljs-keyword">where</span><br>        D: Deserializer&lt;<span class="hljs-symbol">&#x27;de</span>&gt;;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>和<code>Deserialize</code>的区别，就在于用<code>DeserializeSeed</code>自定义了输出的类型，不必和实现类型一致。</p>
 <p>也就是说，对一个<code>DeserializeSeed-thing</code>调用它的<code>deserialize</code>去消费一个<code>deserializer</code>提供的数据，可以返回的是自定义的Value类型。</p>
 <p>回忆通常情况下，对<code>Deserialize</code>的使用，是利用泛型参数，由<code>Result&lt;T&gt;</code>推断出具体的T类型，再调用对应的<code>deserialze</code>方法，返回一个T类型的实例，这个过程只有类型参与，属于无状态的反序列化，比如下面的<code>T::deserialize()</code></p>
-<pre><code class="rust">pub fn from_str&lt;&#39;a, T&gt;(s: &amp;&#39;a str) -&gt; Result&lt;T&gt;
-where
-    T: Deserialize&lt;&#39;a&gt;,
-{
-    let mut deserializer = Deserializer::from_str(s);
-    let t = T::deserialize(&amp;mut deserializer)?;
-       Ok(t)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">from_str</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, T&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;T&gt;<br><span class="hljs-keyword">where</span><br>    T: Deserialize&lt;<span class="hljs-symbol">&#x27;a</span>&gt;,<br>&#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> deserializer = Deserializer::from_str(s);<br>    <span class="hljs-keyword">let</span> t = T::deserialize(&amp;<span class="hljs-keyword">mut</span> deserializer)?;<br>   	<span class="hljs-literal">Ok</span>(t)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>但是对于实现了<code>DeserializeSeed</code>的类型，使用上有所不同，通常是初始化成为一个实例，可以拥有自己的数据，常被当作参数<code>seed</code>传入一个形如<code></code>fn *_seed()<code>的方法，由它调用</code>seed<code>上的反序列化方法，比如下面的</code>seed.deserialize()<code>，这个deserialize过程则允许</code>seed`自身数据参与，所以是个有状态的反序列化过程。</p>
-<pre><code class="rust">fn variant_seed&lt;V&gt;(self, seed: V) -&gt; Result&lt;(V::Value, Self::Variant)&gt;
-where
-    V: DeserializeSeed&lt;&#39;de&gt;,
-{
-    let val = seed.deserialize(&amp;mut *self.de)?;
-    if self.de.next_char()? == &#39;:&#39; {
-        Ok((val, self))
-    } else {
-        Err(Error::ExpectedMapColon)
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">variant_seed</span></span>&lt;V&gt;(<span class="hljs-keyword">self</span>, seed: V) -&gt; <span class="hljs-built_in">Result</span>&lt;(V::Value, Self::Variant)&gt;<br><span class="hljs-keyword">where</span><br>	V: DeserializeSeed&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#123;<br>    <span class="hljs-keyword">let</span> val = seed.deserialize(&amp;<span class="hljs-keyword">mut</span> *<span class="hljs-keyword">self</span>.de)?;<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.de.next_char()? == <span class="hljs-string">&#x27;:&#x27;</span> &#123;<br>        <span class="hljs-literal">Ok</span>((val, <span class="hljs-keyword">self</span>))<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-literal">Err</span>(Error::ExpectedMapColon)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>不妨再来看看，哪些地方存在这样的<code>fn *_seed()</code>:</p>
 <ul>
 <li><p><code>SeqAccess</code>中的<code>next_element_seed</code></p>
@@ -140,172 +218,28 @@ where
 <p>这些方法出现在<code>deserializer</code>为<code>visitor</code>提供的集合数据类型中。一个<code>visitor</code>，只有在实现了<code>visit_seq</code>、<code>visit_map</code>、<code>visit_enum</code>这类方法的前提下，才有机会使用有状态的反序列化。</p>
 <p>但在实际工作中，大多数情况的反序列化，都是无状态的，所以给这些<code>fn *_seed()</code>方法传递的<code>DeserializeSeed-thing</code>，也就是参数<code>seed</code>，自然可以没有自己的数据，仅仅把某种类型信息给传递进去。像这种有类型、却没有实际数据的东西，标准库里专门有个类型叫<code>PhantomData</code>，幽灵数据来表示，编译器不会给他分配内存空间，只用来做类型的推断和方法的关联。</p>
 <p>Serde已经为<code>PhantomData</code>实现<code>DeserializeSeed</code>，使其成为<code>DeserializeSeed-thing</code>，直接把<code>PhantomData</code>传入<code>fn *_seed()</code>里，就等效于无状态<code>Deserialize</code>的过程，只有类型参与。</p>
-<pre><code class="rust">impl&lt;&#39;de, T&gt; DeserializeSeed&lt;&#39;de&gt; for PhantomData&lt;T&gt;
-where
-    T: Deserialize&lt;&#39;de&gt;,
-{
-    type Value = T;
-
-    #[inline]
-    fn deserialize&lt;D&gt;(self, deserializer: D) -&gt; Result&lt;T, D::Error&gt;
-    where
-        D: Deserializer&lt;&#39;de&gt;,
-    {
-        // 方法调用PhantomData的deserialize，最后落脚到这里，等于绕了一圈确定T类型
-        T::deserialize(deserializer)
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>, T&gt; DeserializeSeed&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> PhantomData&lt;T&gt;<br><span class="hljs-keyword">where</span><br>    T: Deserialize&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Value</span></span> = T;<br><br>    <span class="hljs-meta">#[inline]</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize</span></span>&lt;D&gt;(<span class="hljs-keyword">self</span>, deserializer: D) -&gt; <span class="hljs-built_in">Result</span>&lt;T, D::Error&gt;<br>    <span class="hljs-keyword">where</span><br>        D: Deserializer&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123;<br>        <span class="hljs-comment">// 方法调用PhantomData的deserialize，最后落脚到这里，等于绕了一圈确定T类型</span><br>        T::deserialize(deserializer)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>甚至，因为无状态反序列化太普遍，Serde提供了一种快捷方式，比如<code>next_element_seed</code>的无状态化版本是<code>next_element</code>，就直接帮你传入了<code>PhantomData</code>，使用<code>next_element</code>时，T就通过表达式左值的类型来推断就OK了。</p>
-<pre><code class="rust">fn next_element&lt;T&gt;(&amp;mut self) -&gt; Result&lt;Option&lt;T&gt;, Self::Error&gt;
-where
-    T: Deserialize&lt;&#39;de&gt;,
-{
-    self.next_element_seed(PhantomData)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next_element</span></span>&lt;T&gt;(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Option</span>&lt;T&gt;, Self::Error&gt;<br><span class="hljs-keyword">where</span><br>	T: Deserialize&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#123;<br>    <span class="hljs-keyword">self</span>.next_element_seed(PhantomData)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>有了这样的基础，再看<code>visit_enum</code>就清楚了，中间调用<code>match _serde::de::EnumAccess::variant(__data)</code>时，推断出T的类型是<code>__Field</code>，也就是使用的<code>variant</code>版本如下：</p>
-<pre><code class="rust">fn variant&lt;__Field&gt;(self) -&gt; Result&lt;(__Field, Self::Variant), Self::Error&gt;
-where
-    __Field: Deserialize&lt;&#39;de&gt;,
-{
-    self.variant_seed(PhantomData)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">variant</span></span>&lt;__Field&gt;(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;(__Field, Self::Variant), Self::Error&gt;<br><span class="hljs-keyword">where</span><br>	__Field: Deserialize&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#123;<br>    <span class="hljs-keyword">self</span>.variant_seed(PhantomData)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>因此<code>PhantomData</code>是<code>PhantomData&lt;__Field&gt;</code>的一个“实例”，实现了<code>DeserializeSeed</code>，传到<code>variant_seed</code>中叫做<code>seed</code>，根据<code>PhantomData</code>默认的<code>DeserializeSeed</code>的实现，<code>variant_seed</code>中语句<code>seed.deserialize(deserializer)</code>的本质就是<code>__Field::deserialize(deserializer)</code>，于是产生了具体的<code>__Field</code>值。</p>
 <h2 id="嵌套之路"><a href="#嵌套之路" class="headerlink" title="嵌套之路"></a>嵌套之路</h2><p>清楚了<code>__Field</code>的来历之后，不妨再关注一下tuple中的第二项，<code>VariantAccess-thing</code>，它包含着四个必须实现的方法，概括了可能出现的枚举形态</p>
 <ul>
 <li><code>unit_variant</code>，比如对应<code>Command::Quit</code></li>
 <li><code>newtype_variant</code>，比如对应<code>Command::Rm</code></li>
 <li><code>tuple_variant</code>，比如对应<code>Command::SomeCmd(a, b, c)</code>这种</li>
-<li><code>struct_variant</code>，比如对应<code>Command::{Get, Set}</code></li>
+<li><code>struct_variant</code>，比如对应<code>Command::&#123;Get, Set&#125;</code></li>
 </ul>
 <p>一个<code>VariantAccess</code>可以看做特定领域的<code>deserializer</code>，这个四个方法和通用的<code>deserialize_*</code>方法的作用类似，由上层调用，提示接下来的数据应该可以按照什么样的规则去解析。所以这里的<code>Visitor</code>和<code>VariantAccess</code>功能上如同一对<code>Deserialize</code>和<code>Deserializer</code>，这不就是一层嵌套吗？</p>
 <p>举两个例子，这两个简单的match分支，<code>Command::Quit</code>和<code>Command::Rm</code> ，就分别提示接下来按照<code>unit_variat</code>和<code>newtype_variant</code>的规则解析数据。</p>
-<pre><code class="rust">// derive_de.rs
-(__Field::__field2, __variant) =&gt; {
-    _serde::export::Result::map(_serde::de::VariantAccess::newtype_variant::&lt;String&gt;(__variant), Command::Rm)
-}
-(__Field::__field3, __variant) =&gt; {
-    match _serde::de::VariantAccess::unit_variant(__variant) {
-        _serde::export::Ok(__val) =&gt; __val,
-        _serde::export::Err(__err) =&gt; {
-            return _serde::export::Err(__err);
-        }
-    };
-    _serde::export::Ok(Command::Quit)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// derive_de.rs</span><br>(__Field::__field2, __variant) =&gt; &#123;<br>    _serde::export::<span class="hljs-built_in">Result</span>::map(_serde::de::VariantAccess::newtype_variant::&lt;<span class="hljs-built_in">String</span>&gt;(__variant), Command::Rm)<br>&#125;<br>(__Field::__field3, __variant) =&gt; &#123;<br>    <span class="hljs-keyword">match</span> _serde::de::VariantAccess::unit_variant(__variant) &#123;<br>        _serde::export::<span class="hljs-literal">Ok</span>(__val) =&gt; __val,<br>        _serde::export::<span class="hljs-literal">Err</span>(__err) =&gt; &#123;<br>            <span class="hljs-keyword">return</span> _serde::export::<span class="hljs-literal">Err</span>(__err);<br>        &#125;<br>    &#125;;<br>    _serde::export::<span class="hljs-literal">Ok</span>(Command::Quit)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>但是复杂一点的<code>Command::Set</code>，它调用的是<code>struct_variant</code>，表明接下来期待的是结构性的枚举。到这里，更明显的嵌套出现了，又新建一个<code>__Field</code>类型，用来保存<code>Command::Get</code>中的<code>Key</code>和<code>Value</code>的标识符信息。然后派出一个<code>visitor</code>，可以从<code>SeqAccess</code>或者<code>MapAccess</code>类型的数据来构建<code>Command::Get</code>的实例。</p>
-<pre><code class="rust">// derive_de.rs
-
-#[allow(non_camel_case_types)]
-enum __Field { __field0, __field1, __ignore, }
-struct __FieldVisitor;
-impl&lt;&#39;de&gt; _serde::de::Visitor&lt;&#39;de&gt; for __FieldVisitor {
-    type Value = __Field;
-    fn expecting(&amp;self, __formatter: &amp;mut _serde::export::Formatter)
-    fn visit_u64&lt;__E&gt;(self, __value: u64) 
-    fn visit_str&lt;__E&gt;(self, __value: &amp;str) 
-    fn visit_bytes&lt;__E&gt;(self, __value: &amp;[u8])
-}
-impl&lt;&#39;de&gt; _serde::Deserialize&lt;&#39;de&gt; for __Field { ... }
-
-// 再造一个Command::Set的visitor           
-struct __Visitor&lt;&#39;de&gt; {
-    marker: _serde::export::PhantomData&lt;Command&gt;,
-    lifetime: _serde::export::PhantomData&lt;&amp;&#39;de ()&gt;,
-}
-impl&lt;&#39;de&gt; _serde::de::Visitor&lt;&#39;de&gt; for __Visitor&lt;&#39;de&gt; {
-    type Value = Command;
-    fn expecting(&amp;self, __formatter: &amp;mut _serde::export::Formatter) -&gt; _serde::export::fmt::Result {
-        _serde::export::Formatter::write_str(__formatter, &quot;struct variant Command::Set&quot;)
-    }
-    // Set由Seq生成
-    #[inline]
-    fn visit_seq&lt;__A&gt;(self, mut __seq: __A) -&gt; _serde::export::Result&lt;Self::Value, __A::Error&gt;
-    where
-    __A: _serde::de::SeqAccess&lt;&#39;de&gt;,
-    {
-        // 反序列化两个字段，类型为String，由最后的构建函数推断
-        let __field0 = match match _serde::de::SeqAccess::next_element::&lt;String&gt;(&amp;mut __seq) {
-            _serde::export::Ok(__val) =&gt; __val,
-            _serde::export::Err(__err) =&gt; {
-                return _serde::export::Err(__err);
-            }
-        } {
-            _serde::export::Some(__value) =&gt; __value,
-            _serde::export::None =&gt; {
-                return _serde::export::Err(_serde::de::Error::invalid_length(
-                    0usize,
-                    &amp;&quot;struct variant Command::Set with 2 elements&quot;,
-                ));
-            }
-        };
-        let __field1 = match match _serde::de::SeqAccess::next_element::&lt;String&gt;(&amp;mut __seq) {
-            _serde::export::Ok(__val) =&gt; __val,
-            _serde::export::Err(__err) =&gt; {
-                return _serde::export::Err(__err);
-            }
-        } {
-            _serde::export::Some(__value) =&gt; __value,
-            _serde::export::None =&gt; {
-                return _serde::export::Err(_serde::de::Error::invalid_length(
-                    1usize,
-                    &amp;&quot;struct variant Command::Set with 2 elements&quot;,
-                ));
-            }
-        };
-        // 一个Set成功返回
-        _serde::export::Ok(Command::Set {
-            key: __field0,
-            value: __field1,
-        })
-    }
-    // 还可以从map生成，省略
-    #[inline]
-    fn visit_map&lt;__A&gt;(self, mut __map: __A)
-}
-// 使用struct_variant提示，尝试解析出一个struct的枚举，也就是Set
-const FIELDS: &amp;&#39;static [&amp;&#39;static str] = &amp;[&quot;key&quot;, &quot;value&quot;];
-_serde::de::VariantAccess::struct_variant(
-    __variant,
-    FIELDS,
-    __Visitor {
-        marker: _serde::export::PhantomData::&lt;Command&gt;,
-        lifetime: _serde::export::PhantomData,
-    },
-)
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// derive_de.rs</span><br><br><span class="hljs-meta">#[allow(non_camel_case_types)]</span><br><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">__Field</span></span> &#123; __field0, __field1, __ignore, &#125;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__FieldVisitor</span></span>;<br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::de::Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> __FieldVisitor &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Value</span></span> = __Field;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">expecting</span></span>(&amp;<span class="hljs-keyword">self</span>, __formatter: &amp;<span class="hljs-keyword">mut</span> _serde::export::Formatter)<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_u64</span></span>&lt;__E&gt;(<span class="hljs-keyword">self</span>, __value: <span class="hljs-built_in">u64</span>) <br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_str</span></span>&lt;__E&gt;(<span class="hljs-keyword">self</span>, __value: &amp;<span class="hljs-built_in">str</span>) <br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_bytes</span></span>&lt;__E&gt;(<span class="hljs-keyword">self</span>, __value: &amp;[<span class="hljs-built_in">u8</span>])<br>&#125;<br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::Deserialize&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> __Field &#123; ... &#125;<br><br><span class="hljs-comment">// 再造一个Command::Set的visitor           </span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__Visitor</span></span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; &#123;<br>    marker: _serde::export::PhantomData&lt;Command&gt;,<br>    lifetime: _serde::export::PhantomData&lt;&amp;<span class="hljs-symbol">&#x27;de</span> ()&gt;,<br>&#125;<br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::de::Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> __Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt; &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Value</span></span> = Command;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">expecting</span></span>(&amp;<span class="hljs-keyword">self</span>, __formatter: &amp;<span class="hljs-keyword">mut</span> _serde::export::Formatter) -&gt; _serde::export::fmt::<span class="hljs-built_in">Result</span> &#123;<br>        _serde::export::Formatter::write_str(__formatter, <span class="hljs-string">&quot;struct variant Command::Set&quot;</span>)<br>    &#125;<br>    <span class="hljs-comment">// Set由Seq生成</span><br>    <span class="hljs-meta">#[inline]</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_seq</span></span>&lt;__A&gt;(<span class="hljs-keyword">self</span>, <span class="hljs-keyword">mut</span> __seq: __A) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;Self::Value, __A::Error&gt;<br>    <span class="hljs-keyword">where</span><br>    __A: _serde::de::SeqAccess&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123;<br>        <span class="hljs-comment">// 反序列化两个字段，类型为String，由最后的构建函数推断</span><br>        <span class="hljs-keyword">let</span> __field0 = <span class="hljs-keyword">match</span> <span class="hljs-keyword">match</span> _serde::de::SeqAccess::next_element::&lt;<span class="hljs-built_in">String</span>&gt;(&amp;<span class="hljs-keyword">mut</span> __seq) &#123;<br>            _serde::export::<span class="hljs-literal">Ok</span>(__val) =&gt; __val,<br>            _serde::export::<span class="hljs-literal">Err</span>(__err) =&gt; &#123;<br>                <span class="hljs-keyword">return</span> _serde::export::<span class="hljs-literal">Err</span>(__err);<br>            &#125;<br>        &#125; &#123;<br>            _serde::export::<span class="hljs-literal">Some</span>(__value) =&gt; __value,<br>            _serde::export::<span class="hljs-literal">None</span> =&gt; &#123;<br>                <span class="hljs-keyword">return</span> _serde::export::<span class="hljs-literal">Err</span>(_serde::de::Error::invalid_length(<br>                    <span class="hljs-number">0usize</span>,<br>                    &amp;<span class="hljs-string">&quot;struct variant Command::Set with 2 elements&quot;</span>,<br>                ));<br>            &#125;<br>        &#125;;<br>        <span class="hljs-keyword">let</span> __field1 = <span class="hljs-keyword">match</span> <span class="hljs-keyword">match</span> _serde::de::SeqAccess::next_element::&lt;<span class="hljs-built_in">String</span>&gt;(&amp;<span class="hljs-keyword">mut</span> __seq) &#123;<br>            _serde::export::<span class="hljs-literal">Ok</span>(__val) =&gt; __val,<br>            _serde::export::<span class="hljs-literal">Err</span>(__err) =&gt; &#123;<br>                <span class="hljs-keyword">return</span> _serde::export::<span class="hljs-literal">Err</span>(__err);<br>            &#125;<br>        &#125; &#123;<br>            _serde::export::<span class="hljs-literal">Some</span>(__value) =&gt; __value,<br>            _serde::export::<span class="hljs-literal">None</span> =&gt; &#123;<br>                <span class="hljs-keyword">return</span> _serde::export::<span class="hljs-literal">Err</span>(_serde::de::Error::invalid_length(<br>                    <span class="hljs-number">1usize</span>,<br>                    &amp;<span class="hljs-string">&quot;struct variant Command::Set with 2 elements&quot;</span>,<br>                ));<br>            &#125;<br>        &#125;;<br>        <span class="hljs-comment">// 一个Set成功返回</span><br>        _serde::export::<span class="hljs-literal">Ok</span>(Command::Set &#123;<br>            key: __field0,<br>            value: __field1,<br>        &#125;)<br>    &#125;<br>    <span class="hljs-comment">// 还可以从map生成，省略</span><br>    <span class="hljs-meta">#[inline]</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_map</span></span>&lt;__A&gt;(<span class="hljs-keyword">self</span>, <span class="hljs-keyword">mut</span> __map: __A)<br>&#125;<br><span class="hljs-comment">// 使用struct_variant提示，尝试解析出一个struct的枚举，也就是Set</span><br><span class="hljs-keyword">const</span> FIELDS: &amp;<span class="hljs-symbol">&#x27;static</span> [&amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>] = &amp;[<span class="hljs-string">&quot;key&quot;</span>, <span class="hljs-string">&quot;value&quot;</span>];<br>_serde::de::VariantAccess::struct_variant(<br>    __variant,<br>    FIELDS,<br>    __Visitor &#123;<br>        marker: _serde::export::PhantomData::&lt;Command&gt;,<br>        lifetime: _serde::export::PhantomData,<br>    &#125;,<br>)<br></code></pre></div></td></tr></table></figure>
 <p>因为json中<code>struct</code>和字典表达形式相同，并且key值都包含在序列化数据中，所以不必使用提供的<code>_fields</code>参数，直接交给<code>deserialize_map</code>就足够。</p>
-<pre><code class="rust">// de.rs
-fn struct_variant&lt;V&gt;(self, _fields: &amp;&#39;static [&amp;&#39;static str], visitor: V) -&gt; Result&lt;V::Value&gt;
-where
-    V: Visitor&lt;&#39;de&gt;,
-{
-    de::Deserializer::deserialize_map(self.de, visitor)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// de.rs</span><br><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">struct_variant</span></span>&lt;V&gt;(<span class="hljs-keyword">self</span>, _fields: &amp;<span class="hljs-symbol">&#x27;static</span> [&amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>], visitor: V) -&gt; <span class="hljs-built_in">Result</span>&lt;V::Value&gt;<br><span class="hljs-keyword">where</span><br>	V: Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#123;<br>    de::Deserializer::deserialize_map(<span class="hljs-keyword">self</span>.de, visitor)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p><code>deserialize_map</code>自然检查map的开闭标识，然后给予一个实现了<code>MapAccess</code>的结构。</p>
-<pre><code class="rust">fn deserialize_map&lt;V&gt;(mut self, visitor: V) -&gt; Result&lt;V::Value&gt;
-where
-    V: Visitor&lt;&#39;de&gt;,
-{
-    // 字典由{开启
-    if self.next_char()? == &#39;{&#39; {
-        // 调用 visit_map，所以给一个MapAccess，由CommaSeparated实现
-        let value = visitor.visit_map(CommaSeparated::new(&amp;mut self))?;
-        // 字典由}结束
-        if self.next_char()? == &#39;}&#39; {
-            Ok(value)
-        } else {
-            Err(Error::ExpectedMapEnd)
-        }
-    } else {
-        Err(Error::ExpectedMap)
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize_map</span></span>&lt;V&gt;(<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, visitor: V) -&gt; <span class="hljs-built_in">Result</span>&lt;V::Value&gt;<br><span class="hljs-keyword">where</span><br>	V: Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#123;<br>    <span class="hljs-comment">// 字典由&#123;开启</span><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.next_char()? == <span class="hljs-string">&#x27;&#123;&#x27;</span> &#123;<br>        <span class="hljs-comment">// 调用 visit_map，所以给一个MapAccess，由CommaSeparated实现</span><br>        <span class="hljs-keyword">let</span> value = visitor.visit_map(CommaSeparated::new(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>))?;<br>        <span class="hljs-comment">// 字典由&#125;结束</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.next_char()? == <span class="hljs-string">&#x27;&#125;&#x27;</span> &#123;<br>            <span class="hljs-literal">Ok</span>(value)<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-literal">Err</span>(Error::ExpectedMapEnd)<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-literal">Err</span>(Error::ExpectedMap)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>后面的事情，就是<code>CommaSeparated</code>和<code>visit_map</code>相互配合产生<code>Command::Get</code>了，过程类似<code>Enum</code>和<code>visit_enum</code>的交互，这里就不再详细一步步跟踪了。</p>
 <h2 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h2><p>我们用两章的篇幅介绍了反序列化过程。</p>
 <p>第一个关键点，明确角色</p>
@@ -325,19 +259,19 @@ where
 </thead>
 <tbody>
 <tr>
-<td><a href="https://docs.serde.rs/serde/de/trait.EnumAccess.html" target="_blank" rel="noopener">EnumAccess</a></td>
+<td><a target="_blank" rel="noopener" href="https://docs.serde.rs/serde/de/trait.EnumAccess.html">EnumAccess</a></td>
 <td>重要方法是<code>variant</code>，一次性调用，返回(T, VariantAccess)，判断数据属于哪种枚举</td>
 </tr>
 <tr>
-<td><a href="https://docs.serde.rs/serde/de/trait.VariantAccess.html" target="_blank" rel="noopener">VariantAccess</a></td>
+<td><a target="_blank" rel="noopener" href="https://docs.serde.rs/serde/de/trait.VariantAccess.html">VariantAccess</a></td>
 <td>四个必须方法，一次性调用，解析具体的某种枚举</td>
 </tr>
 <tr>
-<td><a href="https://docs.serde.rs/serde/de/trait.MapAccess.html" target="_blank" rel="noopener">MapAccess</a></td>
+<td><a target="_blank" rel="noopener" href="https://docs.serde.rs/serde/de/trait.MapAccess.html">MapAccess</a></td>
 <td>按照map的风格访问处理已序列化数据，<code>next_key</code>，<code>next_value</code>等</td>
 </tr>
 <tr>
-<td><a href="https://docs.serde.rs/serde/de/trait.SeqAccess.html" target="_blank" rel="noopener">SeqAccess</a></td>
+<td><a target="_blank" rel="noopener" href="https://docs.serde.rs/serde/de/trait.SeqAccess.html">SeqAccess</a></td>
 <td>按照seq的风格访问处理已序列化数据，<code>next_element</code></td>
 </tr>
 </tbody>
@@ -345,80 +279,274 @@ where
 <p>他们统一的风格就是都使用了<code>fn *_seed()</code>的模式，通过<code>DeserializerSeed</code>，提供有状态反序列化的能力。普通的反序列化场景，往往不需要有状态，因此传入<code>PhantomData</code>，直接使用无状态反序列化。</p>
 <p>Ok，反序列化也介绍到这里吧。如果想要进一步巩固serde，自己写一个data format的<code>Deserializer</code>和<code>Serializer</code>吧。下一篇，我们为redis协议写一个基础的序列化工具。</p>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Rust</span>
-                        &nbsp;
-                         
-                        <span class="badge badge-light">#&nbsp;Serde你在干什么</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Rust/">Rust</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Serde%E4%BD%A0%E5%9C%A8%E5%B9%B2%E4%BB%80%E4%B9%88/">Serde你在干什么</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/01/10/serde-what-are-you-doing-practice-resp/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">serde你在干什么 - 实践篇</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/01/06/serde-what-are-you-doing-de-part1/">
+                        <span class="hidden-mobile">serde你在干什么 - deserialize - I</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

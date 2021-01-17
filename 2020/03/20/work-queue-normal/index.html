@@ -1,107 +1,206 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>client-go工作队列学习(一) - 普通队列 - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>client-go工作队列学习(一) - 普通队列 ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="client-go工作队列学习(一) - 普通队列">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-03-20 18:42" pubdate>
+        March 20, 2020 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.9k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">client-go工作队列学习(一) - 普通队列</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Friday, March 20th 2020, 6:42 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>第一篇，普通队列: 影分身的忍者队列，换个马甲照样认识你</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">client-go工作队列学习(一) - 普通队列</h1>
+            
+            <div class="markdown-body">
+              <p>第一篇，普通队列: 影分身的忍者队列，换个马甲照样认识你</p>
 <a id="more"></a>
 <p>队列作为解耦上下游强依赖关系的常见工具，为应对不同的场景，也诞生了不同的定制化。</p>
 <p>K8s中client-go中的工作队列有三种：普通队列、延时队列、限速队列。分层依赖的关系。</p>
-<p>每个队列我都会用单独的一篇文章记录。这个系列的主要参考是<a href="https://blog.csdn.net/weixin_42663840/article/details/81482553" target="_blank" rel="noopener">大佬的博客</a>，会加上我自己的一些理解和补充。这些理解甚至包括，学习过程中我自己对一些设计的猜测，这些猜测甚至是错误的🙃，小心阅读。</p>
+<p>每个队列我都会用单独的一篇文章记录。这个系列的主要参考是<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42663840/article/details/81482553">大佬的博客</a>，会加上我自己的一些理解和补充。这些理解甚至包括，学习过程中我自己对一些设计的猜测，这些猜测甚至是错误的🙃，小心阅读。</p>
 <h2 id="普通队列"><a href="#普通队列" class="headerlink" title="普通队列"></a>普通队列</h2><p>先看普通的队列的接口</p>
-<pre><code class="go">// client-go/util/workqueue/queue.go
-
-type Interface interface {
-  Add(item interface{})       // 向队列中添加一个元素，interface{}类型，说明可以添加任何类型的元素
-  Len() int                   // 元素的个数
-  Get() (item interface{}, shutdown bool) // 从队列中获取一个元素，第二个返回值告知队列是否已经关闭
-  Done(item interface{})         // 告知队列该元素已经处理完了
-  ShutDown()                    // 关闭队列
-  ShuttingDown() bool           // 查询队列是否正在关闭
-}
-</code></pre>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// client-go/util/workqueue/queue.go</span><br><br><span class="hljs-keyword">type</span> Interface <span class="hljs-keyword">interface</span> &#123;<br>  Add(item <span class="hljs-keyword">interface</span>&#123;&#125;)       <span class="hljs-comment">// 向队列中添加一个元素，interface&#123;&#125;类型，说明可以添加任何类型的元素</span><br>  Len() <span class="hljs-keyword">int</span>                   <span class="hljs-comment">// 元素的个数</span><br>  Get() (item <span class="hljs-keyword">interface</span>&#123;&#125;, shutdown <span class="hljs-keyword">bool</span>) <span class="hljs-comment">// 从队列中获取一个元素，第二个返回值告知队列是否已经关闭</span><br>  Done(item <span class="hljs-keyword">interface</span>&#123;&#125;)         <span class="hljs-comment">// 告知队列该元素已经处理完了</span><br>  ShutDown()                    <span class="hljs-comment">// 关闭队列</span><br>  ShuttingDown() <span class="hljs-keyword">bool</span>           <span class="hljs-comment">// 查询队列是否正在关闭</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>和传统的队列有一个不同，传统队列的接口时是push and pop，但这里pop换成了Get，Get时并不会从队列中删除该元素，而是要显示调用Done之后，才从队列中删除。</p>
 <p>我猜这是给处理失败留下了空间。如果直接弹出，而线程处理崩溃，这个任务就永远消失了。所以要让处理逻辑显示通知队列删除该任务。</p>
 <p>因此：</p>
@@ -110,24 +209,9 @@ type Interface interface {
 <li>还有记录超时的结构，让久未确认的任务重新回到队列。</li>
 </ol>
 <p>然后看队列实现时用了什么字段：</p>
-<pre><code class="go">// client-go/util/workqueue/queue.go
-type Type struct {
-  queue []t       // 元素数组
-  dirty set       // dirty的元素集合
-  processing set     // 正在处理的元素集合
-  cond *sync.Cond    // 自带互斥锁的条件变量
-  shuttingDown bool   // 关闭标记
-  metrics queueMetrics  // prometheus的metrics概念相同*
-}
-
-// 以下的这些类型定义为了用map凹出一个set类型，等用于python的set和Rust的HashSet
-type empty struct{}    // 空类型，因为sizeof(struct{})=0
-type t interface{}     // 任意元素类型
-type set map[t]empty   // 用map实现的set
-
-</code></pre>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// client-go/util/workqueue/queue.go</span><br><span class="hljs-keyword">type</span> Type <span class="hljs-keyword">struct</span> &#123;<br>  queue []t       <span class="hljs-comment">// 元素数组</span><br>  dirty set       <span class="hljs-comment">// dirty的元素集合</span><br>  processing set     <span class="hljs-comment">// 正在处理的元素集合</span><br>  cond *sync.Cond    <span class="hljs-comment">// 自带互斥锁的条件变量</span><br>  shuttingDown <span class="hljs-keyword">bool</span>   <span class="hljs-comment">// 关闭标记</span><br>  metrics queueMetrics  <span class="hljs-comment">// prometheus的metrics概念相同*</span><br>&#125;<br><br><span class="hljs-comment">// 以下的这些类型定义为了用map凹出一个set类型，等用于python的set和Rust的HashSet</span><br><span class="hljs-keyword">type</span> empty <span class="hljs-keyword">struct</span>&#123;&#125;    <span class="hljs-comment">// 空类型，因为sizeof(struct&#123;&#125;)=0</span><br><span class="hljs-keyword">type</span> t <span class="hljs-keyword">interface</span>&#123;&#125;     <span class="hljs-comment">// 任意元素类型</span><br><span class="hljs-keyword">type</span> set <span class="hljs-keyword">map</span>[t]empty   <span class="hljs-comment">// 用map实现的set</span><br><br></code></pre></div></td></tr></table></figure>
 <blockquote>
-<p>现去看了看 Prometheus 的 metrics 概念。<br>metrics 是时间序列数值，单点的数据模型是:<br><code>&lt;metric_name&gt;{label1: A, label2: B}=3.1415926 &amp; timestamp=123443242352</code><br>可以根据 label 新建分析维度。按照时间序列上的属性变动，可以分为单调递增的 Counter，任意波动的 Gauge，按时间段统计的 Hist，Summary 等等。<br>所以这里的 metrics 应该是某种统计类型，调用接口来生成一个单点数据，供 Prometheus 拉取。</p>
+<p>现去看了看 Prometheus 的 metrics 概念。<br>metrics 是时间序列数值，单点的数据模型是:<br><code>&lt;metric_name&gt;&#123;label1: A, label2: B&#125;=3.1415926 &amp; timestamp=123443242352</code><br>可以根据 label 新建分析维度。按照时间序列上的属性变动，可以分为单调递增的 Counter，任意波动的 Gauge，按时间段统计的 Hist，Summary 等等。<br>所以这里的 metrics 应该是某种统计类型，调用接口来生成一个单点数据，供 Prometheus 拉取。</p>
 </blockquote>
 <p>看这个结构，猜一下实现：</p>
 <ul>
@@ -141,42 +225,7 @@ type set map[t]empty   // 用map实现的set
 </li>
 </ul>
 <p>可是dirty是什么呢？没有维护超时的结构吗？</p>
-<p>再看具体实现：</p>
-<pre><code class="go">func (q *Type) Add(item interface{}) {
-  // 条件变量自带了与之搭配的互斥锁，L
-  q.cond.L.Lock()
-
-  defer q.cond.L.Unlock()
-
-  // 队列正在关闭，拒绝一切新输入
-  if q.shuttingDown {
-    return
-  }
-
-  // 去重，dirty为queue的set，正在queue中还未处理，就丢弃
-  if q.dirty.has(item) {
-    return
-  }
-
-  // 告知metrics添加了元素
-  q.metrics.add(item)
-
-  // 添加到脏数据集合中
-  q.dirty.insert(item)
-
-  // 元素刚被拿走处理，那就直接返回
-  if q.processing.has(item) {
-    return
-  }
-
-  // 追加到元素数组的尾部，没有大小限制，是无界队列
-  q.queue = append(q.queue, item)
-
-  // 通知有新元素到了，此时有协程阻塞就会被唤醒
-  q.cond.Signal()
-}
-
-</code></pre>
+<p>再看具体实现：<br><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(q *Type)</span> <span class="hljs-title">Add</span><span class="hljs-params">(item <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> &#123;<br>  <span class="hljs-comment">// 条件变量自带了与之搭配的互斥锁，L</span><br>  q.cond.L.Lock()<br><br>  <span class="hljs-keyword">defer</span> q.cond.L.Unlock()<br><br>  <span class="hljs-comment">// 队列正在关闭，拒绝一切新输入</span><br>  <span class="hljs-keyword">if</span> q.shuttingDown &#123;<br>    <span class="hljs-keyword">return</span><br>  &#125;<br><br>  <span class="hljs-comment">// 去重，dirty为queue的set，正在queue中还未处理，就丢弃</span><br>  <span class="hljs-keyword">if</span> q.dirty.has(item) &#123;<br>    <span class="hljs-keyword">return</span><br>  &#125;<br><br>  <span class="hljs-comment">// 告知metrics添加了元素</span><br>  q.metrics.add(item)<br><br>  <span class="hljs-comment">// 添加到脏数据集合中</span><br>  q.dirty.insert(item)<br><br>  <span class="hljs-comment">// 元素刚被拿走处理，那就直接返回</span><br>  <span class="hljs-keyword">if</span> q.processing.has(item) &#123;<br>    <span class="hljs-keyword">return</span><br>  &#125;<br><br>  <span class="hljs-comment">// 追加到元素数组的尾部，没有大小限制，是无界队列</span><br>  q.queue = <span class="hljs-built_in">append</span>(q.queue, item)<br><br>  <span class="hljs-comment">// 通知有新元素到了，此时有协程阻塞就会被唤醒</span><br>  q.cond.Signal()<br>&#125;<br><br></code></pre></div></td></tr></table></figure></p>
 <p>反正我是看蒙了，为什么相同元素就不入队列？每个新元素都会先进入dirty，然后用dirty来去重？</p>
 <p>感觉这里要把自己以前的认识打碎，现在这个队列是面向应用场景的队列，需要从业务层面判断是否重复，比如这里就是K8s的的api对象。书本上的队列，都是没有业务概念的，每个push的对象都看作不同。</p>
 <p>dirty大多数情况下，是queue的set版本，但是注意<code>dirty.insert</code>和<code>queue.append</code>并不是完全同步，中间被检查processing隔断：当对象正在被处理，期间又Add相同的对象，只会进入dirty而不会进入queue，多的这一份，会在Done时，检查dirty，补充加入queue。<strong>这个处理方式，保证的是正在处理的对象，一定不会出现在queue中。换句话说，同一个对象，不会被被两个逻辑流同时处理</strong>。普通实现这个保证，只要把dirty完全做成queue的set版本就可以，也就是把Add中的检查processing提前到dirty insert之前。这样，处理期间到来的对象会被拒绝，只有处理完成后，才能接受该对象的新版本。而当前实现，凡是在开始处理后加入的相同对象，就会被记录，并在处理完成后立即加入queue。窗口变大了，但是不知道为什么要这么做？</p>
@@ -236,54 +285,7 @@ type set map[t]empty   // 用map实现的set
 </tr>
 </tbody>
 </table>
-<pre><code class="go">func (q *Type) Done(item interface{}) {
-  q.cond.L.Lock()
-  defer q.cond.L.Unlock()
-
-  q.metrics.done(item)
-  q.processing.delete(item)
-
-  // 此处判断脏元素集合，看看处理期间是不是又被添加，如果是那就在放到队列中
-  if q.dirty.has(item) {
-    q.queue = append(q.queue, item)
-    q.cond.Signal()
-  }
-}
-
-func (q *Type) Get() (item interface{}, shutdown bool) {
-  q.cond.L.Lock()
-  defer q.cond.L.Unlock()
-
-  // 没有数据，阻塞协程
-  for len(q.queue) == 0 &amp;&amp; !q.shuttingDown {
-    q.cond.Wait()
-  }
-
-  // 协程被激活但还没有数据，说明队列被关闭了
-  if len(q.queue) == 0 {
-    return nil, true
-  }
-
-  // 弹出第一个元素
-  item, q.queue = q.queue[0], q.queue[1:]
-  q.metrics.get(item)
-
-  // 从dirty集合中移除，加入到processing集合
-  q.processing.insert(item)
-  q.dirty.delete(item)
-  return item, false
-}
-
-func (q *Type) ShutDown() {
-  q.cond.L.Lock()
-  defer q.cond.L.Unlock()
-
-  q.shuttingDown = true
-  // 关闭时通知全部可能阻塞的携程，起来后发现queue为0就自己退出
-  q.cond.Broadcast()
-}
-
-</code></pre>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(q *Type)</span> <span class="hljs-title">Done</span><span class="hljs-params">(item <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> &#123;<br>  q.cond.L.Lock()<br>  <span class="hljs-keyword">defer</span> q.cond.L.Unlock()<br><br>  q.metrics.done(item)<br>  q.processing.<span class="hljs-built_in">delete</span>(item)<br><br>  <span class="hljs-comment">// 此处判断脏元素集合，看看处理期间是不是又被添加，如果是那就在放到队列中</span><br>  <span class="hljs-keyword">if</span> q.dirty.has(item) &#123;<br>    q.queue = <span class="hljs-built_in">append</span>(q.queue, item)<br>    q.cond.Signal()<br>  &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(q *Type)</span> <span class="hljs-title">Get</span><span class="hljs-params">()</span> <span class="hljs-params">(item <span class="hljs-keyword">interface</span>&#123;&#125;, shutdown <span class="hljs-keyword">bool</span>)</span></span> &#123;<br>  q.cond.L.Lock()<br>  <span class="hljs-keyword">defer</span> q.cond.L.Unlock()<br><br>  <span class="hljs-comment">// 没有数据，阻塞协程</span><br>  <span class="hljs-keyword">for</span> <span class="hljs-built_in">len</span>(q.queue) == <span class="hljs-number">0</span> &amp;&amp; !q.shuttingDown &#123;<br>    q.cond.Wait()<br>  &#125;<br><br>  <span class="hljs-comment">// 协程被激活但还没有数据，说明队列被关闭了</span><br>  <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(q.queue) == <span class="hljs-number">0</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-literal">true</span><br>  &#125;<br> <br>  <span class="hljs-comment">// 弹出第一个元素</span><br>  item, q.queue = q.queue[<span class="hljs-number">0</span>], q.queue[<span class="hljs-number">1</span>:]<br>  q.metrics.get(item)<br><br>  <span class="hljs-comment">// 从dirty集合中移除，加入到processing集合</span><br>  q.processing.insert(item)<br>  q.dirty.<span class="hljs-built_in">delete</span>(item)<br>  <span class="hljs-keyword">return</span> item, <span class="hljs-literal">false</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(q *Type)</span> <span class="hljs-title">ShutDown</span><span class="hljs-params">()</span></span> &#123;<br>  q.cond.L.Lock()<br>  <span class="hljs-keyword">defer</span> q.cond.L.Unlock()<br><br>  q.shuttingDown = <span class="hljs-literal">true</span><br>  <span class="hljs-comment">// 关闭时通知全部可能阻塞的携程，起来后发现queue为0就自己退出</span><br>  q.cond.Broadcast()<br>&#125;<br><br></code></pre></div></td></tr></table></figure>
 <h2 id="总结一下"><a href="#总结一下" class="headerlink" title="总结一下"></a>总结一下</h2><ul>
 <li>无界队列，条件变量阻塞消费者</li>
 <li><strong>队列元素有对象身份的概念</strong>，在一个时间，<strong>同一个对象只能被一个消费者处理</strong>，一个对象，要么在processing中，要么在queue中，这个这个队列的独特性质。</li>
@@ -291,83 +293,276 @@ func (q *Type) ShutDown() {
 <li>最后也没有出现超时的处理。所以Get+Done的作用应该不是像我猜的那样，为了消费者崩溃，自动超时并重入队列，而就要是维持第二点的性质——如果没有调用Done，对象就一直存在于processing集合中，这个队列不会再分配其他对象。否则，没有processing的状态，就可能把相同对象分配到另外的消费者里。</li>
 </ul>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Algo</span>
-                        &nbsp;
-                         
-                        <span class="badge badge-light">#&nbsp;Go</span>
-                        &nbsp;
-                         
-                        <span class="badge badge-light">#&nbsp;Kubernetes</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Algo/">Algo</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Go/">Go</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Kubernetes/">Kubernetes</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/03/20/work-queue-delay/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">client-go工作队列学习(二) - 延时队列</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/02/05/pygc/">
+                        <span class="hidden-mobile">Python的垃圾回收梗概</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

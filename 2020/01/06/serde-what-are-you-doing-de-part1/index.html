@@ -1,513 +1,542 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-default-color-scheme=&#34;auto&#34;>
 
 
 
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/howl.jpg">
+  <link rel="icon" type="image/png" href="/img/howl.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Is Life Always This Hard? / After all this time?">
+  <meta name="author" content="aptend">
+  <meta name="keywords" content="">
+  <title>serde你在干什么 - deserialize - I - No one</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
 
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-
-
-
-
-<head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    <link rel="apple-touch-icon" sizes="76x76" href="/howl.png">
-    <link rel="icon" type="image/png" href="/howl.jpg">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="description" content="Is Life Always This Hard? / After all this time?">
-    <meta name="author" content="aptend">
-    <meta name="keywords" content>
-    <title>serde你在干什么 - deserialize - I ~ No one</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+  
     
-        <link rel="stylesheet" href="/css/Prettify/github.min.css">
     
-    <link rel="stylesheet" href="/css/github-markdown.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-</head>
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"aptend.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":true,"baidu":"69fdc2c3cb74b3ea985d8b632943139a","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 <body>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-<div class="container">
-    <a class="navbar-brand" href="/"><strong>No one</strong></a>
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>No one</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <div class="animated-icon"><span></span><span></span><span></span></div>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto text-center">
-            
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/archives/">Archives</a>
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
             </li>
-            
+          
+        
+          
+          
+          
+          
             <li class="nav-item">
-                <a class="nav-link" href="/about/">About</a>
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
             </li>
-            
-        </ul>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg/post.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="serde你在干什么 - deserialize - I">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-01-06 20:16" pubdate>
+        January 6, 2020 pm
+      </time>
+    </span>
+  
 </div>
 
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4k 字
+    </span>
+  
 
-</nav>
-    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
-    <div class="full-bg-img">
-        <div class="mask rgba-black-light flex-center">
-        <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">serde你在干什么 - deserialize - I</p>
-            <br>
+  
+
+  
+  
+</div>
+
             
-            <p>Monday, January 6th 2020, 8:16 pm</p>
-            
+          </div>
+
+          
         </div>
-        </div>
-    </div>
+      </div>
     </div>
   </header>
 
   <main>
-  
-  <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 ">
-            <div class="markdown-body post-content py-5 z-depth-3 main">
-                <p>serde 源码解析 | Deserialization篇 第一部分</p>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">serde你在干什么 - deserialize - I</h1>
+            
+            <div class="markdown-body">
+              <p>serde 源码解析 | Deserialization篇 第一部分</p>
 <a id="more"></a>
 <p>有了serialize的基础，知道了<code>serde data model</code>大概的定位，也知道了访问者模式的应用，接着理解deserialize会更容易一些。</p>
 <p>以<code>serde data model</code>为基础，<code>Serialize</code>是引导者的角色，引导<code>Serde::ser::Serilaizer</code>的实现者<code>serializer</code>去参观内存中的数据，帮助<code>serializer</code>完成序列化。</p>
 <p>现在反序列化，角色关系更加复杂一层。除了<code>Serde::Deserialize</code>，<code>Serde::de::Deserializer</code>，还多一个<code>Serde::de::Visitor</code>。<code>Serde::Deserialize</code>依然是最高级引导者，提示<code>Serde::de::Deserializer</code>去认识已被序列化的数据，并且交给它一个<code>Serde::de::Visitor</code>，随后<code>Serde::de::Deserializer</code>则利用得到的<code>Serde::de::Visitor</code>，为其提供数据，帮助它在内存中构建各种数据结构。</p>
 <p>有了这个大方向，让我们开始瞅瞅反序列化的过程。</p>
 <h2 id="故事开始"><a href="#故事开始" class="headerlink" title="故事开始"></a>故事开始</h2><p>也从反序列化的源头开始，也就是<code>from_str</code></p>
-<pre><code class="rust">// de.rs
-pub fn from_str&lt;&#39;a, T&gt;(s: &amp;&#39;a str) -&gt; Result&lt;T&gt;
-where
-    T: Deserialize&lt;&#39;a&gt;,
-{
-    let mut deserializer = Deserializer::from_str(s);
-    let t = T::deserialize(&amp;mut deserializer)?;
-    if deserializer.input.is_empty() {
-        Ok(t)
-    } else {
-        Err(Error::TrailingCharacters)
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// de.rs</span><br><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">from_str</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, T&gt;(s: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;T&gt;<br><span class="hljs-keyword">where</span><br>    T: Deserialize&lt;<span class="hljs-symbol">&#x27;a</span>&gt;,<br>&#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> deserializer = Deserializer::from_str(s);<br>    <span class="hljs-keyword">let</span> t = T::deserialize(&amp;<span class="hljs-keyword">mut</span> deserializer)?;<br>    <span class="hljs-keyword">if</span> deserializer.input.is_empty() &#123;<br>        <span class="hljs-literal">Ok</span>(t)<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-literal">Err</span>(Error::TrailingCharacters)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p><code>from_str</code>首先初始化了叫<code>crate::de::Deserializer</code>的结构，该结构实现了<code>serde::de::Deserializer</code> trait，初始化方法是<code>from_str</code>。</p>
-<pre><code class="rust">pub struct Deserializer&lt;&#39;de&gt; {
-    input: &amp;&#39;de str,
-}
-
-impl&lt;&#39;de&gt; Deserializer&lt;&#39;de&gt; {
-    pub fn from_str(input: &amp;&#39;de str) -&gt; Self {
-        Deserializer { input }
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Deserializer</span></span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; &#123;<br>    input: &amp;<span class="hljs-symbol">&#x27;de</span> <span class="hljs-built_in">str</span>,<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; Deserializer&lt;<span class="hljs-symbol">&#x27;de</span>&gt; &#123;<br>    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">from_str</span></span>(input: &amp;<span class="hljs-symbol">&#x27;de</span> <span class="hljs-built_in">str</span>) -&gt; <span class="hljs-keyword">Self</span> &#123;<br>        Deserializer &#123; input &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>从这里我们能得出两个结论：</p>
 <ol>
 <li><del>“本直播间允许套娃”</del></li>
 <li><code>deserializer</code>拥有反序列化的数据(或数据引用)</li>
 </ol>
 <p>然后就将创建的<code>deserializer</code>传给一个<code>Deserialize-thing</code>（<code>-thing</code>的写法表示实现某个trait的实例），也就是T，而T在我们编写下列语句时，就已经被推断为<code>Command</code>。</p>
-<pre><code class="rust">let de_cmd: Command = from_str(&amp;ser_cmd).unwrap();
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">let</span> de_cmd: Command = from_str(&amp;ser_cmd).unwrap();<br></code></pre></div></td></tr></table></figure>
 <p>所以魔法发生在语句<code>let t = T::deserialize(&amp;mut deserializer)?;</code>里面。</p>
 <p>至此我们知道，给<code>T::deserialize</code>一个合适的<code>deserializer</code>，它就会返回一个T类型的实例。</p>
 <h2 id="谁才是工具人？"><a href="#谁才是工具人？" class="headerlink" title="谁才是工具人？"></a>谁才是工具人？</h2><p>一般来讲，被当作参数传入的，很大可能是工具人，就像序列化过程中写作文的<code>serializer</code>。类比一下，<code>deserializer</code>差不多也是个工具人，供<code>serde::Deserialize</code>差遣。不过，<code>deserializer</code>并不是反序列化中最底层的工具人。最终在内存中复现数据结构的，是一个叫做<code>visitor</code>的工具人，被<code>serde::Deserialize</code>构造，然后交给<code>deserializer</code>使用。</p>
 <p>具体一点，<code>T::deserialize</code>要干的事情：</p>
 <ol>
-<li>根据T自身的类型，参照<a href="https://serde.rs/data-model.html" target="_blank" rel="noopener">Serde data model</a>，调用<code>deserializer</code>的某个<code>deserialize_*</code>方法，提示<code>deserializer</code>接下来的数据可能是由哪种<code>serde data model</code>序列化而来，你视情况对input做相关的parsing工作，形成一些基础的数据类型。</li>
+<li>根据T自身的类型，参照<a target="_blank" rel="noopener" href="https://serde.rs/data-model.html">Serde data model</a>，调用<code>deserializer</code>的某个<code>deserialize_*</code>方法，提示<code>deserializer</code>接下来的数据可能是由哪种<code>serde data model</code>序列化而来，你视情况对input做相关的parsing工作，形成一些基础的数据类型。</li>
 <li>调用时，提供一个<code>Visitor-thing</code>，<code>deserializer</code>则调用该<code>visitor</code>的某个<code>visit_*</code>方法，传入经过提示后解析出来的数据，让<code>visitor</code>完成数据结构在内存中的重现。</li>
 </ol>
-<p>要明白这个过程，不妨先看<a href="https://docs.serde.rs/serde/de/trait.Visitor.html" target="_blank" rel="noopener">Visitor</a> trait的定义，一个<code>visitor</code>，从诞生起，命运就和<code>Value</code>类型绑定在一起，终其一生，都是个不折不扣的工具人，每个方法，都是一条操作规则，比如，如果放一个<code>bool</code>值到<code>visitor</code>眼前，他就如此这般，产生一个<code>Value</code>；如果放一个<code>SeqAccess</code>结构到<code>visitor</code>眼前， 他就这样那样，产生一个<code>Value</code>。<code>Visitor</code> trait的每个规则的默认实现，是抛出Error::invalid_type，表明<code>Value</code>不能由眼前的数据转换而来。</p>
-<pre><code class="rust">pub trait Visitor&lt;&#39;de&gt;: Sized {
-    type Value;
-    fn expecting(&amp;self, formatter: &amp;mut Formatter) -&gt; Result;
-
-    fn visit_bool&lt;E&gt;(self, v: bool) -&gt; Result&lt;Self::Value, E&gt;
-    where
-        E: Error,
-    { ... }
-       ...
-    fn visit_str&lt;E&gt;(self, v: &amp;str) -&gt; Result&lt;Self::Value, E&gt;
-    where
-        E: Error,
-    { ... }
-    ...
-    fn visit_seq&lt;A&gt;(self, seq: A) -&gt; Result&lt;Self::Value, A::Error&gt;
-    where
-        A: SeqAccess&lt;&#39;de&gt;,
-    { ... }
-    fn visit_map&lt;A&gt;(self, map: A) -&gt; Result&lt;Self::Value, A::Error&gt;
-    where
-        A: MapAccess&lt;&#39;de&gt;,
-    { ... }
-    fn visit_enum&lt;A&gt;(self, data: A) -&gt; Result&lt;Self::Value, A::Error&gt;
-    where
-        A: EnumAccess&lt;&#39;de&gt;,
-    { ... }
-}
-</code></pre>
+<p>要明白这个过程，不妨先看<a target="_blank" rel="noopener" href="https://docs.serde.rs/serde/de/trait.Visitor.html">Visitor</a> trait的定义，一个<code>visitor</code>，从诞生起，命运就和<code>Value</code>类型绑定在一起，终其一生，都是个不折不扣的工具人，每个方法，都是一条操作规则，比如，如果放一个<code>bool</code>值到<code>visitor</code>眼前，他就如此这般，产生一个<code>Value</code>；如果放一个<code>SeqAccess</code>结构到<code>visitor</code>眼前， 他就这样那样，产生一个<code>Value</code>。<code>Visitor</code> trait的每个规则的默认实现，是抛出Error::invalid_type，表明<code>Value</code>不能由眼前的数据转换而来。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Visitor</span></span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt;: <span class="hljs-built_in">Sized</span> &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Value</span></span>;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">expecting</span></span>(&amp;<span class="hljs-keyword">self</span>, formatter: &amp;<span class="hljs-keyword">mut</span> Formatter) -&gt; <span class="hljs-built_in">Result</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_bool</span></span>&lt;E&gt;(<span class="hljs-keyword">self</span>, v: <span class="hljs-built_in">bool</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::Value, E&gt;<br>    <span class="hljs-keyword">where</span><br>        E: Error,<br>    &#123; ... &#125;<br>   	...<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_str</span></span>&lt;E&gt;(<span class="hljs-keyword">self</span>, v: &amp;<span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::Value, E&gt;<br>    <span class="hljs-keyword">where</span><br>        E: Error,<br>    &#123; ... &#125;<br>    ...<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_seq</span></span>&lt;A&gt;(<span class="hljs-keyword">self</span>, seq: A) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::Value, A::Error&gt;<br>    <span class="hljs-keyword">where</span><br>        A: SeqAccess&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123; ... &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_map</span></span>&lt;A&gt;(<span class="hljs-keyword">self</span>, map: A) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::Value, A::Error&gt;<br>    <span class="hljs-keyword">where</span><br>        A: MapAccess&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123; ... &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_enum</span></span>&lt;A&gt;(<span class="hljs-keyword">self</span>, data: A) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::Value, A::Error&gt;<br>    <span class="hljs-keyword">where</span><br>        A: EnumAccess&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123; ... &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>为了更好理解<code>visitor</code>，来看<code>derive_de.rs</code>文件，一部分代码如下，作用是根据数据生成具体的枚举标志符，表示<code>get, set, rm, quit</code>中的哪一个(这么做是为了避免复制为String，提高效率)。这里训练了一个叫做<code>__FieldVisitor</code>的工具人，专门产生<code>__Field</code>类型。一个<code>__Field</code>可以来自于u64、str、bytes，转换逻辑都很直白，match就完事儿了</p>
-<pre><code class="rust">#[allow(non_camel_case_types)]
-enum __Field {
-    __field0,
-    __field1,
-    __field2,
-    __field3,
-}
-struct __FieldVisitor;
-impl&lt;&#39;de&gt; _serde::de::Visitor&lt;&#39;de&gt; for __FieldVisitor {
-    type Value = __Field;
-    fn expecting(
-        &amp;self,
-        __formatter: &amp;mut _serde::export::Formatter,
-    ) -&gt; _serde::export::fmt::Result {
-        _serde::export::Formatter::write_str(__formatter, &quot;variant identifier&quot;)
-    }
-    fn visit_u64&lt;__E&gt;(self, __value: u64) -&gt; _serde::export::Result&lt;Self::Value, __E&gt;
-    where
-    __E: _serde::de::Error,
-    {
-        match __value {
-            0u64 =&gt; _serde::export::Ok(__Field::__field0),
-            1u64 =&gt; _serde::export::Ok(__Field::__field1),
-            2u64 =&gt; _serde::export::Ok(__Field::__field2),
-            3u64 =&gt; _serde::export::Ok(__Field::__field3),
-            _ =&gt; _serde::export::Err(_serde::de::Error::invalid_value(
-                _serde::de::Unexpected::Unsigned(__value),
-                &amp;&quot;variant index 0 &lt;= i &lt; 4&quot;,
-            )),
-        }
-    }
-    fn visit_str&lt;__E&gt;(self, __value: &amp;str) -&gt; _serde::export::Result&lt;Self::Value, __E&gt;
-    where
-    __E: _serde::de::Error,
-    {
-        match __value {
-            &quot;Set&quot; =&gt; _serde::export::Ok(__Field::__field0),
-            &quot;Get&quot; =&gt; _serde::export::Ok(__Field::__field1),
-            &quot;Rm&quot; =&gt; _serde::export::Ok(__Field::__field2),
-            &quot;Quit&quot; =&gt; _serde::export::Ok(__Field::__field3),
-            _ =&gt; _serde::export::Err(_serde::de::Error::unknown_variant(
-                __value, VARIANTS,
-            )),
-        }
-    }
-    fn visit_bytes&lt;__E&gt;(
-        self,
-        __value: &amp;[u8],
-    ) -&gt; _serde::export::Result&lt;Self::Value, __E&gt;
-    where
-    __E: _serde::de::Error,
-    {
-        match __value {
-            b&quot;Set&quot; =&gt; _serde::export::Ok(__Field::__field0),
-            b&quot;Get&quot; =&gt; _serde::export::Ok(__Field::__field1),
-            b&quot;Rm&quot; =&gt; _serde::export::Ok(__Field::__field2),
-            b&quot;Quit&quot; =&gt; _serde::export::Ok(__Field::__field3),
-            _ =&gt; {
-                let __value = &amp;_serde::export::from_utf8_lossy(__value);
-                _serde::export::Err(_serde::de::Error::unknown_variant(
-                    __value, VARIANTS,
-                ))
-            }
-        }
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-meta">#[allow(non_camel_case_types)]</span><br><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">__Field</span></span> &#123;<br>    __field0,<br>    __field1,<br>    __field2,<br>    __field3,<br>&#125;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__FieldVisitor</span></span>;<br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::de::Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> __FieldVisitor &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Value</span></span> = __Field;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">expecting</span></span>(<br>        &amp;<span class="hljs-keyword">self</span>,<br>        __formatter: &amp;<span class="hljs-keyword">mut</span> _serde::export::Formatter,<br>    ) -&gt; _serde::export::fmt::<span class="hljs-built_in">Result</span> &#123;<br>        _serde::export::Formatter::write_str(__formatter, <span class="hljs-string">&quot;variant identifier&quot;</span>)<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_u64</span></span>&lt;__E&gt;(<span class="hljs-keyword">self</span>, __value: <span class="hljs-built_in">u64</span>) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;Self::Value, __E&gt;<br>    <span class="hljs-keyword">where</span><br>    __E: _serde::de::Error,<br>    &#123;<br>        <span class="hljs-keyword">match</span> __value &#123;<br>            <span class="hljs-number">0u64</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field0),<br>            <span class="hljs-number">1u64</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field1),<br>            <span class="hljs-number">2u64</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field2),<br>            <span class="hljs-number">3u64</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field3),<br>            _ =&gt; _serde::export::<span class="hljs-literal">Err</span>(_serde::de::Error::invalid_value(<br>                _serde::de::Unexpected::Unsigned(__value),<br>                &amp;<span class="hljs-string">&quot;variant index 0 &lt;= i &lt; 4&quot;</span>,<br>            )),<br>        &#125;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_str</span></span>&lt;__E&gt;(<span class="hljs-keyword">self</span>, __value: &amp;<span class="hljs-built_in">str</span>) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;Self::Value, __E&gt;<br>    <span class="hljs-keyword">where</span><br>    __E: _serde::de::Error,<br>    &#123;<br>        <span class="hljs-keyword">match</span> __value &#123;<br>            <span class="hljs-string">&quot;Set&quot;</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field0),<br>            <span class="hljs-string">&quot;Get&quot;</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field1),<br>            <span class="hljs-string">&quot;Rm&quot;</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field2),<br>            <span class="hljs-string">&quot;Quit&quot;</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field3),<br>            _ =&gt; _serde::export::<span class="hljs-literal">Err</span>(_serde::de::Error::unknown_variant(<br>                __value, VARIANTS,<br>            )),<br>        &#125;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_bytes</span></span>&lt;__E&gt;(<br>        <span class="hljs-keyword">self</span>,<br>        __value: &amp;[<span class="hljs-built_in">u8</span>],<br>    ) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;Self::Value, __E&gt;<br>    <span class="hljs-keyword">where</span><br>    __E: _serde::de::Error,<br>    &#123;<br>        <span class="hljs-keyword">match</span> __value &#123;<br>            <span class="hljs-string">b&quot;Set&quot;</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field0),<br>            <span class="hljs-string">b&quot;Get&quot;</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field1),<br>            <span class="hljs-string">b&quot;Rm&quot;</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field2),<br>            <span class="hljs-string">b&quot;Quit&quot;</span> =&gt; _serde::export::<span class="hljs-literal">Ok</span>(__Field::__field3),<br>            _ =&gt; &#123;<br>                <span class="hljs-keyword">let</span> __value = &amp;_serde::export::from_utf8_lossy(__value);<br>                _serde::export::<span class="hljs-literal">Err</span>(_serde::de::Error::unknown_variant(<br>                    __value, VARIANTS,<br>                ))<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>余下的未实现的<code>visit_*</code>就保持默认实现，抛出错误，表明无法完成转换。</p>
 <p>现在有了这个工具人，自然就可以为<code>__Field</code>实现<code>Deserialize</code> trait，派出工具人去执行任务，所以上面的代码，紧接着的就是<code>Deserialize</code>  trait的实现：</p>
-<pre><code class="rust">impl&lt;&#39;de&gt; _serde::Deserialize&lt;&#39;de&gt; for __Field {
-    #[inline]
-    fn deserialize&lt;__D&gt;(__deserializer: __D) -&gt; _serde::export::Result&lt;Self, __D::Error&gt;
-    where
-    __D: _serde::Deserializer&lt;&#39;de&gt;,
-    {
-        _serde::Deserializer::deserialize_identifier(__deserializer, __FieldVisitor)
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::Deserialize&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> __Field &#123;<br>    <span class="hljs-meta">#[inline]</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize</span></span>&lt;__D&gt;(__deserializer: __D) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;<span class="hljs-keyword">Self</span>, __D::Error&gt;<br>    <span class="hljs-keyword">where</span><br>    __D: _serde::Deserializer&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123;<br>        _serde::Deserializer::deserialize_identifier(__deserializer, __FieldVisitor)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>故事开始时，我们知道，给<code>T::deserialize</code>一个合适的<code>deserializer</code>，它就会返回一个T类型的实例。所以为<code>__Field</code>实现<code>Deserialize</code>  trait的意思就是，给<code>__Field</code>写一个<code>deserialize</code>方法，保证调用<code>__Field::deserialze(&amp;mut deserializer)</code>之后，会返回一个<code>__Field::__field0</code>或者<code>__filed1</code>等等。</p>
 <p>我们发现，具体的实现其实非常简单，就是调用传入的<code>deserializer</code>的 <code>deserialize_identifier</code>方法，并且为其提供刚才构造的<code>__FieldVisitor</code>。</p>
 <p><code>deserialize_identifier</code>在这儿被使用，因为我们知道<code>__Field</code>的实质，是结构体字段、枚举的标识。所以我们<strong>提示</strong><code>deserializer</code>我们需要的是一个标识，具体<code>deserializer</code>怎么处理，不同的数据格式都有自己的说法。比如这里的json知道，哦，标识啊，当初序列化时就直接把它当成字符串对待了，所以接下来的input数据，应该会以字符串开头，所以<code>deserializer</code>直接交给字符串的反序列化去处理。</p>
-<pre><code class="rust">fn deserialize_identifier&lt;V&gt;(self, visitor: V) -&gt; Result&lt;V::Value&gt;
-where
-    V: Visitor&lt;&#39;de&gt;,
-{
-    self.deserialize_str(visitor)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize_identifier</span></span>&lt;V&gt;(<span class="hljs-keyword">self</span>, visitor: V) -&gt; <span class="hljs-built_in">Result</span>&lt;V::Value&gt;<br><span class="hljs-keyword">where</span><br>	V: Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#123;<br>    <span class="hljs-keyword">self</span>.deserialize_str(visitor)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>而<code>deserialize_str</code>的实现中，主要做了两个工作：</p>
 <ol>
 <li>把接下来的input数据解析出一个字符串，也就是期待input以引号开头，<code>&quot;xxx&quot;</code>，解析出<code>xxx</code>，如果顺利，<code>xxx</code>应该是<code>Set、Get、Rm、Quit</code>中的一个。</li>
-<li>既然解析出了&amp;str类型的数据，那么就应该期待，<code>visitor</code>可以拿这个&amp;str去构建一个<code>__Field</code>实例。所以<code>deserializer_str</code>就会使用之前<code>__FieldVisitor</code>的<code>visit_str</code>方法，让工具人自己去处理。这里实际调用的<code>visit_borrowed_str</code>，其<a href="https://docs.serde.rs/src/serde/de/mod.rs.html#1484-1490" target="_blank" rel="noopener">默认实现</a>就是调用<code>visit_str</code>。分得如此细，和生命周期、性能等有关，这里暂不关注。<code>visit_str</code>方法自然会根据<code>xxx</code>返回相应的<code>__Field::__fieldx</code></li>
+<li>既然解析出了&amp;str类型的数据，那么就应该期待，<code>visitor</code>可以拿这个&amp;str去构建一个<code>__Field</code>实例。所以<code>deserializer_str</code>就会使用之前<code>__FieldVisitor</code>的<code>visit_str</code>方法，让工具人自己去处理。这里实际调用的<code>visit_borrowed_str</code>，其<a target="_blank" rel="noopener" href="https://docs.serde.rs/src/serde/de/mod.rs.html#1484-1490">默认实现</a>就是调用<code>visit_str</code>。分得如此细，和生命周期、性能等有关，这里暂不关注。<code>visit_str</code>方法自然会根据<code>xxx</code>返回相应的<code>__Field::__fieldx</code></li>
 </ol>
-<pre><code class="rust">fn deserialize_str&lt;V&gt;(self, visitor: V) -&gt; Result&lt;V::Value&gt;
-where
-    V: Visitor&lt;&#39;de&gt;,
-{
-    visitor.visit_borrowed_str(self.parse_string()?)
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize_str</span></span>&lt;V&gt;(<span class="hljs-keyword">self</span>, visitor: V) -&gt; <span class="hljs-built_in">Result</span>&lt;V::Value&gt;<br><span class="hljs-keyword">where</span><br>	V: Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#123;<br>    visitor.visit_borrowed_str(<span class="hljs-keyword">self</span>.parse_string()?)<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>到这里其实已经看到了一个局部相对完整的序列化过程，但也只反序列化了一个标识符。下面会再看我们<code>Command</code>到底是怎么构建的，过程的骨架其实也就这样了。</p>
 <p>有个题外话，注意这里从数据中解析出str的函数，<code>parse_string</code>，也由<code>deserializer</code>实现，但是官方有提醒，<strong>Serde框架内，实际上并不包含解析</strong>，更有效率的方式是使用专门的解析库来帮助实现<code>deserializer</code></p>
 <blockquote>
 <p>// SERDE IS NOT A PARSING LIBRARY. This impl block defines a few basic parsing<br>// functions from scratch. More complicated formats may wish to use a dedicated<br>// parsing library to help implement their Serde deserializer</p>
 </blockquote>
-<h2 id="Command的反序列化"><a href="#Command的反序列化" class="headerlink" title="Command的反序列化"></a>Command的反序列化</h2><p>因为我们想要反序列化<code>Command</code>，所以给<code>Command</code>也要整一个visitor，其结构为被命名为<code>__Visitor</code>。看上去这个visitor有两个字段，<code>marker</code>和<code>lifetime</code>，<code>PhantomData</code>类型，看上去就很厉害，但是我没找到使用这个两个字段的代码，应该对我们理解总体逻辑没有太多阻碍，所以这里暂时跳过吧。（实际上我至今还是没有理解这个marker的作用是啥，<a href="https://docs.rs/crate/serde_derive/1.0.103/source/src/de.rs" target="_blank" rel="noopener">源码</a>中也没有相关的注释）</p>
+<h2 id="Command的反序列化"><a href="#Command的反序列化" class="headerlink" title="Command的反序列化"></a>Command的反序列化</h2><p>因为我们想要反序列化<code>Command</code>，所以给<code>Command</code>也要整一个visitor，其结构为被命名为<code>__Visitor</code>。看上去这个visitor有两个字段，<code>marker</code>和<code>lifetime</code>，<code>PhantomData</code>类型，看上去就很厉害，但是我没找到使用这个两个字段的代码，应该对我们理解总体逻辑没有太多阻碍，所以这里暂时跳过吧。（实际上我至今还是没有理解这个marker的作用是啥，<a target="_blank" rel="noopener" href="https://docs.rs/crate/serde_derive/1.0.103/source/src/de.rs">源码</a>中也没有相关的注释）</p>
 <p>为<code>__Visitor</code>实现<code>Visitor</code> trait 的这一段代码看上去很长，有点唬人，但其实是一个match+嵌套，所以先撇开嵌套的内容，看主体的match。</p>
-<pre><code class="rust">struct __Visitor&lt;&#39;de&gt; {
-    marker: _serde::export::PhantomData&lt;Command&gt;,
-    lifetime: _serde::export::PhantomData&lt;&amp;&#39;de ()&gt;,
-}
-impl&lt;&#39;de&gt; _serde::de::Visitor&lt;&#39;de&gt; for __Visitor&lt;&#39;de&gt; {
-    type Value = Command;
-    fn expecting(&amp;self, __formatter: &amp;mut _serde::export::Formatter) -&gt; _serde::export::fmt::Result {
-        _serde::export::Formatter::write_str(__formatter, &quot;enum Command&quot;)
-    }
-    // Command由“代表枚举的数据”转换而来
-    fn visit_enum&lt;__A&gt;(self, __data: __A) -&gt; _serde::export::Result&lt;Self::Value, __A::Error&gt;
-    where
-    __A: _serde::de::EnumAccess&lt;&#39;de&gt;,
-    {
-        // 重点步骤，这里解析出数据具体是哪个枚举，后文会再回顾这里的操作
-        match match _serde::de::EnumAccess::variant(__data) {
-            _serde::export::Ok(__val) =&gt; __val,
-            _serde::export::Err(__err) =&gt; {
-                return _serde::export::Err(__err);
-            }
-        } {
-            (__Field::__field0, __variant) =&gt; {
-                // 开始嵌套，如果是Set类型，就再利用Field模式，解析Key、Value的identifier
-                // 然后再新造一个Set的visitor，利用后续的数据构建Command::Set
-            }
-            (__Field::__field1, __variant) =&gt; { // Get基本步骤同Set }
-            (__Field::__field2, __variant) =&gt; {...}              
-            (__Field::__field3, __variant) =&gt; {...}   
-        }
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__Visitor</span></span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; &#123;<br>    marker: _serde::export::PhantomData&lt;Command&gt;,<br>    lifetime: _serde::export::PhantomData&lt;&amp;<span class="hljs-symbol">&#x27;de</span> ()&gt;,<br>&#125;<br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::de::Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> __Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt; &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Value</span></span> = Command;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">expecting</span></span>(&amp;<span class="hljs-keyword">self</span>, __formatter: &amp;<span class="hljs-keyword">mut</span> _serde::export::Formatter) -&gt; _serde::export::fmt::<span class="hljs-built_in">Result</span> &#123;<br>        _serde::export::Formatter::write_str(__formatter, <span class="hljs-string">&quot;enum Command&quot;</span>)<br>    &#125;<br>    <span class="hljs-comment">// Command由“代表枚举的数据”转换而来</span><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_enum</span></span>&lt;__A&gt;(<span class="hljs-keyword">self</span>, __data: __A) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;Self::Value, __A::Error&gt;<br>    <span class="hljs-keyword">where</span><br>    __A: _serde::de::EnumAccess&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123;<br>        <span class="hljs-comment">// 重点步骤，这里解析出数据具体是哪个枚举，后文会再回顾这里的操作</span><br>        <span class="hljs-keyword">match</span> <span class="hljs-keyword">match</span> _serde::de::EnumAccess::variant(__data) &#123;<br>            _serde::export::<span class="hljs-literal">Ok</span>(__val) =&gt; __val,<br>            _serde::export::<span class="hljs-literal">Err</span>(__err) =&gt; &#123;<br>                <span class="hljs-keyword">return</span> _serde::export::<span class="hljs-literal">Err</span>(__err);<br>            &#125;<br>        &#125; &#123;<br>            (__Field::__field0, __variant) =&gt; &#123;<br>                <span class="hljs-comment">// 开始嵌套，如果是Set类型，就再利用Field模式，解析Key、Value的identifier</span><br>                <span class="hljs-comment">// 然后再新造一个Set的visitor，利用后续的数据构建Command::Set</span><br>            &#125;<br>            (__Field::__field1, __variant) =&gt; &#123; <span class="hljs-comment">// Get基本步骤同Set &#125;</span><br>            (__Field::__field2, __variant) =&gt; &#123;...&#125;              <br>            (__Field::__field3, __variant) =&gt; &#123;...&#125;   <br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>所以<code>Command</code>的<code>visitor</code>的透露的大体信息是，<code>deserializer</code>只有给我提供一个<code>EnumAccess&lt;&#39;de&gt;-thing</code>这种数据，我才能构建一个<code>Command</code>，具体的做法，就是利用之前的<code>__Field</code>相关结构，判断是具体哪种<code>Command</code>后，再采用不同的策略构建。这里先不深究细节，我们接着走流程。</p>
 <p><code>Command</code>的<code>visitor</code>整好了，也有相似的入口来使用，<code>Command</code>通过<code>deserialize_enum</code>提示<code>deserializer</code>，接下来的数据应该是为enum准备，你看着办，顺便告诉你，这个enum的名字是<code>&quot;Command”</code>，枚举的项目是<code>Set、Get、Rm、Quit</code>四种。</p>
-<pre><code class="rust">#[automatically_derived]
-impl&lt;&#39;de&gt; _serde::Deserialize&lt;&#39;de&gt; for Command {
-    fn deserialize&lt;__D&gt;(__deserializer: __D) -&gt; _serde::export::Result&lt;Self, __D::Error&gt;
-    where
-        __D: _serde::Deserializer&lt;&#39;de&gt;,
-    {
-        const VARIANTS: &amp;&#39;static [&amp;&#39;static str] = &amp;[&quot;Set&quot;, &quot;Get&quot;, &quot;Rm&quot;, &quot;Quit&quot;];
-        _serde::Deserializer::deserialize_enum(
-            __deserializer,
-            &quot;Command&quot;,
-            VARIANTS,
-            __Visitor {
-                marker: _serde::export::PhantomData::&lt;Command&gt;,
-                lifetime: _serde::export::PhantomData,
-            },
-        )
-    }
-}
-</code></pre>
-<p><code>deserialize_enum</code>是怎么实现的呢？json格式的<code>deserializer</code>被提示接下来的数据是为enum准备的之后，立刻明白，一个enum，经过合法序列化后，只能由<code>&quot;</code>或者<code>{</code>开头，所以分两种情况，围绕自己的input数据，为<code>visitor</code>的创建提供基础材料。</p>
-<pre><code class="rust">fn deserialize_enum&lt;V&gt;(
-        self,
-        _name: &amp;&#39;static str,
-        _variants: &amp;&#39;static [&amp;&#39;static str],
-        visitor: V,
-    ) -&gt; Result&lt;V::Value&gt;
-    where
-        V: Visitor&lt;&#39;de&gt;,
-    {
-        if self.peek_char()? == &#39;&quot;&#39; {
-            // Visit a unit variant.
-            visitor.visit_enum(self.parse_string()?.into_deserializer())
-        } else if self.next_char()? == &#39;{&#39; {
-            // Visit a newtype variant, tuple variant, or struct variant.
-            let value = visitor.visit_enum(Enum::new(self))?;
-            // Parse the matching close brace.
-            if self.next_char()? == &#39;}&#39; {
-                Ok(value)
-            } else {
-                Err(Error::ExpectedMapEnd)
-            }
-        } else {
-            Err(Error::ExpectedEnum)
-        }
-    }
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-meta">#[automatically_derived]</span><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt; _serde::Deserialize&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> Command &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize</span></span>&lt;__D&gt;(__deserializer: __D) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;<span class="hljs-keyword">Self</span>, __D::Error&gt;<br>    <span class="hljs-keyword">where</span><br>    	__D: _serde::Deserializer&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123;<br>        <span class="hljs-keyword">const</span> VARIANTS: &amp;<span class="hljs-symbol">&#x27;static</span> [&amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>] = &amp;[<span class="hljs-string">&quot;Set&quot;</span>, <span class="hljs-string">&quot;Get&quot;</span>, <span class="hljs-string">&quot;Rm&quot;</span>, <span class="hljs-string">&quot;Quit&quot;</span>];<br>        _serde::Deserializer::deserialize_enum(<br>            __deserializer,<br>            <span class="hljs-string">&quot;Command&quot;</span>,<br>            VARIANTS,<br>            __Visitor &#123;<br>                marker: _serde::export::PhantomData::&lt;Command&gt;,<br>                lifetime: _serde::export::PhantomData,<br>            &#125;,<br>        )<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p><code>deserialize_enum</code>是怎么实现的呢？json格式的<code>deserializer</code>被提示接下来的数据是为enum准备的之后，立刻明白，一个enum，经过合法序列化后，只能由<code>&quot;</code>或者<code>&#123;</code>开头，所以分两种情况，围绕自己的input数据，为<code>visitor</code>的创建提供基础材料。</p>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">deserialize_enum</span></span>&lt;V&gt;(<br>        <span class="hljs-keyword">self</span>,<br>        _name: &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>,<br>        _variants: &amp;<span class="hljs-symbol">&#x27;static</span> [&amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-built_in">str</span>],<br>        visitor: V,<br>    ) -&gt; <span class="hljs-built_in">Result</span>&lt;V::Value&gt;<br>    <span class="hljs-keyword">where</span><br>        V: Visitor&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123;<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.peek_char()? == <span class="hljs-string">&#x27;&quot;&#x27;</span> &#123;<br>            <span class="hljs-comment">// Visit a unit variant.</span><br>            visitor.visit_enum(<span class="hljs-keyword">self</span>.parse_string()?.into_deserializer())<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.next_char()? == <span class="hljs-string">&#x27;&#123;&#x27;</span> &#123;<br>            <span class="hljs-comment">// Visit a newtype variant, tuple variant, or struct variant.</span><br>            <span class="hljs-keyword">let</span> value = visitor.visit_enum(Enum::new(<span class="hljs-keyword">self</span>))?;<br>            <span class="hljs-comment">// Parse the matching close brace.</span><br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.next_char()? == <span class="hljs-string">&#x27;&#125;&#x27;</span> &#123;<br>                <span class="hljs-literal">Ok</span>(value)<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-literal">Err</span>(Error::ExpectedMapEnd)<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-literal">Err</span>(Error::ExpectedEnum)<br>        &#125;<br>    &#125;<br></code></pre></div></td></tr></table></figure>
 <p>提供什么样的材料呢？这要看<code>deserializer</code>具体选用<code>visitor</code>的哪个方法。这里使用的<code>visit_enum</code>方法(当然<code>__Visitor</code>也只实现了<code>visit_enum</code>方法)，所以按照其签名，应该为其提供一个实现<code>EnumAccess</code> trait的东西。</p>
 <ul>
-<li><p><code>self.parse_string()?.into_deserializer()</code>提供的流程是，分析出<code>str</code>，经过<code>into_deserializer()</code>变为<a href="https://docs.rs/serde/1.0.104/serde/de/value/struct.StrDeserializer.html" target="_blank" rel="noopener">StrDeserializer</a>，而一个<code>StrDeserializer</code><a href="https://docs.rs/serde/1.0.104/src/serde/de/value.rs.html#405-418" target="_blank" rel="noopener">默认实现</a>了<code>EnumAccess</code>。</p>
+<li><p><code>self.parse_string()?.into_deserializer()</code>提供的流程是，分析出<code>str</code>，经过<code>into_deserializer()</code>变为<a target="_blank" rel="noopener" href="https://docs.rs/serde/1.0.104/serde/de/value/struct.StrDeserializer.html">StrDeserializer</a>，而一个<code>StrDeserializer</code><a target="_blank" rel="noopener" href="https://docs.rs/serde/1.0.104/src/serde/de/value.rs.html#405-418">默认实现</a>了<code>EnumAccess</code>。</p>
 </li>
 <li><p><code>Enum::new(self)</code>提供的流程就很直接，自定义了一个实现<code>EnumAccess</code>的结构叫做<code>Enum</code></p>
 </li>
 </ul>
-<p>所以到这里，上一节分析的”工具人套工具人”的骨架就分析完了。复习一下， 总体过程是，<code>Command::deserialize</code>通过调用<code>deserialize_enum</code>方法提示<code>deserializer</code>，接下来的序列化数据是为enum准备的，并且为<code>deserializer</code>提供一个实现了<code>visit_enum</code>(接受<code>EnumAccess-thing</code>，返还<code>Command</code>)的<code>visitor</code>。于是<code>deserializer</code>根据json的规则知道，接下的序列化数据应该会是<code>&quot;</code>或者<code>{</code>开头，分为两种情况，制作出一个<code>EnumAccess-thing</code>，然后交给<code>visit_enum</code>去构建<code>Command</code>。</p>
+<p>所以到这里，上一节分析的”工具人套工具人”的骨架就分析完了。复习一下， 总体过程是，<code>Command::deserialize</code>通过调用<code>deserialize_enum</code>方法提示<code>deserializer</code>，接下来的序列化数据是为enum准备的，并且为<code>deserializer</code>提供一个实现了<code>visit_enum</code>(接受<code>EnumAccess-thing</code>，返还<code>Command</code>)的<code>visitor</code>。于是<code>deserializer</code>根据json的规则知道，接下的序列化数据应该会是<code>&quot;</code>或者<code>&#123;</code>开头，分为两种情况，制作出一个<code>EnumAccess-thing</code>，然后交给<code>visit_enum</code>去构建<code>Command</code>。</p>
 <p>这时，我们更详细地去看这个过程，<code>visit_enum</code>是怎么做的，<code>EnumAccess-thing</code>又是如何与它配合的。</p>
 <h2 id="visit-enum里"><a href="#visit-enum里" class="headerlink" title="visit_enum里"></a>visit_enum里</h2><p>为了方便叙述，把<code>visit_enum</code>再抄到这里</p>
-<pre><code class="rust">fn visit_enum&lt;__A&gt;(self, __data: __A) -&gt; _serde::export::Result&lt;Self::Value, __A::Error&gt;
-where
-    __A: _serde::de::EnumAccess&lt;&#39;de&gt;,
-{
-    match match _serde::de::EnumAccess::variant(__data) {
-        _serde::export::Ok(__val) =&gt; __val,
-        _serde::export::Err(__err) =&gt; {
-            return _serde::export::Err(__err);
-        }
-    } {
-        (__Field::__field0, __variant) =&gt; {...},
-        (__Field::__field1, __variant) =&gt; {...},
-        (__Field::__field2, __variant) =&gt; {...},
-        (__Field::__field3, __variant) =&gt; {...},
-    }
-}
-
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">visit_enum</span></span>&lt;__A&gt;(<span class="hljs-keyword">self</span>, __data: __A) -&gt; _serde::export::<span class="hljs-built_in">Result</span>&lt;Self::Value, __A::Error&gt;<br><span class="hljs-keyword">where</span><br>	__A: _serde::de::EnumAccess&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#123;<br>    <span class="hljs-keyword">match</span> <span class="hljs-keyword">match</span> _serde::de::EnumAccess::variant(__data) &#123;<br>        _serde::export::<span class="hljs-literal">Ok</span>(__val) =&gt; __val,<br>        _serde::export::<span class="hljs-literal">Err</span>(__err) =&gt; &#123;<br>            <span class="hljs-keyword">return</span> _serde::export::<span class="hljs-literal">Err</span>(__err);<br>        &#125;<br>    &#125; &#123;<br>        (__Field::__field0, __variant) =&gt; &#123;...&#125;,<br>        (__Field::__field1, __variant) =&gt; &#123;...&#125;,<br>        (__Field::__field2, __variant) =&gt; &#123;...&#125;,<br>        (__Field::__field3, __variant) =&gt; &#123;...&#125;,<br>    &#125;<br>&#125;<br>           <br></code></pre></div></td></tr></table></figure>
 <p>同时也附上<code>EnumAccess</code> trait的定义</p>
-<pre><code class="rust">// https://docs.serde.rs/serde/de/trait.EnumAccess.html
-pub trait EnumAccess&lt;&#39;de&gt;: Sized {
-    type Error: Error;
-    type Variant: VariantAccess&lt;&#39;de, Error = Self::Error&gt;;
-    fn variant_seed&lt;V&gt;(
-        self, 
-        seed: V
-    ) -&gt; Result&lt;(V::Value, Self::Variant), Self::Error&gt;
-    where
-        V: DeserializeSeed&lt;&#39;de&gt;;
-
-    fn variant&lt;V&gt;(self) -&gt; Result&lt;(V, Self::Variant), Self::Error&gt;
-    where
-        V: Deserialize&lt;&#39;de&gt;,
-    {
-        // 默认实现
-        self.variant_seed(PhantomData)
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// https://docs.serde.rs/serde/de/trait.EnumAccess.html</span><br><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">EnumAccess</span></span>&lt;<span class="hljs-symbol">&#x27;de</span>&gt;: <span class="hljs-built_in">Sized</span> &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Error</span></span>: Error;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Variant</span></span>: VariantAccess&lt;<span class="hljs-symbol">&#x27;de</span>, Error = Self::Error&gt;;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">variant_seed</span></span>&lt;V&gt;(<br>        <span class="hljs-keyword">self</span>, <br>        seed: V<br>    ) -&gt; <span class="hljs-built_in">Result</span>&lt;(V::Value, Self::Variant), Self::Error&gt;<br>    <span class="hljs-keyword">where</span><br>        V: DeserializeSeed&lt;<span class="hljs-symbol">&#x27;de</span>&gt;;<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">variant</span></span>&lt;V&gt;(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;(V, Self::Variant), Self::Error&gt;<br>    <span class="hljs-keyword">where</span><br>        V: Deserialize&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123;<br>        <span class="hljs-comment">// 默认实现</span><br>        <span class="hljs-keyword">self</span>.variant_seed(PhantomData)<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>一开始，对<code>EnumAccess-thing</code>调用<code>variant</code>方法，它返回一个tuple，从后续match分支可以推断，第一项是之前定义的<code>__Field</code>，第二项，从<code>variant</code>方法的签名可知，是<code>VariantAccess-thing</code>。自然地，通过匹配<code>__Field</code>，就可以知道数据本身是Set、Get、Rm、Quit中的哪一个，然后继续利用产生的<code>VariantAccess-thing</code>做继续的处理……但是，等一等，这是怎么办到的？什么时候利用数据反序列化出了一个<code>__Field</code>？<code>__Field::deserialize</code>在哪儿被偷偷摸摸地调用的了？</p>
 <p>要解决这个疑问，自然要看<code>variant</code>的内部，所以自然要看具体的<code>EnumAccess</code>实现</p>
-<pre><code class="rust">// de.rs
-struct Enum&lt;&#39;a, &#39;de: &#39;a&gt; {
-    de: &amp;&#39;a mut Deserializer&lt;&#39;de&gt;,
-}
-
-impl&lt;&#39;a, &#39;de&gt; Enum&lt;&#39;a, &#39;de&gt; {
-    fn new(de: &amp;&#39;a mut Deserializer&lt;&#39;de&gt;) -&gt; Self {
-        Enum { de }
-    }
-}
-
-impl&lt;&#39;de, &#39;a&gt; EnumAccess&lt;&#39;de&gt; for Enum&lt;&#39;a, &#39;de&gt; {
-    type Error = Error;
-    type Variant = Self;
-
-    fn variant_seed&lt;V&gt;(self, seed: V) -&gt; Result&lt;(V::Value, Self::Variant)&gt;
-    where
-        V: DeserializeSeed&lt;&#39;de&gt;,
-    {
-        let val = seed.deserialize(&amp;mut *self.de)?;
-        if self.de.next_char()? == &#39;:&#39; {
-            Ok((val, self))
-        } else {
-            Err(Error::ExpectedMapColon)
-        }
-    }
-}
-</code></pre>
+<figure class="highlight rust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// de.rs</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Enum</span></span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;de</span>: <span class="hljs-symbol">&#x27;a</span>&gt; &#123;<br>    de: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> Deserializer&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;de</span>&gt; Enum&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;de</span>&gt; &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(de: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">mut</span> Deserializer&lt;<span class="hljs-symbol">&#x27;de</span>&gt;) -&gt; <span class="hljs-keyword">Self</span> &#123;<br>        Enum &#123; de &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;de</span>, <span class="hljs-symbol">&#x27;a</span>&gt; EnumAccess&lt;<span class="hljs-symbol">&#x27;de</span>&gt; <span class="hljs-keyword">for</span> Enum&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-symbol">&#x27;de</span>&gt; &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Error</span></span> = Error;<br>    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Variant</span></span> = <span class="hljs-keyword">Self</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">variant_seed</span></span>&lt;V&gt;(<span class="hljs-keyword">self</span>, seed: V) -&gt; <span class="hljs-built_in">Result</span>&lt;(V::Value, Self::Variant)&gt;<br>    <span class="hljs-keyword">where</span><br>        V: DeserializeSeed&lt;<span class="hljs-symbol">&#x27;de</span>&gt;,<br>    &#123;<br>        <span class="hljs-keyword">let</span> val = seed.deserialize(&amp;<span class="hljs-keyword">mut</span> *<span class="hljs-keyword">self</span>.de)?;<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.de.next_char()? == <span class="hljs-string">&#x27;:&#x27;</span> &#123;<br>            <span class="hljs-literal">Ok</span>((val, <span class="hljs-keyword">self</span>))<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-literal">Err</span>(Error::ExpectedMapColon)<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 <p>我的第一反应，自然是找<code>__Field::deserialize</code>方法。但是只找到一个<code>seed.deserialize</code>，那么不负责任地一猜，这个seed应该是<code>__Field</code>的一个实例，但是被当场打脸，因为由<code>variant</code>传入的，又是个<code>PhantomData</code>，所以这个东西是铁定绕不过了？还有那个<code>variant_seed</code>方法中要求的<code>DeserializeSeed</code>又是什么东西？这个过程到底怎么回事？</p>
 <p>为了控制一下篇幅，这些疑问下一篇继续解答。</p>
 <p>到这里，我们其实已经收获颇丰，知道了visitor的存在，也大概清楚了三种角色的交互逻辑。后续的问题，实际上是反序列化一些集合类型时的所需要的细节。继续之前，先休息一下。</p>
 
-                <hr>
-                <div>
-                    <p>
-                         
-                        <span class="badge badge-light">#&nbsp;Rust</span>
-                        &nbsp;
-                         
-                        <span class="badge badge-light">#&nbsp;Serde你在干什么</span>
-                        &nbsp;
-                        
-                    </p>
-                </div>
-                <br>
-                
             </div>
-        </div>
-        <div class="d-none d-md-block col-md-2">
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Rust/">Rust</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Serde%E4%BD%A0%E5%9C%A8%E5%B9%B2%E4%BB%80%E4%B9%88/">Serde你在干什么</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/01/08/serde-what-are-you-doing-de-part2/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">serde你在干什么 - deserialize - II</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/01/01/serde-what-are-you-doing-ser/">
+                        <span class="hidden-mobile">serde你在干什么 - serialize</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
             
-  <div id="toc" class="py-5">
-    <!-- <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p>  -->
-    <div id="tocbot"></div>
-  </div>
-
-
+          </article>
         </div>
-    </div>        
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<br><br><br>
-
-<!-- Comments -->
-<div class="comments" id="comments">
- 
+      </div>
+    
+  </div>
 </div>
 
-  
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
   </main>
 
-<footer class="mt-5">
-  <div class="text-center py-3">
-    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
-    <i class="iconfont icon-love"></i>
-    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
   </div>
+  
+
+  
+
+  
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+  
 
-<script src="/js/post.js"></script>
 
-<script src="/js/plugins/prettify.js"></script>
-<script>
-  $(document).ready(function () {
-    $('pre').addClass('prettyprint');
-    prettyPrint();
-  })
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-    });
-</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?69fdc2c3cb74b3ea985d8b632943139a";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>
